@@ -1,0 +1,377 @@
+/* Bootstrap overrides for restaurant theme */
+
+/* General body styling */
+body {
+  background-color: #f8f9fa; /* Light gray for a clean background */
+  font-family: 'Roboto', sans-serif;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Header styling */
+.waiter-title, .admin-title, .kitchen-title, .cashier-title, .navbar-brand {
+  color: #343a40; /* Dark gray for a professional look */
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.waiter-section-title, .admin-section-title, .kitchen-section-title, .cashier-section-title {
+  color: #b85c00;
+  font-size: 1.7rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Merriweather', serif;
+}
+
+/* Form labels */
+.waiter-label, .admin-label, .kitchen-label, .cashier-label {
+  color: #495057; /* Subtle gray for labels */
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ----------- TARJETAS (CARDS) ----------- */
+.card, .waiter-card, .admin-card, .kitchen-card, .cashier-card {
+  position: relative !important;
+  margin: 0 auto !important;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%) !important;
+  border-radius: 24px !important;
+  padding: 2rem 1.2rem 1.5rem;
+  max-width: 350px;
+  min-width: 300px;
+  min-height: 340px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(184, 92, 0, 0.18);
+}
+
+/* LOGIN CARD CON BARRA MULTICOLOR */
+.card.login-card {
+  overflow: visible;
+  padding: 2.1rem 1.3rem 1.5rem;
+  border-radius: 18px !important;
+  border: 1.5px solid #ffe7b3;
+  box-shadow: 0 4px 16px rgba(184, 92, 0, 0.13);
+  background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%) !important;
+}
+.card.login-card::before {
+  content: '';
+  height: 8px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(90deg, #f8b500 0%, #f86c3c 20%, #fceabb 50%, #f8b500 80%, #b85c00 100%);
+}
+
+/* ----------- FORMULARIOS EN TARJETAS ----------- */
+.card form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.1rem;
+}
+
+.card .form-control {
+  border-radius: 0.25rem;
+  padding: 0.9rem 1.1rem !important;
+  background: #fffbe9 !important;
+  font-size: 1.08rem;
+  border: 1.5px solid #ffe7b3 !important;
+  box-shadow: 0 2px 8px rgba(248, 181, 0, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card .form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.card label, .card .form-label {
+  color: #b85c00;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  font-size: 1.05rem;
+}
+
+/* ----------- BOTONES ----------- */
+.card .btn, .btn-primary, .waiter-add-btn, .admin-add-btn, .kitchen-add-btn, .cashier-add-btn {
+  background: #b85c00 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.8rem 0;
+  box-shadow: 0 2px 8px #ffe7b3;
+  margin: 0.5rem 0;
+}
+.card .btn:hover, .btn-primary:hover {
+  background: #f8b500 !important;
+  color: #fff !important;
+}
+
+.btn-success, .waiter-send-btn, .admin-send-btn, .kitchen-send-btn, .cashier-send-btn {
+  background: #28a745; /* Green for success actions */
+  border: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 10px;
+}
+.btn-success:disabled {
+  background: #bdbdbd !important;
+  color: #fff !important;
+}
+
+.btn-danger, .waiter-remove-btn, .admin-remove-btn, .kitchen-remove-btn, .cashier-remove-btn {
+  background: #dc3545; /* Red for delete actions */
+  border: none !important;
+}
+.btn-danger:hover {
+  background: #c82333; /* Darker red on hover */
+}
+
+/* ----------- TEXTOS Y TÍTULOS ----------- */
+.text-primary {
+  color: #b85c00 !important;
+  font-weight: 600;
+  cursor: pointer;
+}
+.text-primary:hover {
+  color: #f8b500 !important;
+  text-decoration: underline;
+}
+.text-muted {
+  color: #bfa76a !important;
+}
+.text-center {
+  margin-bottom: 1.2rem;
+}
+
+.waiter-badge, .admin-badge, .kitchen-badge, .cashier-badge {
+  background: #f8b500 !important;
+  color: #fff !important;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 0.4em 0.8em;
+}
+
+.waiter-price, .admin-price, .kitchen-price, .cashier-price {
+  color: #7c4700;
+  font-size: 1.1rem;
+}
+
+/* ----------- NAVBAR Y TABS ----------- */
+.navbar, .nav-tabs {
+  background: #fff8e1 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 2px 8px rgba(184, 92, 0, 0.08) !important;
+  margin-bottom: 2rem;
+}
+
+.nav-link.active, .nav-link:focus, .nav-link:hover {
+  background: #f8b500 !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+}
+
+/* ----------- SCROLL PERSONALIZADO ----------- */
+::-webkit-scrollbar {
+  width: 10px;
+  background: #fceabb;
+}
+::-webkit-scrollbar-thumb {
+  background: #f8b500;
+  border-radius: 8px;
+}
+
+/* ----------- MEDIA QUERIES ----------- */
+@media (max-width: 768px) {
+  .waiter-title, .admin-title, .kitchen-title, .cashier-title, .navbar-brand {
+    font-size: 2rem;
+  }
+  .waiter-section-title, .admin-section-title, .kitchen-section-title, .cashier-section-title {
+    font-size: 1.2rem;
+  }
+  .card-img-top, .waiter-card-img, .admin-card-img, .kitchen-card-img, .cashier-card-img {
+    height: 120px !important;
+  }
+}
+
+/* ----------- LOGO ESTILO ----------- */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+/* ----------- ESPACIOS Y MÁRGENES ----------- */
+.container-fluid, .container {
+  padding: 0 1.5rem;
+}
+.container {
+  max-width: 1200px;
+}
+
+/* Custom spacing */
+.mt-4 {
+  margin-top: 1.5rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+
+.py-4 {
+  padding-top: 1.5rem !important;
+  padding-bottom: 1.5rem !important;
+}
+
+/* Custom waiter background */
+.waiter-bg {
+  background-color: #ffffff; /* White for a clean and modern look */
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* CashierScreen styles */
+.cashier-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.cashier-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.cashier-section-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.cashier-orders-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+}
+
+.cashier-order-item {
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #fff;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.cashier-order-item:hover {
+  background-color: #f0f0f0;
+}
+
+.cashier-order-item.selected {
+  background-color: #d1e7dd;
+  border-color: #0f5132;
+}
+
+.cashier-dishes-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+}
+
+.cashier-order-total {
+  font-weight: bold;
+  color: #333;
+}
+
+.cashier-summary {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.cashier-payment-method {
+  margin-bottom: 20px;
+}
+
+.cashier-payment-method label {
+  font-weight: bold;
+  color: #555;
+  margin-right: 10px;
+}
+
+.cashier-pay-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.cashier-pay-button:hover {
+  background-color: #218838;
+}
+
+.cashier-error {
+  color: #dc3545;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
