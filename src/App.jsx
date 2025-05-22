@@ -53,6 +53,7 @@ function LoginForm({ toggleForm, setRole }) {
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
       if (response.ok) {
@@ -113,6 +114,7 @@ function RegisterForm({ toggleForm }) {
       const response = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name, email, password, role }),
       });
       if (response.ok) {

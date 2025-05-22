@@ -18,7 +18,7 @@ const WaiterScreen = () => {
 
   useEffect(() => {
     const fetchDishes = () => {
-      axios.get(`${API_URL}/dishes`)
+      axios.get(`${API_URL}/api/dishes`)
         .then(response => {
           const defaultImages = {
             desayuno: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80',
@@ -67,7 +67,7 @@ const WaiterScreen = () => {
       user_id: 1, // Reemplazar con el usuario real si tienes auth
       mesa,
     };
-    axios.post(`${API_URL}/orders`, orderData)
+    axios.post(`${API_URL}/api/orders`, orderData)
       .then(() => {
         alert('Orden enviada exitosamente');
         setSelectedDishes([]);

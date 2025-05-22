@@ -13,7 +13,7 @@ const KitchenScreen = () => {
 
   useEffect(() => {
     const fetchOrders = () => {
-      axios.get(`${API_URL}/orders`)
+      axios.get(`${API_URL}/api/orders`)
         .then(response => {
           // Mostrar solo órdenes pendientes o en_proceso
           const filteredOrders = response.data.filter(order => order.status === 'pendiente' || order.status === 'en_proceso');
@@ -27,7 +27,7 @@ const KitchenScreen = () => {
   }, []);
 
   const handleMarkAsReady = (orderId) => {
-    axios.patch(`${API_URL}/orders/${orderId}`, { status: 'servido' })
+    axios.patch(`${API_URL}/api/orders/${orderId}`, { status: 'servido' })
       .then(() => {
         alert('Orden marcada como lista');
         setOrders(orders.filter(order => order.id !== orderId));

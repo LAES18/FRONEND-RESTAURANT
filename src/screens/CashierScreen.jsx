@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 
+// Asegúrate que todos los endpoints usen /api/ como prefijo, igual que en el backend.
 const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD
@@ -17,7 +18,7 @@ const CashierScreen = () => {
 
   useEffect(() => {
     const fetchOrders = () => {
-      axios.get(`${API_URL}/orders?status=servido`)
+      axios.get(`${API_URL}/api/orders?status=servido`)
         .then(response => {
           setOrders(response.data);
         })
@@ -57,7 +58,7 @@ const CashierScreen = () => {
       method: paymentMethod,
     }));
 
-    axios.post(`${API_URL}/payments`, paymentData)
+    axios.post(`${API_URL}/api/payments`, paymentData)
       .then(() => {
         alert('Pago procesado exitosamente');
         setOrders(orders.filter(order => !selectedOrders.includes(order)));

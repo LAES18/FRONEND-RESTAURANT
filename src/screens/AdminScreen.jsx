@@ -40,16 +40,16 @@ const AdminScreen = () => {
   
   useEffect(() => {
     const fetchAll = () => {
-      axios.get(`${API_URL}/orders?status=pagado`)
+      axios.get(`${API_URL}/api/orders?status=pagado`)
         .then(response => setOrders(response.data))
         .catch(error => console.error('Error al obtener las órdenes:', error));
-      axios.get(`${API_URL}/payments`)
+      axios.get(`${API_URL}/api/payments`)
         .then(response => setPayments(response.data))
         .catch(error => console.error('Error al obtener los pagos:', error));
-      axios.get(`${API_URL}/dishes`)
+      axios.get(`${API_URL}/api/dishes`)
         .then(response => setDishes(response.data))
         .catch(error => console.error('Error al obtener los platillos:', error));
-      axios.get(`${API_URL}/users`)
+      axios.get(`${API_URL}/api/users`)
         .then(response => setUsers(response.data))
         .catch(error => console.error('Error al obtener los usuarios:', error));
     };
@@ -59,16 +59,16 @@ const AdminScreen = () => {
   }, []);
 
   const handleAddDish = () => {
-    axios.post(`${API_URL}/dishes`, newDish)
+    axios.post(`${API_URL}/api/dishes`, newDish)
       .then(() => {
         setNewDish({ name: '', price: '', type: 'desayuno' });
-        axios.get(`${API_URL}/dishes`).then(r => setDishes(r.data));
+        axios.get(`${API_URL}/api/dishes`).then(r => setDishes(r.data));
       })
       .catch(error => console.error('Error al agregar el platillo:', error));
   };
 
   const handleDeleteDish = (dishId) => {
-    axios.delete(`${API_URL}/dishes/${dishId}`)
+    axios.delete(`${API_URL}/api/dishes/${dishId}`)
       .then(() => {
         setDishes(dishes.filter(dish => dish.id !== dishId));
       })
@@ -80,7 +80,7 @@ const AdminScreen = () => {
       alert("Por favor, completa todos los campos antes de agregar un usuario.");
       return;
     }
-    axios.post(`${API_URL}/register`, newUser)
+    axios.post(`${API_URL}/api/register`, newUser)
       .then(() => {
         setUsers([...users, newUser]);
         setNewUser({ name: '', email: '', password: '', role: '' }); // Limpiar formulario
@@ -92,7 +92,7 @@ const AdminScreen = () => {
     if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
       return;
     }
-    axios.delete(`${API_URL}/users/${userId}`)
+    axios.delete(`${API_URL}/api/users/${userId}`)
       .then(() => {
         setUsers(users.filter(user => user.id !== userId));
       })
@@ -109,7 +109,7 @@ const AdminScreen = () => {
     if (!userToSend.password) {
       delete userToSend.password;
     }
-    axios.put(`${API_URL}/users/${userId}`, userToSend)
+    axios.put(`${API_URL}/api/users/${userId}`, userToSend)
       .then(() => {
         setUsers(users.map(user => user.id === userId ? { ...user, ...updatedUser } : user));
         setEditingUser(null);
@@ -144,7 +144,7 @@ const AdminScreen = () => {
         type: type,
         image: item.image
       };
-      await axios.post(`${API_URL}/dishes`, newDish);
+      await axios.post(`${API_URL}/api/dishes`, newDish);
       setDishes([...dishes, newDish]);
       setSpoonacularTypeSelect({ show: false, item: null });
     } catch (error) {
