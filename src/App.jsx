@@ -50,7 +50,7 @@ function LoginForm({ toggleForm, setRole }) {
     e.preventDefault();
     try {
       // Login
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -110,7 +110,7 @@ function RegisterForm({ toggleForm }) {
     e.preventDefault();
     try {
       // Register
-      const response = await fetch(`${API_URL}/register`, {
+      const response = await fetch(`${API_URL}/api/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, role }),
