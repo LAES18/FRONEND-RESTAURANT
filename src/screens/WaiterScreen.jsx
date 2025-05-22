@@ -101,7 +101,7 @@ const WaiterScreen = () => {
 
   return (
     <div className="container-fluid py-4 waiter-bg" style={{ minHeight: '100vh' }}>
-      <div className="d-flex justify-content-end mb-2">
+      <div className="d-flex justify-content-start mb-2">
         <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
       </div>
       <h1 className="mb-4 text-center waiter-title">🍽️ Pantalla del Mesero</h1>
@@ -137,7 +137,7 @@ const WaiterScreen = () => {
       </div>
 
       {/* Botón para desplegar carrito */}
-      <div className="position-fixed top-0 end-0 m-3">
+      <div className="position-fixed top-0 end-0 m-3" style={{ zIndex: 1060 }}>
         <button
           className="btn btn-secondary rounded-circle p-3 shadow"
           onClick={() => setCartOpen(!cartOpen)}
