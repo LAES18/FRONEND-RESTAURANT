@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 
 // Usa siempre `${API_URL}/api/` como prefijo para todos los endpoints de API en Railway.
 const API_URL =
@@ -11,6 +12,7 @@ const API_URL =
 
 const KitchenScreen = () => {
   const [orders, setOrders] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = () => {
@@ -36,8 +38,23 @@ const KitchenScreen = () => {
       .catch(error => console.error('Error al actualizar la orden:', error));
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      alert('Error al cerrar sesión');
+    }
+  };
+
   return (
     <div className="container mt-5">
+      <div className="d-flex justify-content-end mb-2">
+        <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
+      </div>
       <h1 className="text-center mb-4">👨‍🍳 Pantalla de la Cocina</h1>
 
       <div className="row">

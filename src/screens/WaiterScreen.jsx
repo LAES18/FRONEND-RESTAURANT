@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Collapse } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL =
   import.meta.env.VITE_API_URL ||
@@ -17,6 +18,7 @@ const WaiterScreen = () => {
   const [tipo, setTipo] = useState('todos');
   const [filteredDishes, setFilteredDishes] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDishes = () => {
@@ -85,8 +87,23 @@ const WaiterScreen = () => {
     return selectedDishes.reduce((total, dish) => total + (parseFloat(dish.price) || 0), 0).toFixed(2);
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      alert('Error al cerrar sesión');
+    }
+  };
+
   return (
     <div className="container-fluid py-4 waiter-bg" style={{ minHeight: '100vh' }}>
+      <div className="d-flex justify-content-end mb-2">
+        <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
+      </div>
       <h1 className="mb-4 text-center waiter-title">🍽️ Pantalla del Mesero</h1>
 
       {/* Filtro por tipo de platillo */}

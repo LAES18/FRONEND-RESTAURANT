@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { useNavigate } from 'react-router-dom';
 
 // Define Spoonacular API key
 const SPOONACULAR_API_KEY = "67ce982a724d41798877cf212f48d0de";
@@ -39,6 +40,7 @@ const AdminScreen = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   // --- NUEVO: Filtro de reporte de pagos ---
   const [paymentReportType, setPaymentReportType] = useState('dia'); // dia, semana, mes
+  const navigate = useNavigate();
   
   useEffect(() => {
     const fetchAll = () => {
@@ -268,8 +270,23 @@ const AdminScreen = () => {
     XLSX.writeFile(wb, 'reporte_pagos.xlsx');
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      alert('Error al cerrar sesión');
+    }
+  };
+
   return (
     <div className="container mt-5">
+      <div className="d-flex justify-content-end mb-2">
+        <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
+      </div>
       <h1 className="text-center mb-4">⚙️ Pantalla del Administrador</h1>
 
       <ul className="nav nav-tabs mb-4">

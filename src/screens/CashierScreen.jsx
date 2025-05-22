@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
+import { useNavigate } from 'react-router-dom';
 
 // Asegúrate que todos los endpoints usen /api/ como prefijo, igual que en Railway.
 const API_URL =
@@ -15,6 +16,7 @@ const CashierScreen = () => {
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
   const [error, setError] = useState('');
   const [lastInvoice, setLastInvoice] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrders = () => {
@@ -122,8 +124,24 @@ const CashierScreen = () => {
     doc.save('factura.pdf');
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/api/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      navigate('/');
+    } catch (error) {
+      alert('Error al cerrar sesión');
+    }
+  };
+
   return (
     <div className="cashier-container">
+      <div className="d-flex justify-content-end mb-2">
+        <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
+      </div>
+
       <h1 className="cashier-title">💳 Pantalla del Cobrador</h1>
 
       <h2 className="cashier-section-title">Órdenes Servidas</h2>
