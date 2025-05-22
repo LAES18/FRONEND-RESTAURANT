@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 
-// Asegúrate que todos los endpoints usen /api/ como prefijo, igual que en el backend.
+// Asegúrate que todos los endpoints usen /api/ como prefijo, igual que en Railway.
 const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD

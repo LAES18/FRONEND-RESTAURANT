@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// Usa siempre `${API_URL}/api/` como prefijo para todos los endpoints de API en Railway.
 const API_URL =
   import.meta.env.VITE_API_URL ||
   (import.meta.env.PROD

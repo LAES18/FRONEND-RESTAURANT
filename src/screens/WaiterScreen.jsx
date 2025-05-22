@@ -8,6 +8,8 @@ const API_URL =
     ? '/api'
     : 'http://localhost:3001/api');
 
+// Usa siempre `${API_URL}/api/` como prefijo para todos los endpoints de API en Railway.
+
 const WaiterScreen = () => {
   const [dishes, setDishes] = useState([]);
   const [selectedDishes, setSelectedDishes] = useState([]);
