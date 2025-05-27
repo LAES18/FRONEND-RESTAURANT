@@ -5,6 +5,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 // Define Spoonacular API key
 const SPOONACULAR_API_KEY = "67ce982a724d41798877cf212f48d0de";
@@ -67,48 +68,59 @@ const AdminScreen = () => {
       .then(() => {
         setNewDish({ name: '', price: '', type: 'desayuno' });
         axios.get(`${API_URL}/api/dishes`).then(r => setDishes(r.data));
+        Swal.fire({icon: 'success', title: 'Platillo agregado', text: 'El platillo fue agregado exitosamente.'});
       })
-      .catch(error => console.error('Error al agregar el platillo:', error));
+      .catch(error => Swal.fire({icon: 'error', title: 'Error', text: 'Error al agregar el platillo.'}));
   };
 
   const handleDeleteDish = (dishId) => {
     axios.delete(`${API_URL}/api/dishes/${dishId}`)
       .then(() => {
         setDishes(dishes.filter(dish => dish.id !== dishId));
+        Swal.fire({icon: 'success', title: 'Platillo eliminado', text: 'El platillo fue eliminado.'});
       })
-      .catch(error => console.error('Error al eliminar el platillo:', error));
+      .catch(error => Swal.fire({icon: 'error', title: 'Error', text: 'Error al eliminar el platillo.'}));
   };
 
   const handleAddUser = (newUser) => {
     if (!newUser.name || !newUser.email || !newUser.password || !newUser.role) {
-      alert("Por favor, completa todos los campos antes de agregar un usuario.");
+      Swal.fire({icon: 'warning', title: 'Campos incompletos', text: 'Por favor, completa todos los campos antes de agregar un usuario.'});
       return;
     }
     axios.post(`${API_URL}/api/register`, newUser)
       .then(() => {
         setUsers([...users, newUser]);
-        setNewUser({ name: '', email: '', password: '', role: '' }); // Limpiar formulario
+        setNewUser({ name: '', email: '', password: '', role: '' });
+        Swal.fire({icon: 'success', title: 'Usuario agregado', text: 'El usuario fue agregado exitosamente.'});
       })
-      .catch(error => console.error('Error al agregar el usuario:', error));
+      .catch(error => Swal.fire({icon: 'error', title: 'Error', text: 'Error al agregar el usuario.'}));
   };
 
   const handleDeleteUser = (userId) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
-      return;
-    }
-    axios.delete(`${API_URL}/api/users/${userId}`)
-      .then(() => {
-        setUsers(users.filter(user => user.id !== userId));
-      })
-      .catch(error => console.error('Error al eliminar el usuario:', error));
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Esta acción no se puede deshacer',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios.delete(`${API_URL}/api/users/${userId}`)
+          .then(() => {
+            setUsers(users.filter(user => user.id !== userId));
+            Swal.fire({icon: 'success', title: 'Usuario eliminado', text: 'El usuario fue eliminado.'});
+          })
+          .catch(error => Swal.fire({icon: 'error', title: 'Error', text: 'Error al eliminar el usuario.'}));
+      }
+    });
   };
 
   const handleEditUser = (userId, updatedUser) => {
     if (!updatedUser.name || !updatedUser.email || !updatedUser.role) {
-      alert("Por favor, completa todos los campos antes de editar el usuario.");
+      Swal.fire({icon: 'warning', title: 'Campos incompletos', text: 'Por favor, completa todos los campos antes de editar el usuario.'});
       return;
     }
-    // Si el campo password está vacío, no lo envíes (el backend debe manejar esto)
     const userToSend = { ...updatedUser };
     if (!userToSend.password) {
       delete userToSend.password;
@@ -117,8 +129,9 @@ const AdminScreen = () => {
       .then(() => {
         setUsers(users.map(user => user.id === userId ? { ...user, ...updatedUser } : user));
         setEditingUser(null);
+        Swal.fire({icon: 'success', title: 'Usuario editado', text: 'Los cambios fueron guardados.'});
       })
-      .catch(error => console.error('Error al editar el usuario:', error));
+      .catch(error => Swal.fire({icon: 'error', title: 'Error', text: 'Error al editar el usuario.'}));
   };
 
   const buscarPlatillosSpoonacular = async () => {
@@ -278,7 +291,7 @@ const AdminScreen = () => {
       });
       navigate('/');
     } catch (error) {
-      alert('Error al cerrar sesión');
+      Swal.fire({icon: 'error', title: 'Error', text: 'Error al cerrar sesión'});
     }
   };
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 // Asegúrate que todos los endpoints usen /api/ como prefijo, igual que en Railway.
 const API_URL =
@@ -49,7 +50,7 @@ const CashierScreen = () => {
 
   const handlePayment = () => {
     if (selectedOrders.length === 0) {
-      setError('Selecciona al menos una orden para procesar el pago.');
+      Swal.fire({icon: 'warning', title: 'Sin selección', text: 'Selecciona al menos una orden para procesar el pago.'});
       return;
     }
     setError('');
@@ -62,7 +63,12 @@ const CashierScreen = () => {
 
     axios.post(`${API_URL}/api/payments`, paymentData)
       .then(() => {
-        alert('Pago procesado exitosamente');
+        Swal.fire({
+          icon: 'success',
+          title: 'Pago procesado exitosamente',
+          showConfirmButton: false,
+          timer: 1500
+        });
         setOrders(orders.filter(order => !selectedOrders.includes(order)));
         setLastInvoice(selectedOrders);
         handleDownloadInvoice(selectedOrders); // Descargar factura automáticamente
@@ -156,6 +162,7 @@ const CashierScreen = () => {
     doc.setTextColor(100, 100, 100);
     doc.text('¡Gracias por su compra!', ticketWidth / 2, y, { align: 'center' });
     doc.save('factura.pdf');
+    Swal.fire({icon: 'success', title: 'Factura generada', text: 'La factura tipo ticket se descargó correctamente.'});
   };
 
   function capitalize(str) {
@@ -170,7 +177,7 @@ const CashierScreen = () => {
       });
       navigate('/');
     } catch (error) {
-      alert('Error al cerrar sesión');
+      Swal.fire({icon: 'error', title: 'Error', text: 'Error al cerrar sesión'});
     }
   };
 

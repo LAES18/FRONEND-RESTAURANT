@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Collapse } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const API_URL =
   import.meta.env.VITE_API_URL ||
@@ -59,11 +60,11 @@ const WaiterScreen = () => {
 
   const handleSendOrder = () => {
     if (!mesa) {
-      alert('Por favor, ingresa el número de mesa.');
+      Swal.fire({icon: 'warning', title: 'Falta número de mesa', text: 'Por favor, ingresa el número de mesa.'});
       return;
     }
     if (selectedDishes.length === 0) {
-      alert('Selecciona al menos un platillo.');
+      Swal.fire({icon: 'warning', title: 'Carrito vacío', text: 'Selecciona al menos un platillo.'});
       return;
     }
     const orderData = {
@@ -73,12 +74,12 @@ const WaiterScreen = () => {
     };
     axios.post(`${API_URL}/api/orders`, orderData)
       .then(() => {
-        alert('Orden enviada exitosamente');
+        Swal.fire({icon: 'success', title: '¡Orden enviada!', text: 'La orden fue enviada exitosamente.'});
         setSelectedDishes([]);
         setMesa('');
       })
       .catch(error => {
-        alert('Error al enviar la orden');
+        Swal.fire({icon: 'error', title: 'Error', text: 'Error al enviar la orden.'});
         console.error('Error al enviar la orden:', error);
       });
   };
@@ -95,7 +96,7 @@ const WaiterScreen = () => {
       });
       navigate('/');
     } catch (error) {
-      alert('Error al cerrar sesión');
+      Swal.fire({icon: 'error', title: 'Error', text: 'Error al cerrar sesión'});
     }
   };
 

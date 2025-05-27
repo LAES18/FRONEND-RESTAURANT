@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 // Usa siempre `${API_URL}/api/` como prefijo para todos los endpoints de API en Railway.
 const API_URL =
@@ -32,10 +33,13 @@ const KitchenScreen = () => {
   const handleMarkAsReady = (orderId) => {
     axios.patch(`${API_URL}/api/orders/${orderId}`, { status: 'servido' })
       .then(() => {
-        alert('Orden marcada como lista');
+        Swal.fire({icon: 'success', title: '¡Listo!', text: 'Orden marcada como lista'});
         setOrders(orders.filter(order => order.id !== orderId));
       })
-      .catch(error => console.error('Error al actualizar la orden:', error));
+      .catch(error => {
+        Swal.fire({icon: 'error', title: 'Error', text: 'Error al actualizar la orden'});
+        console.error('Error al actualizar la orden:', error);
+      });
   };
 
   const handleLogout = async () => {
@@ -46,7 +50,7 @@ const KitchenScreen = () => {
       });
       navigate('/');
     } catch (error) {
-      alert('Error al cerrar sesión');
+      Swal.fire({icon: 'error', title: 'Error', text: 'Error al cerrar sesión'});
     }
   };
 
