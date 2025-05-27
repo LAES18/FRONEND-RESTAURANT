@@ -75,8 +75,8 @@ const CashierScreen = () => {
   };
 
   const handleDownloadInvoice = (ordersToPrint) => {
-    const ticketWidth = 164; // 58mm aprox
-    const margin = 10;
+    const ticketWidth = 180; // un poco más ancho para mejor formato
+    const margin = 12;
     const lineHeight = 16;
     const doc = new jsPDF({
       orientation: 'portrait',
@@ -84,45 +84,83 @@ const CashierScreen = () => {
       format: [ticketWidth, 900]
     });
     let y = margin + 8;
-    doc.setFontSize(14);
-    doc.text('RESTAURANTE', ticketWidth / 2, y, { align: 'center' });
-    y += lineHeight + 2;
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Restaurante Delicioso', ticketWidth / 2, y, { align: 'center' });
+    y += lineHeight;
     doc.setFontSize(11);
-    doc.text('Factura', ticketWidth / 2, y, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.text('FACTURA SIMPLIFICADA', ticketWidth / 2, y, { align: 'center' });
     y += lineHeight + 2;
     doc.setLineWidth(0.7);
     doc.line(margin, y, ticketWidth - margin, y);
     y += 10;
+    // Datos generales
+    const now = new Date();
+    const fecha = now.toLocaleDateString() + ' ' + now.toLocaleTimeString().slice(0,5);
+    const recibo = ordersToPrint[0]?.id ? `#${ordersToPrint[0].id}` : '';
+    doc.setFontSize(10);
+    doc.text(`Recibo ${recibo}`, margin, y);
+    y += lineHeight - 2;
+    doc.text(`Fecha: ${fecha}`, margin, y);
+    y += lineHeight - 2;
+    doc.text(`Cajero: Cobrador`, margin, y);
+    y += lineHeight - 2;
+    doc.text(`TPV: POS 1`, margin, y);
+    y += lineHeight;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 8;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Dine In', margin, y);
+    doc.setFont('helvetica', 'normal');
+    y += lineHeight - 2;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 8;
+    // Platillos
     ordersToPrint.forEach(order => {
-      doc.setFontSize(10.5);
-      doc.text(`Orden #${order.id}  Mesa: ${order.mesa || 'N/A'}`, margin, y);
-      y += lineHeight + 2;
       order.dishes.forEach(dish => {
-        doc.text(`${dish.name} (${dish.type})`, margin + 4, y);
-        doc.text(`$${parseFloat(dish.price).toFixed(2)}`, ticketWidth - margin - 8, y, { align: 'right' });
-        y += lineHeight + 2;
+        doc.text(`${dish.name}`, margin, y);
+        doc.text(`${parseFloat(dish.price).toFixed(2)}`, ticketWidth - margin, y, { align: 'right' });
+        y += lineHeight - 4;
       });
-      y += 8;
-      doc.setLineWidth(0.3);
-      doc.line(margin, y, ticketWidth - margin, y);
-      y += 12;
-      doc.setFont('helvetica', 'bold');
-      doc.text(
-        `Total: $${order.dishes.reduce((sum, dish) => sum + parseFloat(dish.price || 0), 0).toFixed(2)}`,
-        margin,
-        y
-      );
-      doc.setFont('helvetica', 'normal');
-      y += lineHeight + 6;
     });
-    doc.setFontSize(10.5);
-    doc.text(`Método de pago: ${ordersToPrint[0]?.paymentMethod || ''}`, margin, y);
-    y += lineHeight + 2;
-    doc.setFontSize(11);
+    y += 4;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 10;
+    // Total
+    const total = ordersToPrint.reduce((sum, order) => sum + order.dishes.reduce((dsum, d) => dsum + parseFloat(d.price || 0), 0), 0);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Total', margin, y);
+    doc.text(total.toFixed(2), ticketWidth - margin, y, { align: 'right' });
+    y += lineHeight;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(capitalize(paymentMethod), margin, y);
+    doc.text(total.toFixed(2), ticketWidth - margin, y, { align: 'right' });
+    y += lineHeight;
+    // IGIC/IVA ejemplo (7%)
+    const baseImp = (total / 1.07);
+    const cuota = total - baseImp;
+    doc.setFontSize(9.5);
+    doc.text(`IGIC 7%, base imp`, margin, y);
+    doc.text(baseImp.toFixed(2), ticketWidth - margin, y, { align: 'right' });
+    y += lineHeight - 6;
+    doc.text(`IGIC 7%, cuota`, margin, y);
+    doc.text(cuota.toFixed(2), ticketWidth - margin, y, { align: 'right' });
+    y += lineHeight;
+    doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text('¡Gracias por su compra!', ticketWidth / 2, y, { align: 'center' });
     doc.save('factura.pdf');
   };
+
+  function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 
   const handleLogout = async () => {
     try {
