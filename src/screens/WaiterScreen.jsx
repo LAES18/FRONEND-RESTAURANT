@@ -137,14 +137,14 @@ const WaiterScreen = () => {
       {/* Lista de platillos */}
       <div className="row">
         {filteredDishes.map(dish => (
-          <div className="col-md-4 col-sm-6 mb-4" key={dish.id}>
-            <div className="card h-100">
+          <div className="col-md-4 col-sm-6 mb-3" key={dish.id}>
+            <div className="card h-100" style={{ padding: '1.2rem 0.7rem 1rem' }}>
               <img src={dish.image} className="card-img-top" alt={dish.name} />
               <div className="card-body">
                 <h5 className="card-title">{dish.name}</h5>
                 <p className="card-text">Tipo: {dish.type}</p>
                 <p className="card-text">Precio: ${dish.price}</p>
-                <button className="btn btn-primary" onClick={() => handleSelectDish(dish)}>Elegir</button>
+                <button className="btn btn-primary px-4 py-2" style={{ minWidth: 110, borderRadius: 12, fontWeight: 600, fontSize: '1.05rem', background: '#b85c00', border: 'none' }} onClick={() => handleSelectDish(dish)}>Elegir</button>
               </div>
             </div>
           </div>
