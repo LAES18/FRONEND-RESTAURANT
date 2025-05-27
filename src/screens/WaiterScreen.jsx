@@ -100,6 +100,20 @@ const WaiterScreen = () => {
     }
   };
 
+  Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-primary',
+      cancelButton: 'btn btn-secondary',
+      popup: 'swal2-popup-delicioso'
+    },
+    buttonsStyling: false,
+    color: '#343a40',
+    background: '#fff8e1',
+    confirmButtonColor: '#b85c00',
+    cancelButtonColor: '#bfa76a',
+    iconColor: '#b85c00',
+  }).bind(Swal);
+
   return (
     <div className="container-fluid py-4 waiter-bg" style={{ minHeight: '100vh' }}>
       <div className="d-flex justify-content-start mb-2">

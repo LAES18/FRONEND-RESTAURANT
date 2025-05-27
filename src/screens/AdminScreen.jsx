@@ -295,6 +295,20 @@ const AdminScreen = () => {
     }
   };
 
+  Swal.mixin({
+    customClass: {
+      confirmButton: 'btn btn-primary',
+      cancelButton: 'btn btn-secondary',
+      popup: 'swal2-popup-delicioso'
+    },
+    buttonsStyling: false,
+    color: '#343a40',
+    background: '#fff8e1',
+    confirmButtonColor: '#b85c00',
+    cancelButtonColor: '#bfa76a',
+    iconColor: '#b85c00',
+  }).bind(Swal);
+
   return (
     <div className="container mt-5">
       <div className="d-flex justify-content-end mb-2">
