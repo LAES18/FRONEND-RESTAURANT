@@ -77,7 +77,7 @@ const KitchenScreen = () => {
 
       <div className="row">
         {orders.map(order => (
-          <div className="col-md-6 mb-4" key={order.id}>
+          <div className="col-md-6 mb-3" key={order.id}>
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">Orden #{order.id} - Mesa {order.mesa || 'N/A'}</h5>
@@ -86,7 +86,7 @@ const KitchenScreen = () => {
                     <li key={i}>{dish.name} ({dish.type}) - ${dish.price}</li>
                   ))}
                 </ul>
-                <button className="btn btn-success" onClick={() => handleMarkAsReady(order.id)}>Marcar como lista</button>
+                <button className="btn btn-success px-4 py-2" style={{ minWidth: 110, borderRadius: 12, fontWeight: 600, fontSize: '1.05rem', background: '#28a745', border: 'none' }} onClick={() => handleMarkAsReady(order.id)}>Marcar como lista</button>
               </div>
             </div>
           </div>
