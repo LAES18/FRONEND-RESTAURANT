@@ -19,6 +19,7 @@ const WaiterScreen = () => {
   const [tipo, setTipo] = useState('todos');
   const [filteredDishes, setFilteredDishes] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [cartShake, setCartShake] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +53,8 @@ const WaiterScreen = () => {
 
   const handleSelectDish = (dish) => {
     setSelectedDishes([...selectedDishes, dish]);
+    setCartShake(true);
+    setTimeout(() => setCartShake(false), 400);
   };
 
   const handleRemoveDish = (index) => {
@@ -152,7 +155,7 @@ const WaiterScreen = () => {
       </div>
 
       {/* Botón para desplegar carrito */}
-      <div className="position-fixed top-0 end-0 m-3" style={{ zIndex: 1060 }}>
+      <div className={`position-fixed top-0 end-0 m-3${cartShake ? ' cart-shake' : ''}`} style={{ zIndex: 1060 }}>
         <button
           className="btn btn-secondary rounded-circle p-3 shadow"
           onClick={() => setCartOpen(!cartOpen)}
@@ -205,3 +208,15 @@ const WaiterScreen = () => {
 };
 
 export default WaiterScreen;
+
+/* Agrega al final del archivo o en tu CSS global:
+.cart-shake {
+  animation: shake-cart 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake-cart {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-8px); }
+  40%, 60% { transform: translateX(8px); }
+}
+*/
