@@ -242,10 +242,14 @@ const CashierScreen = () => {
         </select>
       </div>
 
-      <button className="cashier-pay-button" onClick={handlePayment}>Procesar Pago</button>
+      <button className="cashier-pay-button" onClick={handlePayment}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a5 5 0 00-10 0v2M5 13h14l1 9H4l1-9zm2 0V7a3 3 0 016 0v6" /></svg>
+        Procesar Pago
+      </button>
       {/* El botón manual de descarga de factura sigue disponible si se desea */}
       {lastInvoice && (
         <button className="cashier-pay-button mt-2" onClick={() => downloadTicket(lastInvoice)}>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
           Descargar Factura Último Pago
         </button>
       )}
