@@ -271,10 +271,10 @@ const AdminScreen = () => {
                     {report.map((r, i) => (
                       <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
                         <strong>{r.fecha}</strong> - Total: ${
-                          (typeof r.total === 'number' && !isNaN(r.total))
+                          Number.isFinite(r.total)
                             ? r.total.toFixed(2)
-                            : (parseFloat(r.total) && !isNaN(parseFloat(r.total)))
-                              ? Number(r.total).toFixed(2)
+                            : Number.isFinite(parseFloat(r.total))
+                              ? parseFloat(r.total).toFixed(2)
                               : '0.00'
                         }
                       </li>
