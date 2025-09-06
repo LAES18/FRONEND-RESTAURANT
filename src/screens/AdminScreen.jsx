@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
 import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
 const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
@@ -16,6 +17,8 @@ const AdminScreen = () => {
   const [payments, setPayments] = useState([]);
   const [reportType, setReportType] = useState('diario');
   const [report, setReport] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode);
@@ -28,32 +31,77 @@ const AdminScreen = () => {
     if (activeMenu === 'pagos') fetchPayments();
   }, [activeMenu]);
 
+  // Configuración de SweetAlert2
+  useEffect(() => {
+    Swal.mixin({
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-secondary',
+        popup: 'swal2-popup-delicioso'
+      },
+      buttonsStyling: false,
+      color: '#343a40',
+      background: '#fff8e1',
+      confirmButtonColor: '#b85c00',
+      cancelButtonColor: '#bfa76a',
+      iconColor: '#b85c00',
+    }).bind(Swal);
+  }, []);
+
   const fetchDishes = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await axios.get(`${API_URL}/api/dishes`);
       setDishes(res.data);
-    } catch (err) { setDishes([]); }
+    } catch (err) {
+      setError('Error al cargar platillos');
+      setDishes([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchOrders = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await axios.get(`${API_URL}/api/orders`);
       setOrders(res.data);
-    } catch (err) { setOrders([]); }
+    } catch (err) {
+      setError('Error al cargar órdenes');
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchUsers = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await axios.get(`${API_URL}/api/users`);
       setUsers(res.data);
-    } catch (err) { setUsers([]); }
+    } catch (err) {
+      setError('Error al cargar usuarios');
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchPayments = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await axios.get(`${API_URL}/api/payments`);
       setPayments(res.data);
-    } catch (err) { setPayments([]); }
+    } catch (err) {
+      setError('Error al cargar pagos');
+      setPayments([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearchSpoonacular = async () => {
@@ -73,17 +121,33 @@ const AdminScreen = () => {
   };
 
   const handleDeleteDish = async (id) => {
-    try {
-      await axios.delete(`${API_URL}/api/dishes/${id}`);
-      fetchDishes();
-    } catch (err) { }
+    const result = await Swal.fire({
+      title: '¿Eliminar platillo?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/api/dishes/${id}`);
+        fetchDishes();
+        Swal.fire({icon: 'success', title: 'Eliminado', text: 'Platillo eliminado correctamente'});
+      } catch (err) {
+        Swal.fire({icon: 'error', title: 'Error', text: 'No se pudo eliminar el platillo'});
+      }
+    }
   };
 
   const handleLogout = async () => {
     try {
       await fetch(`${API_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+      Swal.fire({icon: 'success', title: 'Sesión cerrada', text: 'Has cerrado sesión correctamente'});
       window.location.href = '/';
-    } catch (err) { alert('Error al cerrar sesión'); }
+    } catch (err) {
+      Swal.fire({icon: 'error', title: 'Error', text: 'Error al cerrar sesión'});
+    }
   };
 
   const handleReport = async (type) => {
@@ -125,7 +189,18 @@ const AdminScreen = () => {
           <nav style={{marginBottom: '18px', color: '#b85c00', fontWeight: 500}}>
             <span style={{marginRight: '8px'}}>🏠 /</span> <span>{activeMenu}</span>
           </nav>
-          {activeMenu === 'platillos' && (
+          {loading && (
+            <div style={{textAlign: 'center', margin: '40px 0'}}>
+              <div className="spinner-border text-warning" role="status">
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+              <div style={{marginTop: '12px'}}>Cargando...</div>
+            </div>
+          )}
+          {error && (
+            <div style={{textAlign: 'center', color: 'red', margin: '20px 0', fontWeight: 600}}>{error}</div>
+          )}
+          {!loading && !error && activeMenu === 'platillos' && (
             <div>
               <h2>Gestión de Platillos</h2>
               <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
@@ -142,7 +217,7 @@ const AdminScreen = () => {
               </ul>
             </div>
           )}
-          {activeMenu === 'ordenes' && (
+          {!loading && !error && activeMenu === 'ordenes' && (
             <div>
               <h2>Órdenes</h2>
               <ul style={{listStyle: 'none', padding: 0}}>
@@ -159,7 +234,7 @@ const AdminScreen = () => {
               </ul>
             </div>
           )}
-          {activeMenu === 'usuarios' && (
+          {!loading && !error && activeMenu === 'usuarios' && (
             <div>
               <h2>Gestión de Usuarios</h2>
               <ul style={{listStyle: 'none', padding: 0}}>
@@ -171,7 +246,7 @@ const AdminScreen = () => {
               </ul>
             </div>
           )}
-          {activeMenu === 'pagos' && (
+          {!loading && !error && activeMenu === 'pagos' && (
             <div>
               <h2>Pagos</h2>
               <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
