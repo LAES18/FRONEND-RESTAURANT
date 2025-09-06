@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { FaUserPlus, FaUtensils, FaSignOutAlt, FaMoon, FaSun } from 'react-icons/fa';
+import { FaUserPlus, FaUtensils, FaSignOutAlt, FaMoon, FaSun, FaCog, FaUsers, FaListAlt, FaMoneyCheckAlt } from 'react-icons/fa';
 
 // Define Spoonacular API key
 const SPOONACULAR_API_KEY = "67ce982a724d41798877cf212f48d0de";
@@ -326,13 +326,124 @@ const AdminScreen = () => {
         </button>
       </div>
       <div className="row justify-content-center">
-        <div className="col-lg-8">
+        <div className="col-lg-10">
           <div className="card shadow-lg rounded-4 p-4 mb-4 admin-card">
-            <h1 className="text-center mb-4 text-primary">Panel de Administración</h1>
-            <div className="row g-4">
-              <div className="col-md-6">
+            <div className="d-flex align-items-center mb-4 gap-2">
+              <FaCog size={32} className="text-primary" />
+              <h1 className="mb-0 text-primary">Pantalla del Administrador</h1>
+            </div>
+            <ul className="nav nav-tabs mb-4" role="tablist">
+              <li className="nav-item" role="presentation">
+                <button className="nav-link active" id="platillos-tab" data-bs-toggle="tab" data-bs-target="#platillos" type="button" role="tab" aria-controls="platillos" aria-selected="true"><FaUtensils className="me-1" /> Gestión de Platillos</button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button className="nav-link" id="ordenes-tab" data-bs-toggle="tab" data-bs-target="#ordenes" type="button" role="tab" aria-controls="ordenes" aria-selected="false"><FaListAlt className="me-1" /> Órdenes</button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button className="nav-link" id="usuarios-tab" data-bs-toggle="tab" data-bs-target="#usuarios" type="button" role="tab" aria-controls="usuarios" aria-selected="false"><FaUsers className="me-1" /> Gestión de Usuarios</button>
+              </li>
+              <li className="nav-item" role="presentation">
+                <button className="nav-link" id="pagos-tab" data-bs-toggle="tab" data-bs-target="#pagos" type="button" role="tab" aria-controls="pagos" aria-selected="false"><FaMoneyCheckAlt className="me-1" /> Pagos</button>
+              </li>
+            </ul>
+            <div className="tab-content">
+              <div className="tab-pane fade show active" id="platillos" role="tabpanel" aria-labelledby="platillos-tab">
+                {/* Gestión de Platillos */}
                 <div className="p-3 rounded-3 bg-light-subtle mb-3">
-                  <h3 className="mb-3 text-secondary"><FaUserPlus className="me-2" />Gestión de Usuarios</h3>
+                  <h3 className="mb-3 text-secondary"><FaUtensils className="me-2" />Gestión de Platillos</h3>
+                  <div className="mb-3">
+                    <label className="form-label">Buscar platillo en Spoonacular:</label>
+                    <div className="input-group mb-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ejemplo: pizza, pasta, hamburguesa..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                      />
+                      <button className="btn btn-secondary" onClick={buscarPlatillosSpoonacular} disabled={loadingSpoonacular}>
+                        Buscar
+                      </button>
+                    </div>
+                    {loadingSpoonacular && <div>Buscando...</div>}
+                    {errorSpoonacular && <div className="text-danger">{errorSpoonacular}</div>}
+                    {spoonacularResults.length > 0 && (
+                      <ul className="list-group mb-2">
+                        {spoonacularResults.map(item => (
+                          <li className="list-group-item d-flex align-items-center" key={item.id}>
+                            <img src={item.image} alt={item.title} style={{width: 50, height: 50, objectFit: 'cover', marginRight: 10}} />
+                            <span className="flex-grow-1">{item.title}</span>
+                            <button className="btn btn-success btn-sm ms-2" onClick={() => setSpoonacularTypeSelect({ show: true, item })}>
+                              Agregar
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {/* Selector de tipo para Spoonacular */}
+                    {spoonacularTypeSelect.show && (
+                      <div className="mb-3">
+                        <label className="form-label">Selecciona el tipo de platillo para "{spoonacularTypeSelect.item.title}":</label>
+                        <select className="form-select mb-2" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
+                          <option value="desayuno">Desayuno</option>
+                          <option value="almuerzo">Almuerzo</option>
+                          <option value="cena">Cena</option>
+                        </select>
+                        <button className="btn btn-primary me-2" onClick={() => agregarPlatilloDesdeSpoonacular(spoonacularTypeSelect.item, selectedType)}>
+                          Confirmar y agregar
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => setSpoonacularTypeSelect({ show: false, item: null })}>
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <ul className="list-group mb-3">
+                    {dishes.map(dish => (
+                      <li className="list-group-item d-flex justify-content-between align-items-center" key={dish.id}>
+                        {dish.name} - ${dish.price} <span className="badge bg-secondary">{dish.type}</span>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
+                      </li>
+                    ))}
+                  </ul>
+                  <h3>Agregar Nuevo Platillo</h3>
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Nombre"
+                    value={newDish.name}
+                    onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    className="form-control mb-2"
+                    placeholder="Precio"
+                    value={newDish.price}
+                    onChange={(e) => setNewDish({ ...newDish, price: e.target.value })}
+                  />
+                  <select
+                    className="form-select mb-2"
+                    value={newDish.type}
+                    onChange={e => setNewDish({ ...newDish, type: e.target.value })}
+                  >
+                    <option value="desayuno">Desayuno</option>
+                    <option value="almuerzo">Almuerzo</option>
+                    <option value="cena">Cena</option>
+                  </select>
+                  <button className="btn btn-primary" onClick={handleAddDish}>Agregar</button>
+                </div>
+              </div>
+              <div className="tab-pane fade" id="ordenes" role="tabpanel" aria-labelledby="ordenes-tab">
+                {/* Órdenes */}
+                <div className="p-3 rounded-3 bg-light-subtle mb-3">
+                  <h3 className="mb-3 text-secondary"><FaListAlt className="me-2" />Órdenes</h3>
+                  {/* Aquí va tu lógica y componentes de órdenes */}
+                </div>
+              </div>
+              <div className="tab-pane fade" id="usuarios" role="tabpanel" aria-labelledby="usuarios-tab">
+                {/* Gestión de Usuarios */}
+                <div className="p-3 rounded-3 bg-light-subtle mb-3">
+                  <h3 className="mb-3 text-secondary"><FaUsers className="me-2" />Gestión de Usuarios</h3>
                   <ul className="list-group mb-3">
                     {users.map((user, index) => (
                       <li className="list-group-item d-flex justify-content-between align-items-center" key={user.id || index}>
@@ -429,89 +540,11 @@ const AdminScreen = () => {
                   )}
                 </div>
               </div>
-              <div className="col-md-6">
+              <div className="tab-pane fade" id="pagos" role="tabpanel" aria-labelledby="pagos-tab">
+                {/* Pagos */}
                 <div className="p-3 rounded-3 bg-light-subtle mb-3">
-                  <h3 className="mb-3 text-secondary"><FaUtensils className="me-2" />Gestión de Platillos</h3>
-                  <div className="mb-3">
-                    <label className="form-label">Buscar platillo en Spoonacular:</label>
-                    <div className="input-group mb-2">
-                      <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Ejemplo: pizza, pasta, hamburguesa..."
-                        value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
-                      />
-                      <button className="btn btn-secondary" onClick={buscarPlatillosSpoonacular} disabled={loadingSpoonacular}>
-                        Buscar
-                      </button>
-                    </div>
-                    {loadingSpoonacular && <div>Buscando...</div>}
-                    {errorSpoonacular && <div className="text-danger">{errorSpoonacular}</div>}
-                    {spoonacularResults.length > 0 && (
-                      <ul className="list-group mb-2">
-                        {spoonacularResults.map(item => (
-                          <li className="list-group-item d-flex align-items-center" key={item.id}>
-                            <img src={item.image} alt={item.title} style={{width: 50, height: 50, objectFit: 'cover', marginRight: 10}} />
-                            <span className="flex-grow-1">{item.title}</span>
-                            <button className="btn btn-success btn-sm ms-2" onClick={() => setSpoonacularTypeSelect({ show: true, item })}>
-                              Agregar
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                    {/* Selector de tipo para Spoonacular */}
-                    {spoonacularTypeSelect.show && (
-                      <div className="mb-3">
-                        <label className="form-label">Selecciona el tipo de platillo para "{spoonacularTypeSelect.item.title}":</label>
-                        <select className="form-select mb-2" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
-                          <option value="desayuno">Desayuno</option>
-                          <option value="almuerzo">Almuerzo</option>
-                          <option value="cena">Cena</option>
-                        </select>
-                        <button className="btn btn-primary me-2" onClick={() => agregarPlatilloDesdeSpoonacular(spoonacularTypeSelect.item, selectedType)}>
-                          Confirmar y agregar
-                        </button>
-                        <button className="btn btn-secondary" onClick={() => setSpoonacularTypeSelect({ show: false, item: null })}>
-                          Cancelar
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <ul className="list-group mb-3">
-                    {dishes.map(dish => (
-                      <li className="list-group-item d-flex justify-content-between align-items-center" key={dish.id}>
-                        {dish.name} - ${dish.price} <span className="badge bg-secondary">{dish.type}</span>
-                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
-                      </li>
-                    ))}
-                  </ul>
-                  <h3>Agregar Nuevo Platillo</h3>
-                  <input
-                    type="text"
-                    className="form-control mb-2"
-                    placeholder="Nombre"
-                    value={newDish.name}
-                    onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
-                  />
-                  <input
-                    type="number"
-                    className="form-control mb-2"
-                    placeholder="Precio"
-                    value={newDish.price}
-                    onChange={(e) => setNewDish({ ...newDish, price: e.target.value })}
-                  />
-                  <select
-                    className="form-select mb-2"
-                    value={newDish.type}
-                    onChange={e => setNewDish({ ...newDish, type: e.target.value })}
-                  >
-                    <option value="desayuno">Desayuno</option>
-                    <option value="almuerzo">Almuerzo</option>
-                    <option value="cena">Cena</option>
-                  </select>
-                  <button className="btn btn-primary" onClick={handleAddDish}>Agregar</button>
+                  <h3 className="mb-3 text-secondary"><FaMoneyCheckAlt className="me-2" />Pagos</h3>
+                  {/* Aquí va tu lógica y componentes de pagos */}
                 </div>
               </div>
             </div>
