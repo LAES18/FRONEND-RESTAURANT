@@ -4,6 +4,16 @@ import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaU
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
+// Función auxiliar para formatear el total de forma segura
+function formatTotal(val) {
+  const num = Number(val);
+  return Number.isFinite(num) ? num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+}
+import './AdminDashboard.css';
+import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
+import axios from 'axios';
+import Swal from 'sweetalert2';
+
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
 const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
 
@@ -270,11 +280,7 @@ const AdminScreen = () => {
                   <ul style={{listStyle: 'none', padding: 0}}>
                     {report.map((r, i) => (
                       <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                        <strong>{r.fecha}</strong> - Total: ${
-                          (Number.isFinite(Number(r.total)))
-                            ? Number(r.total).toFixed(2)
-                            : '0.00'
-                        } <span style={{color: 'gray', fontSize: '0.9em'}}> (valor crudo: {String(r.total)})</span>
+                        <strong>{r.fecha}</strong> - Total: ${formatTotal(r.total)}
                       </li>
                     ))}
                   </ul>
