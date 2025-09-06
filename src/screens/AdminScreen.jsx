@@ -15,10 +15,50 @@ const AdminScreen = () => {
   const [activeMenu, setActiveMenu] = useState('platillos');
   const [darkMode, setDarkMode] = useState(false);
   const [dishes, setDishes] = useState([]);
+  const [newDish, setNewDish] = useState({ name: '', price: '', type: 'principal' });
+  const [spoonacularResults, setSpoonacularResults] = useState([]);
   const [search, setSearch] = useState('');
   const [orders, setOrders] = useState([]);
+  const [orderFilter, setOrderFilter] = useState({ date: '', month: '' });
   const [users, setUsers] = useState([]);
+  const [newUser, setNewUser] = useState({ nombre: '', password: '', rol: 'admin' });
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    if (!newUser.nombre || !newUser.password) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre y contraseña son obligatorios' });
+      return;
+    }
+    try {
+      await axios.post(`${API_URL}/api/users`, newUser);
+      setNewUser({ nombre: '', password: '', rol: 'admin' });
+      fetchUsers();
+      Swal.fire({ icon: 'success', title: 'Usuario creado', text: 'Usuario agregado correctamente' });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el usuario' });
+    }
+  };
+
+  const handleDeleteUser = async (id) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar usuario?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/api/users/${id}`);
+        fetchUsers();
+        Swal.fire({ icon: 'success', title: 'Eliminado', text: 'Usuario eliminado correctamente' });
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el usuario' });
+      }
+    }
+  };
   const [payments, setPayments] = useState([]);
+  const [paymentFilter, setPaymentFilter] = useState({ date: '', month: '' });
   const [reportType, setReportType] = useState('diario');
   const [report, setReport] = useState([]);
   const [error, setError] = useState(null);
@@ -120,9 +160,39 @@ const AdminScreen = () => {
     if (!search) return;
     try {
       const res = await axios.get(`${API_URL}/api/spoonacular?query=${search}&apiKey=${SPOONACULAR_API_KEY}`);
-      // Suponiendo que la API retorna un array de platillos
-      setDishes(res.data);
-    } catch (err) { }
+      setSpoonacularResults(res.data || []);
+      if ((res.data || []).length === 0) {
+        Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No se encontraron platillos en Spoonacular.' });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo buscar en Spoonacular' });
+    }
+  };
+
+  const handleAddDishForm = async (e) => {
+    e.preventDefault();
+    if (!newDish.name || !newDish.price) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre y precio son obligatorios' });
+      return;
+    }
+    try {
+      await axios.post(`${API_URL}/api/dishes`, { ...newDish, price: Number(newDish.price) });
+      setNewDish({ name: '', price: '', type: 'principal' });
+      fetchDishes();
+      Swal.fire({ icon: 'success', title: 'Platillo agregado', text: 'Platillo agregado correctamente' });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el platillo' });
+    }
+  };
+
+  const handleAddSpoonacularDish = async (dish) => {
+    try {
+      await axios.post(`${API_URL}/api/dishes`, dish);
+      fetchDishes();
+      Swal.fire({ icon: 'success', title: 'Platillo importado', text: 'Platillo importado de Spoonacular' });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo importar el platillo' });
+    }
   };
 
   const handleAddDish = async (dish) => {
@@ -165,9 +235,55 @@ const AdminScreen = () => {
   const handleReport = async (type) => {
     setReportType(type);
     try {
-      const res = await axios.get(`${API_URL}/api/payments/report?type=${type}`);
+      let url = `${API_URL}/api/payments/report?type=${type}`;
+      if (paymentFilter.date) url += `&date=${paymentFilter.date}`;
+      if (paymentFilter.month) url += `&month=${paymentFilter.month}`;
+      const res = await axios.get(url);
       setReport(res.data);
     } catch (err) { setReport([]); }
+  };
+
+  const handleOrderFilter = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let url = `${API_URL}/api/orders`;
+      if (orderFilter.date) url += `?date=${orderFilter.date}`;
+      else if (orderFilter.month) url += `?month=${orderFilter.month}`;
+      const res = await axios.get(url);
+      setOrders(res.data);
+    } catch (err) {
+      setError('Error al filtrar órdenes');
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentFilter = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      let url = `${API_URL}/api/payments`;
+      if (paymentFilter.date) url += `?date=${paymentFilter.date}`;
+      else if (paymentFilter.month) url += `?month=${paymentFilter.month}`;
+      const res = await axios.get(url);
+      setPayments(res.data);
+    } catch (err) {
+      setError('Error al filtrar pagos');
+      setPayments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReprintInvoice = async (orderId) => {
+    try {
+      await axios.post(`${API_URL}/api/orders/${orderId}/reprint`);
+      Swal.fire({ icon: 'success', title: 'Factura reimpresa', text: `Factura de la orden #${orderId} reimpresa` });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo reimprimir la factura' });
+    }
   };
 
   let renderError = null;
@@ -227,17 +343,41 @@ const AdminScreen = () => {
             {!loading && !error && activeMenu === 'platillos' && (
               <div>
                 <h2>Gestión de Platillos</h2>
+                <form onSubmit={handleAddDishForm} style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
+                  <input type="text" placeholder="Nombre" value={newDish.name} onChange={e => setNewDish({ ...newDish, name: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <input type="number" placeholder="Precio" value={newDish.price} onChange={e => setNewDish({ ...newDish, price: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a', width: '100px' }} />
+                  <select value={newDish.type} onChange={e => setNewDish({ ...newDish, type: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
+                    <option value="principal">Principal</option>
+                    <option value="entrada">Entrada</option>
+                    <option value="bebida">Bebida</option>
+                    <option value="postre">Postre</option>
+                  </select>
+                  <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
+                </form>
                 <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
-                  <input type="text" placeholder="Ejemplo: pizza, pasta, hamburguesa..." value={search} onChange={e => setSearch(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
-                  <button className="btn" onClick={handleSearchSpoonacular}>Buscar</button>
+                  <input type="text" placeholder="Buscar en Spoonacular..." value={search} onChange={e => setSearch(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
+                  <button className="btn" type="button" onClick={handleSearchSpoonacular}>Buscar</button>
                 </div>
+                {spoonacularResults.length > 0 && (
+                  <div style={{ marginBottom: '18px', background: '#f9f6f2', borderRadius: '10px', padding: '10px' }}>
+                    <h5>Resultados de Spoonacular</h5>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {spoonacularResults.map((dish, i) => (
+                        <li key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <span>{dish.name} - ${ (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
+                          <button className="btn btn-success" onClick={() => handleAddSpoonacularDish(dish)}><FaPlus /> Importar</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {dishes.map(dish => (
                     <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
                       <span>{dish.name} - ${
                         (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
                       } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
-                      <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
+                      <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}><FaTrash /> Eliminar</button>
                     </li>
                   ))}
                 </ul>
@@ -246,10 +386,18 @@ const AdminScreen = () => {
             {!loading && !error && activeMenu === 'ordenes' && (
               <div>
                 <h2>Órdenes</h2>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
+                  <input type="date" value={orderFilter.date} onChange={e => setOrderFilter({ ...orderFilter, date: e.target.value, month: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <input type="month" value={orderFilter.month} onChange={e => setOrderFilter({ ...orderFilter, month: e.target.value, date: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <button className="btn btn-secondary" type="button" onClick={handleOrderFilter}>Filtrar</button>
+                </div>
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {orders.map(order => (
                     <li key={order.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
+                        <button className="btn btn-outline-primary" onClick={() => handleReprintInvoice(order.id)}>Reimprimir Factura</button>
+                      </div>
                       <ul style={{margin: '8px 0 0 0', padding: 0}}>
                         {order.dishes.map((dish, i) => (
                           <li key={i}>{dish.name} ({dish.type}) - ${
@@ -265,10 +413,22 @@ const AdminScreen = () => {
             {!loading && !error && activeMenu === 'usuarios' && (
               <div>
                 <h2>Gestión de Usuarios</h2>
+                <form onSubmit={handleAddUser} style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
+                  <input type="text" placeholder="Nombre" value={newUser.nombre} onChange={e => setNewUser({ ...newUser, nombre: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <input type="password" placeholder="Contraseña" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <select value={newUser.rol} onChange={e => setNewUser({ ...newUser, rol: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
+                    <option value="admin">Admin</option>
+                    <option value="cajero">Cajero</option>
+                    <option value="mesero">Mesero</option>
+                    <option value="cocina">Cocina</option>
+                  </select>
+                  <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
+                </form>
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {users.map(user => (
-                    <li key={user.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <strong>{user.nombre}</strong> <span style={{marginLeft: '8px', color: '#bfa76a'}}>{user.rol}</span>
+                    <li key={user.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                      <span><strong>{user.nombre}</strong> <span style={{marginLeft: '8px', color: '#bfa76a'}}>{user.rol}</span></span>
+                      <button className="btn btn-danger" onClick={() => handleDeleteUser(user.id)}><FaTrash /> Eliminar</button>
                     </li>
                   ))}
                 </ul>
@@ -277,13 +437,10 @@ const AdminScreen = () => {
             {!loading && !error && activeMenu === 'pagos' && (
               <div>
                 <h2>Pagos</h2>
-                <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
-                  <select value={reportType} onChange={e => handleReport(e.target.value)} style={{padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}}>
-                    <option value="diario">Diario</option>
-                    <option value="semanal">Semanal</option>
-                    <option value="mensual">Mensual</option>
-                  </select>
-                  <button className="btn" onClick={() => handleReport(reportType)}><FaChartBar /> Ver Reporte</button>
+                <div style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
+                  <input type="date" value={paymentFilter.date} onChange={e => setPaymentFilter({ ...paymentFilter, date: e.target.value, month: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <input type="month" value={paymentFilter.month} onChange={e => setPaymentFilter({ ...paymentFilter, month: e.target.value, date: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <button className="btn btn-secondary" type="button" onClick={handlePaymentFilter}>Filtrar</button>
                 </div>
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {payments.map(payment => (
@@ -296,6 +453,24 @@ const AdminScreen = () => {
                 </ul>
                 <div style={{marginTop: '18px'}}>
                   <h4>Reporte {reportType.charAt(0).toUpperCase() + reportType.slice(1)}</h4>
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
+                    <select value={reportType} onChange={e => handleReport(e.target.value)} style={{padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}}>
+                      <option value="diario">Diario</option>
+                      <option value="semanal">Semanal</option>
+                      <option value="mensual">Mensual</option>
+                    </select>
+                    <button className="btn" onClick={() => handleReport(reportType)}><FaChartBar /> Ver Reporte</button>
+                    {report.length > 0 && (
+                      <button className="btn btn-success" onClick={() => {
+                        const ws = XLSX.utils.json_to_sheet(report);
+                        const wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+                        XLSX.writeFile(wb, `reporte-${reportType}.xlsx`);
+                      }}>
+                        Exportar reporte a Excel
+                      </button>
+                    )}
+                  </div>
                   <ul style={{listStyle: 'none', padding: 0}}>
                     {report.map((r, i) => (
                       <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
