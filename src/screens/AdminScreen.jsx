@@ -24,13 +24,7 @@ const AdminScreen = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    document.body.classList.toggle('dark-mode', darkMode);
-                    <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <span>{dish.name} - ${
-                        (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
-                      <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
-                    </li>
+  document.body.classList.toggle('dark-mode', darkMode);
     if (activeMenu === 'ordenes') fetchOrders();
     if (activeMenu === 'usuarios') fetchUsers();
     if (activeMenu === 'pagos') fetchPayments();

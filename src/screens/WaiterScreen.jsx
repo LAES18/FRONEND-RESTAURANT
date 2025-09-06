@@ -147,6 +147,9 @@ const WaiterScreen = () => {
                 <h5 className="card-title">{dish.name}</h5>
                 <p className="card-text">Tipo: {dish.type}</p>
                 <p className="card-text">Precio: ${dish.price}</p>
+        <p className="card-text">Precio: ${
+          (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+        }</p>
                 <button className="btn btn-primary px-4 py-2" style={{ minWidth: 110, borderRadius: 12, fontWeight: 600, fontSize: '1.05rem', background: '#b85c00', border: 'none' }} onClick={() => handleSelectDish(dish)}>Elegir</button>
               </div>
             </div>
@@ -177,7 +180,9 @@ const WaiterScreen = () => {
             <ul className="list-group mb-3">
               {selectedDishes.map((dish, index) => (
                 <li className="list-group-item d-flex justify-content-between align-items-center" key={index}>
-                  {dish.name} - ${dish.price}
+                  {dish.name} - ${
+                    (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                  }
                   <button className="btn btn-danger btn-sm" onClick={() => handleRemoveDish(index)}>Eliminar</button>
                 </li>
               ))}
