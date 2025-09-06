@@ -1,33 +1,97 @@
 import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
-import { FaUserCircle, FaPlus, FaEdit, FaTrash, FaEye, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt } from 'react-icons/fa';
+import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
+import axios from 'axios';
 
-// Simulación de datos de platillos
-const mockDishes = [
-  { id: 1, name: 'pizza', price: 5, type: 'cena' },
-  { id: 2, name: 'Dragonfire Salmon', price: 100, type: 'almuerzo' },
-  { id: 3, name: 'Burger', price: 18, type: 'cena' },
-  { id: 4, name: 'arroz chino', price: 5, type: 'almuerzo' },
-  { id: 5, name: 'huevos revueltos', price: 2.5, type: 'desayuno' },
-];
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
+const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
 
 const AdminScreen = () => {
   const [activeMenu, setActiveMenu] = useState('platillos');
   const [darkMode, setDarkMode] = useState(false);
-  const [page, setPage] = useState(1);
-  const [resultsPerPage, setResultsPerPage] = useState(5);
+  const [dishes, setDishes] = useState([]);
+  const [search, setSearch] = useState('');
+  const [orders, setOrders] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [reportType, setReportType] = useState('diario');
+  const [report, setReport] = useState([]);
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode);
   }, [darkMode]);
 
-  // Paginación para platillos
-  const totalResults = mockDishes.length;
-  const totalPages = Math.ceil(totalResults / resultsPerPage);
-  const paginatedDishes = mockDishes.slice((page - 1) * resultsPerPage, page * resultsPerPage);
+  useEffect(() => {
+    if (activeMenu === 'platillos') fetchDishes();
+    if (activeMenu === 'ordenes') fetchOrders();
+    if (activeMenu === 'usuarios') fetchUsers();
+    if (activeMenu === 'pagos') fetchPayments();
+  }, [activeMenu]);
 
-  const handleLogout = () => {
-    // ...tu lógica de logout...
+  const fetchDishes = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/dishes`);
+      setDishes(res.data);
+    } catch (err) { setDishes([]); }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/orders`);
+      setOrders(res.data);
+    } catch (err) { setOrders([]); }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/users`);
+      setUsers(res.data);
+    } catch (err) { setUsers([]); }
+  };
+
+  const fetchPayments = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/payments`);
+      setPayments(res.data);
+    } catch (err) { setPayments([]); }
+  };
+
+  const handleSearchSpoonacular = async () => {
+    if (!search) return;
+    try {
+      const res = await axios.get(`${API_URL}/api/spoonacular?query=${search}&apiKey=${SPOONACULAR_API_KEY}`);
+      // Suponiendo que la API retorna un array de platillos
+      setDishes(res.data);
+    } catch (err) { }
+  };
+
+  const handleAddDish = async (dish) => {
+    try {
+      await axios.post(`${API_URL}/api/dishes`, dish);
+      fetchDishes();
+    } catch (err) { }
+  };
+
+  const handleDeleteDish = async (id) => {
+    try {
+      await axios.delete(`${API_URL}/api/dishes/${id}`);
+      fetchDishes();
+    } catch (err) { }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_URL}/api/logout`, { method: 'POST', credentials: 'include' });
+      window.location.href = '/';
+    } catch (err) { alert('Error al cerrar sesión'); }
+  };
+
+  const handleReport = async (type) => {
+    setReportType(type);
+    try {
+      const res = await axios.get(`${API_URL}/api/payments/report?type=${type}`);
+      setReport(res.data);
+    } catch (err) { setReport([]); }
   };
 
   return (
@@ -62,73 +126,79 @@ const AdminScreen = () => {
             <span style={{marginRight: '8px'}}>🏠 /</span> <span>{activeMenu}</span>
           </nav>
           {activeMenu === 'platillos' && (
-            <div className="admin-crud-table">
-              <div className="admin-crud-table-header">
-                <div className="admin-crud-table-title">Gestión de Platillos</div>
-                <div className="admin-crud-table-actions">
-                  <button className="btn"><FaPlus /> Agregar Platillo</button>
-                </div>
-                <div className="admin-crud-table-controls">
-                  <span>Resultados / página :</span>
-                  <select value={resultsPerPage} onChange={e => setResultsPerPage(Number(e.target.value))}>
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                  </select>
-                </div>
+            <div>
+              <h2>Gestión de Platillos</h2>
+              <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
+                <input type="text" placeholder="Ejemplo: pizza, pasta, hamburguesa..." value={search} onChange={e => setSearch(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
+                <button className="btn" onClick={handleSearchSpoonacular}>Buscar</button>
               </div>
-              <table className="admin-crud-table-table">
-                <thead>
-                  <tr>
-                    <th>Acción</th>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Precio</th>
-                    <th>Tipo</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedDishes.map(row => (
-                    <tr key={row.id}>
-                      <td>
-                        <button className="action-btn"><FaEdit /></button>
-                        <button className="action-btn"><FaTrash /></button>
-                        <button className="action-btn"><FaEye /></button>
-                      </td>
-                      <td>{row.id}</td>
-                      <td>{row.name}</td>
-                      <td>${row.price.toFixed(2)}</td>
-                      <td>{row.type}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className="admin-crud-table-pagination">
-                <button onClick={() => setPage(1)} disabled={page === 1}>«</button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button key={i+1} className={page === i+1 ? 'active' : ''} onClick={() => setPage(i+1)}>{i+1}</button>
+              <ul style={{listStyle: 'none', padding: 0}}>
+                {dishes.map(dish => (
+                  <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
+                    <span>{dish.name} - ${dish.price?.toFixed(2) || '0.00'} <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
+                    <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
+                  </li>
                 ))}
-                <button onClick={() => setPage(totalPages)} disabled={page === totalPages}>»</button>
-                <span style={{marginLeft: '12px'}}>Resultados 1 a {resultsPerPage} de {totalResults}</span>
-              </div>
+              </ul>
             </div>
           )}
           {activeMenu === 'ordenes' && (
             <div>
-              <h1 className="mb-4">Órdenes</h1>
-              {/* Aquí va tu lógica y componentes de órdenes */}
+              <h2>Órdenes</h2>
+              <ul style={{listStyle: 'none', padding: 0}}>
+                {orders.map(order => (
+                  <li key={order.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
+                    <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
+                    <ul style={{margin: '8px 0 0 0', padding: 0}}>
+                      {order.dishes.map((dish, i) => (
+                        <li key={i}>{dish.name} ({dish.type}) - ${dish.price}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
           {activeMenu === 'usuarios' && (
             <div>
-              <h1 className="mb-4">Gestión de Usuarios</h1>
-              {/* Aquí va tu lógica y componentes de usuarios */}
+              <h2>Gestión de Usuarios</h2>
+              <ul style={{listStyle: 'none', padding: 0}}>
+                {users.map(user => (
+                  <li key={user.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
+                    <strong>{user.nombre}</strong> <span style={{marginLeft: '8px', color: '#bfa76a'}}>{user.rol}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
           {activeMenu === 'pagos' && (
             <div>
-              <h1 className="mb-4">Pagos</h1>
-              {/* Aquí va tu lógica y componentes de pagos */}
+              <h2>Pagos</h2>
+              <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
+                <select value={reportType} onChange={e => handleReport(e.target.value)} style={{padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}}>
+                  <option value="diario">Diario</option>
+                  <option value="semanal">Semanal</option>
+                  <option value="mensual">Mensual</option>
+                </select>
+                <button className="btn" onClick={() => handleReport(reportType)}><FaChartBar /> Ver Reporte</button>
+              </div>
+              <ul style={{listStyle: 'none', padding: 0}}>
+                {payments.map(payment => (
+                  <li key={payment.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
+                    <strong>Pago #{payment.id}</strong> - ${payment.total?.toFixed(2) || '0.00'} - {payment.method}
+                  </li>
+                ))}
+              </ul>
+              <div style={{marginTop: '18px'}}>
+                <h4>Reporte {reportType.charAt(0).toUpperCase() + reportType.slice(1)}</h4>
+                <ul style={{listStyle: 'none', padding: 0}}>
+                  {report.map((r, i) => (
+                    <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
+                      <strong>{r.fecha}</strong> - Total: ${r.total?.toFixed(2) || '0.00'}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </main>
