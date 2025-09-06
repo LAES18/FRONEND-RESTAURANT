@@ -1,89 +1,182 @@
 /* AdminDashboard.css - estilos exclusivos para el dashboard de administrador */
+/* --- Dashboard estilo CRUD Admin Panel --- */
 .admin-dashboard {
   min-height: 100vh;
-  background: linear-gradient(120deg, #f8fafc 60%, #e3e6ea 100%);
+  background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%);
   display: flex;
+  flex-direction: column;
+}
+.admin-header {
+  background: #fff;
+  box-shadow: 0 2px 8px #e3e6ea;
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-header-logo {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #b85c00;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.admin-header-title {
+  font-size: 1.3rem;
+  color: #343a40;
+  font-weight: 600;
 }
 .admin-sidebar {
-  width: 240px;
-  background: #181c32;
-  color: #fff;
-  padding: 32px 0 0 0;
+  width: 260px;
+  background: #fff3e0;
+  color: #343a40;
+  padding: 0;
+  box-shadow: 0 2px 8px #e3e6ea;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
-.admin-sidebar .sidebar-logo {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #38b6ff;
+.admin-sidebar-user {
+  background: linear-gradient(120deg, #38b6ff 60%, #bfa76a 100%);
+  color: #fff;
+  padding: 24px 18px;
+  border-radius: 0 0 18px 18px;
   text-align: center;
-  margin-bottom: 32px;
-}
-.admin-sidebar .sidebar-menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-.admin-sidebar .sidebar-menu li {
+  font-size: 1.1rem;
+  font-weight: 600;
   margin-bottom: 18px;
 }
-.admin-sidebar .sidebar-menu button {
+.admin-sidebar-menu {
+  list-style: none;
+  padding: 0 0 0 0;
+  margin: 0;
+}
+.admin-sidebar-menu li {
+  margin-bottom: 8px;
+}
+.admin-sidebar-menu button {
   background: none;
   border: none;
-  color: #fff;
+  color: #343a40;
   font-size: 1.08rem;
   width: 100%;
   text-align: left;
-  padding: 10px 24px;
-  border-radius: 8px 0 0 8px;
+  padding: 12px 28px;
+  border-radius: 8px;
   transition: background 0.2s;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.admin-sidebar .sidebar-menu button.active,
-.admin-sidebar .sidebar-menu button:hover {
-  background: #38b6ff;
-  color: #181c32;
+.admin-sidebar-menu button.active,
+.admin-sidebar-menu button:hover {
+  background: #ffe0b2;
+  color: #b85c00;
 }
 .admin-main {
   flex: 1;
-  padding: 40px 32px;
+  padding: 32px 32px;
   background: transparent;
 }
-.admin-dashboard-cards {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
-}
-.admin-card {
+.admin-crud-table {
   background: #fff;
   border-radius: 18px;
   box-shadow: 0 2px 12px #e3e6ea;
   padding: 24px 32px;
-  min-width: 220px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  margin-bottom: 32px;
 }
-.admin-card-title {
+.admin-crud-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.admin-crud-table-title {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #181c32;
-  margin-bottom: 12px;
+  color: #b85c00;
 }
-.admin-card-value {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #38b6ff;
+.admin-crud-table-actions {
+  display: flex;
+  gap: 10px;
 }
-.admin-card-desc {
+.admin-crud-table-actions .btn {
+  background: #38b6ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 18px;
   font-size: 1rem;
-  color: #888;
+  transition: background 0.2s;
+}
+.admin-crud-table-actions .btn:hover {
+  background: #b85c00;
+}
+.admin-crud-table-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.admin-crud-table-controls select {
+  border-radius: 6px;
+  padding: 6px 12px;
+  border: 1px solid #bfa76a;
+}
+.admin-crud-table-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 18px;
+}
+.admin-crud-table-table th {
+  background: #ffe0b2;
+  color: #b85c00;
+  font-weight: 600;
+  padding: 10px 8px;
+  border-bottom: 2px solid #bfa76a;
+}
+.admin-crud-table-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #e3e6ea;
+  color: #343a40;
+}
+.admin-crud-table-table tr:last-child td {
+  border-bottom: none;
+}
+.admin-crud-table-table .action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  margin-right: 6px;
+  color: #38b6ff;
+  transition: color 0.2s;
+}
+.admin-crud-table-table .action-btn:hover {
+  color: #b85c00;
+}
+.admin-crud-table-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.admin-crud-table-pagination button {
+  background: #ffe0b2;
+  color: #b85c00;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.admin-crud-table-pagination button.active,
+.admin-crud-table-pagination button:hover {
+  background: #b85c00;
+  color: #fff;
 }
 @media (max-width: 900px) {
   .admin-dashboard {
@@ -97,15 +190,10 @@
     justify-content: space-between;
     align-items: center;
   }
-  .admin-sidebar .sidebar-logo {
-    margin-bottom: 0;
-    padding: 12px 0;
-  }
   .admin-main {
     padding: 18px 8px;
   }
-  .admin-dashboard-cards {
-    gap: 12px;
-    flex-direction: column;
+  .admin-crud-table {
+    padding: 12px 4px;
   }
 }
