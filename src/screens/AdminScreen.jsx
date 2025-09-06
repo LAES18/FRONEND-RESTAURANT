@@ -268,7 +268,7 @@ const AdminScreen = () => {
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {payments.map(payment => (
                     <li key={payment.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <strong>Pago #{payment.id}</strong> - ${payment.total?.toFixed(2) || '0.00'} - {payment.method}
+                      <strong>Pago #{payment.id}</strong> - ${formatTotal(payment.total)} - {payment.method}
                     </li>
                   ))}
                 </ul>
