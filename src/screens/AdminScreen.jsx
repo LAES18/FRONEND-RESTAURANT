@@ -274,7 +274,7 @@ const AdminScreen = () => {
                           (Number.isFinite(Number(r.total)))
                             ? Number(r.total).toFixed(2)
                             : '0.00'
-                        }
+                        } <span style={{color: 'gray', fontSize: '0.9em'}}> (valor crudo: {String(r.total)})</span>
                       </li>
                     ))}
                   </ul>
