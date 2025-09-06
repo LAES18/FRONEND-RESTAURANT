@@ -15,7 +15,7 @@ body {
 }
 
 /* Header styling */
-.waiter-title, .admin-title, .kitchen-title, .cashier-title, .navbar-brand {
+.waiter-title, .kitchen-title, .cashier-title, .navbar-brand {
   color: #343a40; /* Dark gray for a professional look */
   font-size: 2.5rem;
   font-weight: bold;
@@ -23,7 +23,7 @@ body {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-.waiter-section-title, .admin-section-title, .kitchen-section-title, .cashier-section-title {
+.waiter-section-title, .kitchen-section-title, .cashier-section-title {
   color: #b85c00;
   font-size: 1.7rem;
   margin-bottom: 1.5rem;
@@ -31,14 +31,14 @@ body {
 }
 
 /* Form labels */
-.waiter-label, .admin-label, .kitchen-label, .cashier-label {
+.waiter-label, .kitchen-label, .cashier-label {
   color: #495057; /* Subtle gray for labels */
   font-size: 1rem;
   font-weight: 500;
 }
 
 /* ----------- TARJETAS (CARDS) ----------- */
-.card, .waiter-card, .admin-card, .kitchen-card, .cashier-card {
+.card, .waiter-card, .kitchen-card, .cashier-card {
   position: relative !important;
   margin: 0 auto !important;
   border: none;
@@ -115,7 +115,7 @@ body {
 }
 
 /* ----------- BOTONES ----------- */
-.card .btn, .btn-primary, .waiter-add-btn, .admin-add-btn, .kitchen-add-btn, .cashier-add-btn {
+.card .btn, .btn-primary, .waiter-add-btn, .kitchen-add-btn, .cashier-add-btn {
   background: #b85c00 !important;
   border: none !important;
   border-radius: 12px !important;
@@ -130,7 +130,7 @@ body {
   color: #fff !important;
 }
 
-.btn-success, .waiter-send-btn, .admin-send-btn, .kitchen-send-btn, .cashier-send-btn {
+.btn-success, .waiter-send-btn, .kitchen-send-btn, .cashier-send-btn {
   background: #28a745; /* Green for success actions */
   border: none;
   font-weight: 600;
@@ -142,7 +142,7 @@ body {
   color: #fff !important;
 }
 
-.btn-danger, .waiter-remove-btn, .admin-remove-btn, .kitchen-remove-btn, .cashier-remove-btn {
+.btn-danger, .waiter-remove-btn, .kitchen-remove-btn, .cashier-remove-btn {
   background: #dc3545; /* Red for delete actions */
   border: none !important;
 }
@@ -167,7 +167,7 @@ body {
   margin-bottom: 1.2rem;
 }
 
-.waiter-badge, .admin-badge, .kitchen-badge, .cashier-badge {
+.waiter-badge, .kitchen-badge, .cashier-badge {
   background: #f8b500 !important;
   color: #fff !important;
   font-size: 0.95rem;
@@ -176,7 +176,7 @@ body {
   padding: 0.4em 0.8em;
 }
 
-.waiter-price, .admin-price, .kitchen-price, .cashier-price {
+.waiter-price, .kitchen-price, .cashier-price {
   color: #7c4700;
   font-size: 1.1rem;
 }
@@ -207,13 +207,13 @@ body {
 
 /* ----------- MEDIA QUERIES ----------- */
 @media (max-width: 768px) {
-  .waiter-title, .admin-title, .kitchen-title, .cashier-title, .navbar-brand {
+  .waiter-title, .kitchen-title, .cashier-title, .navbar-brand {
     font-size: 2rem;
   }
-  .waiter-section-title, .admin-section-title, .kitchen-section-title, .cashier-section-title {
+  .waiter-section-title, .kitchen-section-title, .cashier-section-title {
     font-size: 1.2rem;
   }
-  .card-img-top, .waiter-card-img, .admin-card-img, .kitchen-card-img, .cashier-card-img {
+  .card-img-top, .waiter-card-img, .kitchen-card-img, .cashier-card-img {
     height: 120px !important;
   }
 }
