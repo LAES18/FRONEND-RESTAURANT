@@ -88,7 +88,7 @@ const WaiterScreen = () => {
   };
 
   const calculateTotal = () => {
-    return selectedDishes.reduce((total, dish) => total + (parseFloat(dish.price) || 0), 0).toFixed(2);
+  return (selectedDishes.reduce((total, dish) => total + (parseFloat(dish.price) || 0), 0) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const handleLogout = async () => {

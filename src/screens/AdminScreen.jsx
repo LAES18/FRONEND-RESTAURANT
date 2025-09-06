@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 
 // Función auxiliar para formatear el total de forma segura
-function formatTotal(val) {
-  const num = Number(val);
-  return Number.isFinite(num) ? num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
-}
 import './AdminDashboard.css';
 import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
 import axios from 'axios';
