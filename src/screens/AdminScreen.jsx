@@ -6,6 +6,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { FaUserPlus, FaUtensils, FaSignOutAlt, FaMoon, FaSun } from 'react-icons/fa';
 
 // Define Spoonacular API key
 const SPOONACULAR_API_KEY = "67ce982a724d41798877cf212f48d0de";
@@ -315,281 +316,208 @@ const AdminScreen = () => {
   }).bind(Swal);
 
   return (
-    <div className="admin-container">
-      <div className="d-flex justify-content-end mb-2">
+    <div className="container py-4">
+      <div className="d-flex justify-content-end mb-3 gap-2">
         <button className="btn btn-outline-secondary" onClick={() => setDarkMode(dm => !dm)}>
-          {darkMode ? '🌙 Modo Claro' : '🌙 Modo Oscuro'}
+          {darkMode ? <FaSun /> : <FaMoon />} {darkMode ? 'Modo Claro' : 'Modo Oscuro'}
         </button>
-        <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
+        <button className="btn btn-outline-danger" onClick={handleLogout}>
+          <FaSignOutAlt /> Cerrar sesión
+        </button>
       </div>
-      <h1 className="text-center mb-4">⚙️ Pantalla del Administrador</h1>
+      <div className="row justify-content-center">
+        <div className="col-lg-8">
+          <div className="card shadow-lg rounded-4 p-4 mb-4 admin-card">
+            <h1 className="text-center mb-4 text-primary">Panel de Administración</h1>
+            <div className="row g-4">
+              <div className="col-md-6">
+                <div className="p-3 rounded-3 bg-light-subtle mb-3">
+                  <h3 className="mb-3 text-secondary"><FaUserPlus className="me-2" />Gestión de Usuarios</h3>
+                  <ul className="list-group mb-3">
+                    {users.map((user, index) => (
+                      <li className="list-group-item d-flex justify-content-between align-items-center" key={user.id || index}>
+                        {user.name} - {user.role}
+                        <div>
+                          <button className="btn btn-warning btn-sm me-2" onClick={() => setEditingUser(user)}>Editar</button>
+                          <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
 
-      <ul className="nav nav-tabs mb-4">
-        <li className="nav-item">
-          <button className={`nav-link${activeTab === 'platillos' ? ' active' : ''}`} onClick={() => setActiveTab('platillos')}>Gestión de Platillos</button>
-        </li>
-        <li className="nav-item">
-          <button className={`nav-link${activeTab === 'ordenes' ? ' active' : ''}`} onClick={() => setActiveTab('ordenes')}>Órdenes</button>
-        </li>
-        <li className="nav-item">
-          <button className={`nav-link${activeTab === 'usuarios' ? ' active' : ''}`} onClick={() => setActiveTab('usuarios')}>Gestión de Usuarios</button>
-        </li>
-        <li className="nav-item">
-          <button className={`nav-link${activeTab === 'pagos' ? ' active' : ''}`} onClick={() => setActiveTab('pagos')}>Pagos</button>
-        </li>
-      </ul>
-
-      {activeTab === 'platillos' && (
-        <div>
-          <h2>Gestión de Platillos</h2>
-          <div className="mb-3">
-            <label className="form-label">Buscar platillo en Spoonacular:</label>
-            <div className="input-group mb-2">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Ejemplo: pizza, pasta, hamburguesa..."
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-              />
-              <button className="btn btn-secondary" onClick={buscarPlatillosSpoonacular} disabled={loadingSpoonacular}>
-                Buscar
-              </button>
-            </div>
-            {loadingSpoonacular && <div>Buscando...</div>}
-            {errorSpoonacular && <div className="text-danger">{errorSpoonacular}</div>}
-            {spoonacularResults.length > 0 && (
-              <ul className="list-group mb-2">
-                {spoonacularResults.map(item => (
-                  <li className="list-group-item d-flex align-items-center" key={item.id}>
-                    <img src={item.image} alt={item.title} style={{width: 50, height: 50, objectFit: 'cover', marginRight: 10}} />
-                    <span className="flex-grow-1">{item.title}</span>
-                    <button className="btn btn-success btn-sm ms-2" onClick={() => setSpoonacularTypeSelect({ show: true, item })}>
-                      Agregar
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {/* Selector de tipo para Spoonacular */}
-            {spoonacularTypeSelect.show && (
-              <div className="mb-3">
-                <label className="form-label">Selecciona el tipo de platillo para "{spoonacularTypeSelect.item.title}":</label>
-                <select className="form-select mb-2" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
-                  <option value="desayuno">Desayuno</option>
-                  <option value="almuerzo">Almuerzo</option>
-                  <option value="cena">Cena</option>
-                </select>
-                <button className="btn btn-primary me-2" onClick={() => agregarPlatilloDesdeSpoonacular(spoonacularTypeSelect.item, selectedType)}>
-                  Confirmar y agregar
-                </button>
-                <button className="btn btn-secondary" onClick={() => setSpoonacularTypeSelect({ show: false, item: null })}>
-                  Cancelar
-                </button>
-              </div>
-            )}
-          </div>
-          <ul className="list-group mb-3">
-            {dishes.map(dish => (
-              <li className="list-group-item d-flex justify-content-between align-items-center" key={dish.id}>
-                {dish.name} - ${dish.price} <span className="badge bg-secondary">{dish.type}</span>
-                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
-              </li>
-            ))}
-          </ul>
-          <h3>Agregar Nuevo Platillo</h3>
-          <input
-            type="text"
-            className="form-control mb-2"
-            placeholder="Nombre"
-            value={newDish.name}
-            onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
-          />
-          <input
-            type="number"
-            className="form-control mb-2"
-            placeholder="Precio"
-            value={newDish.price}
-            onChange={(e) => setNewDish({ ...newDish, price: e.target.value })}
-          />
-          <select
-            className="form-select mb-2"
-            value={newDish.type}
-            onChange={e => setNewDish({ ...newDish, type: e.target.value })}
-          >
-            <option value="desayuno">Desayuno</option>
-            <option value="almuerzo">Almuerzo</option>
-            <option value="cena">Cena</option>
-          </select>
-          <button className="btn btn-primary" onClick={handleAddDish}>Agregar</button>
-        </div>
-      )}
-      {activeTab === 'ordenes' && (
-        <div>
-          <h2>Órdenes</h2>
-          <div className="mb-2">
-            <label className="form-label">Filtrar por estado:</label>
-            <select className="form-select mb-2" value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)}>
-              <option value="todos">Todos</option>
-              <option value="pendiente">Pendiente</option>
-              <option value="servido">Servido</option>
-              <option value="pagado">Pagado</option>
-            </select>
-            <label className="form-label">Filtrar por mesa:</label>
-            <input className="form-control" type="text" placeholder="Número de mesa" value={mesaFilter} onChange={e => setMesaFilter(e.target.value)} />
-            <label className="form-label">Filtrar por fecha (inicio):</label>
-            <input className="form-control mb-2" type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
-            <label className="form-label">Filtrar por fecha (fin):</label>
-            <input className="form-control mb-2" type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
-          </div>
-          <ul className="list-group mb-3">
-            {filteredOrders.map((order, index) => (
-              <li className="list-group-item" key={order.id || index}>
-                Orden #{order.id} - Mesa {order.mesa || 'N/A'} - Estado: {order.status}
-                <ul>
-                  {order.dishes && order.dishes.map((dish, dishIndex) => (
-                    <li key={dishIndex}>{dish.name} ({dish.type}) - ${dish.price}</li>
-                  ))}
-                </ul>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {activeTab === 'usuarios' && (
-        <div>
-          <h2>Gestión de Usuarios</h2>
-          <ul className="list-group mb-3">
-            {users.map((user, index) => (
-              <li className="list-group-item d-flex justify-content-between align-items-center" key={user.id || index}>
-                {user.name} - {user.role}
-                <div>
-                  <button className="btn btn-warning btn-sm me-2" onClick={() => setEditingUser(user)}>Editar</button>
-                  <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(user.id)}>Eliminar</button>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          {editingUser && editingUser.id && (
-            <div className="mb-3">
-              <h3>Editar Usuario</h3>
-              <input
-                type="text"
-                className="form-control mb-2"
-                placeholder="Nombre"
-                value={editingUser.name || ''}
-                onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-              />
-              <input
-                type="email"
-                className="form-control mb-2"
-                placeholder="Email"
-                value={editingUser.email || ''}
-                onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-              />
-              <input
-                type="password"
-                className="form-control mb-2"
-                placeholder="Contraseña (dejar en blanco para no cambiar)"
-                value={editingUser.password || ''}
-                onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
-              />
-              <select
-                className="form-select mb-2"
-                value={editingUser.role || ''}
-                onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
-              >
-                <option value="">Seleccionar Rol</option>
-                <option value="administrador">Administrador</option>
-                <option value="mesero">Mesero</option>
-                <option value="cocina">Cocinero</option>
-                <option value="cobrador">Cobrador</option>
-              </select>
-              <button className="btn btn-primary me-2" onClick={() => handleEditUser(editingUser.id, editingUser)}>Guardar Cambios</button>
-              <button className="btn btn-secondary" onClick={() => setEditingUser(null)}>Cancelar</button>
-            </div>
-          )}
-
-          <button className="btn btn-success mb-3" onClick={() => setShowAddUserForm(!showAddUserForm)}>
-            {showAddUserForm ? 'Ocultar Formulario' : 'Agregar Usuario'}
-          </button>
-
-          {showAddUserForm && (
-            <div className="mb-3">
-              <h3>Agregar Nuevo Usuario</h3>
-              <input
-                type="text"
-                className="form-control mb-2"
-                placeholder="Nombre"
-                value={newUser.name}
-                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-              />
-              <input
-                type="email"
-                className="form-control mb-2"
-                placeholder="Email"
-                value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              />
-              <input
-                type="password"
-                className="form-control mb-2"
-                placeholder="Contraseña"
-                value={newUser.password}
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              />
-              <select
-                className="form-select mb-2"
-                value={newUser.role}
-                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-              >
-                <option value="">Seleccionar Rol</option>
-                <option value="administrador">Administrador</option>
-                <option value="mesero">Mesero</option>
-                <option value="cocina">Cocinero</option>
-                <option value="cobrador">Cobrador</option>
-              </select>
-              <button className="btn btn-primary" onClick={() => handleAddUser(newUser)}>Agregar Usuario</button>
-            </div>
-          )}
-        </div>
-      )}
-      {activeTab === 'pagos' && (
-        <div>
-          <h2>Pagos</h2>
-          {/* Filtro de reporte */}
-          <div className="mb-3 d-flex align-items-center gap-3">
-            <label className="form-label mb-0">Ver reporte por:</label>
-            <select className="form-select w-auto" value={paymentReportType} onChange={e => setPaymentReportType(e.target.value)}>
-              <option value="dia">Día</option>
-              <option value="semana">Semana</option>
-              <option value="mes">Mes</option>
-            </select>
-            <span className="ms-auto fw-bold">Total: ${totalPagos.toFixed(2)}</span>
-          </div>
-          <div className="mb-3 d-flex gap-2">
-            <button className="btn btn-outline-success" onClick={exportPaymentsToExcel}>Exportar a Excel</button>
-            <button className="btn btn-outline-primary" onClick={exportPaymentsToPDF}>Exportar a PDF</button>
-          </div>
-          <ul className="list-group mb-3">
-            {filteredPayments.length === 0 && <li className="list-group-item">No hay pagos en este periodo.</li>}
-            {filteredPayments.map(payment => {
-              const order = orders.find(o => o.id === payment.order_id);
-              return (
-                <li className="list-group-item" key={payment.id}>
-                  Pago #{payment.id} - Orden #{payment.order_id} - Total: ${payment.total} - Método: {payment.method} - Fecha: {payment.paid_at && payment.paid_at.substring(0, 10)}
-                  {order && (
-                    <button className="btn btn-sm btn-primary ms-2" onClick={() => handleDownloadInvoice(order, payment)}>
-                      Descargar Factura
-                    </button>
+                  {editingUser && editingUser.id && (
+                    <div className="mb-3">
+                      <h3>Editar Usuario</h3>
+                      <input
+                        type="text"
+                        className="form-control mb-2"
+                        placeholder="Nombre"
+                        value={editingUser.name || ''}
+                        onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                      />
+                      <input
+                        type="email"
+                        className="form-control mb-2"
+                        placeholder="Email"
+                        value={editingUser.email || ''}
+                        onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                      />
+                      <input
+                        type="password"
+                        className="form-control mb-2"
+                        placeholder="Contraseña (dejar en blanco para no cambiar)"
+                        value={editingUser.password || ''}
+                        onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
+                      />
+                      <select
+                        className="form-select mb-2"
+                        value={editingUser.role || ''}
+                        onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                      >
+                        <option value="">Seleccionar Rol</option>
+                        <option value="administrador">Administrador</option>
+                        <option value="mesero">Mesero</option>
+                        <option value="cocina">Cocinero</option>
+                        <option value="cobrador">Cobrador</option>
+                      </select>
+                      <button className="btn btn-primary me-2" onClick={() => handleEditUser(editingUser.id, editingUser)}>Guardar Cambios</button>
+                      <button className="btn btn-secondary" onClick={() => setEditingUser(null)}>Cancelar</button>
+                    </div>
                   )}
-                </li>
-              );
-            })}
-          </ul>
+
+                  <button className="btn btn-success mb-3" onClick={() => setShowAddUserForm(!showAddUserForm)}>
+                    {showAddUserForm ? 'Ocultar Formulario' : 'Agregar Usuario'}
+                  </button>
+
+                  {showAddUserForm && (
+                    <div className="mb-3">
+                      <h3>Agregar Nuevo Usuario</h3>
+                      <input
+                        type="text"
+                        className="form-control mb-2"
+                        placeholder="Nombre"
+                        value={newUser.name}
+                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                      />
+                      <input
+                        type="email"
+                        className="form-control mb-2"
+                        placeholder="Email"
+                        value={newUser.email}
+                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      />
+                      <input
+                        type="password"
+                        className="form-control mb-2"
+                        placeholder="Contraseña"
+                        value={newUser.password}
+                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                      />
+                      <select
+                        className="form-select mb-2"
+                        value={newUser.role}
+                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                      >
+                        <option value="">Seleccionar Rol</option>
+                        <option value="administrador">Administrador</option>
+                        <option value="mesero">Mesero</option>
+                        <option value="cocina">Cocinero</option>
+                        <option value="cobrador">Cobrador</option>
+                      </select>
+                      <button className="btn btn-primary" onClick={() => handleAddUser(newUser)}>Agregar Usuario</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="p-3 rounded-3 bg-light-subtle mb-3">
+                  <h3 className="mb-3 text-secondary"><FaUtensils className="me-2" />Gestión de Platillos</h3>
+                  <div className="mb-3">
+                    <label className="form-label">Buscar platillo en Spoonacular:</label>
+                    <div className="input-group mb-2">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ejemplo: pizza, pasta, hamburguesa..."
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                      />
+                      <button className="btn btn-secondary" onClick={buscarPlatillosSpoonacular} disabled={loadingSpoonacular}>
+                        Buscar
+                      </button>
+                    </div>
+                    {loadingSpoonacular && <div>Buscando...</div>}
+                    {errorSpoonacular && <div className="text-danger">{errorSpoonacular}</div>}
+                    {spoonacularResults.length > 0 && (
+                      <ul className="list-group mb-2">
+                        {spoonacularResults.map(item => (
+                          <li className="list-group-item d-flex align-items-center" key={item.id}>
+                            <img src={item.image} alt={item.title} style={{width: 50, height: 50, objectFit: 'cover', marginRight: 10}} />
+                            <span className="flex-grow-1">{item.title}</span>
+                            <button className="btn btn-success btn-sm ms-2" onClick={() => setSpoonacularTypeSelect({ show: true, item })}>
+                              Agregar
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {/* Selector de tipo para Spoonacular */}
+                    {spoonacularTypeSelect.show && (
+                      <div className="mb-3">
+                        <label className="form-label">Selecciona el tipo de platillo para "{spoonacularTypeSelect.item.title}":</label>
+                        <select className="form-select mb-2" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
+                          <option value="desayuno">Desayuno</option>
+                          <option value="almuerzo">Almuerzo</option>
+                          <option value="cena">Cena</option>
+                        </select>
+                        <button className="btn btn-primary me-2" onClick={() => agregarPlatilloDesdeSpoonacular(spoonacularTypeSelect.item, selectedType)}>
+                          Confirmar y agregar
+                        </button>
+                        <button className="btn btn-secondary" onClick={() => setSpoonacularTypeSelect({ show: false, item: null })}>
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <ul className="list-group mb-3">
+                    {dishes.map(dish => (
+                      <li className="list-group-item d-flex justify-content-between align-items-center" key={dish.id}>
+                        {dish.name} - ${dish.price} <span className="badge bg-secondary">{dish.type}</span>
+                        <button className="btn btn-danger btn-sm" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
+                      </li>
+                    ))}
+                  </ul>
+                  <h3>Agregar Nuevo Platillo</h3>
+                  <input
+                    type="text"
+                    className="form-control mb-2"
+                    placeholder="Nombre"
+                    value={newDish.name}
+                    onChange={(e) => setNewDish({ ...newDish, name: e.target.value })}
+                  />
+                  <input
+                    type="number"
+                    className="form-control mb-2"
+                    placeholder="Precio"
+                    value={newDish.price}
+                    onChange={(e) => setNewDish({ ...newDish, price: e.target.value })}
+                  />
+                  <select
+                    className="form-select mb-2"
+                    value={newDish.type}
+                    onChange={e => setNewDish({ ...newDish, type: e.target.value })}
+                  >
+                    <option value="desayuno">Desayuno</option>
+                    <option value="almuerzo">Almuerzo</option>
+                    <option value="cena">Cena</option>
+                  </select>
+                  <button className="btn btn-primary" onClick={handleAddDish}>Agregar</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
