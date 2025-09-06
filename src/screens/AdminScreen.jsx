@@ -1,8 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './AdminDashboard.css';
-import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
-import axios from 'axios';
-import Swal from 'sweetalert2';
+
 
 // Función auxiliar para formatear el total de forma segura
 function formatTotal(val) {
