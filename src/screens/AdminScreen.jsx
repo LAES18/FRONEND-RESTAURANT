@@ -218,7 +218,7 @@ const AdminScreen = () => {
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {dishes.map(dish => (
                     <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <span>{dish.name} - ${dish.price?.toFixed(2) || '0.00'} <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
+                      <span>{dish.name} - ${formatTotal(dish.price)} <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
                       <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
                     </li>
                   ))}
@@ -234,7 +234,7 @@ const AdminScreen = () => {
                       <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
                       <ul style={{margin: '8px 0 0 0', padding: 0}}>
                         {order.dishes.map((dish, i) => (
-                          <li key={i}>{dish.name} ({dish.type}) - ${dish.price}</li>
+                          <li key={i}>{dish.name} ({dish.type}) - ${formatTotal(dish.price)}</li>
                         ))}
                       </ul>
                     </li>
