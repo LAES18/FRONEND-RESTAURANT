@@ -270,7 +270,11 @@ const AdminScreen = () => {
                   <ul style={{listStyle: 'none', padding: 0}}>
                     {report.map((r, i) => (
                       <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                        <strong>{r.fecha}</strong> - Total: ${r.total?.toFixed(2) || '0.00'}
+                        <strong>{r.fecha}</strong> - Total: ${
+                          typeof r.total === 'number'
+                            ? r.total.toFixed(2)
+                            : (parseFloat(r.total) ? Number(r.total).toFixed(2) : '0.00')
+                        }
                       </li>
                     ))}
                   </ul>
