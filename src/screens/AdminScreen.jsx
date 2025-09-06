@@ -9,28 +9,33 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
-const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
+// SPOONACULAR_API_KEY removed, not used in backend
 
 const AdminScreen = () => {
   const [activeMenu, setActiveMenu] = useState('platillos');
   const [darkMode, setDarkMode] = useState(false);
   const [dishes, setDishes] = useState([]);
-  const [newDish, setNewDish] = useState({ name: '', price: '', type: 'principal' });
-  const [spoonacularResults, setSpoonacularResults] = useState([]);
-  const [search, setSearch] = useState('');
+  const [newDish, setNewDish] = useState({ name: '', price: '', type: 'desayuno' });
+  // Spoonacular integration removed
   const [orders, setOrders] = useState([]);
   const [orderFilter, setOrderFilter] = useState({ date: '', month: '' });
   const [users, setUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ nombre: '', password: '', rol: 'admin' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'administrador' });
   const handleAddUser = async (e) => {
     e.preventDefault();
-    if (!newUser.nombre || !newUser.password) {
-      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre y contraseña son obligatorios' });
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre, correo y contraseña son obligatorios' });
+      return;
+    }
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newUser.email)) {
+      Swal.fire({ icon: 'warning', title: 'Correo inválido', text: 'Ingresa un correo electrónico válido' });
       return;
     }
     try {
-      await axios.post(`${API_URL}/api/users`, newUser);
-      setNewUser({ nombre: '', password: '', rol: 'admin' });
+      await axios.post(`${API_URL}/api/register`, newUser);
+      setNewUser({ name: '', email: '', password: '', role: 'administrador' });
       fetchUsers();
       Swal.fire({ icon: 'success', title: 'Usuario creado', text: 'Usuario agregado correctamente' });
     } catch (err) {
@@ -347,10 +352,9 @@ const AdminScreen = () => {
                   <input type="text" placeholder="Nombre" value={newDish.name} onChange={e => setNewDish({ ...newDish, name: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
                   <input type="number" placeholder="Precio" value={newDish.price} onChange={e => setNewDish({ ...newDish, price: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a', width: '100px' }} />
                   <select value={newDish.type} onChange={e => setNewDish({ ...newDish, type: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
-                    <option value="principal">Principal</option>
-                    <option value="entrada">Entrada</option>
-                    <option value="bebida">Bebida</option>
-                    <option value="postre">Postre</option>
+                    <option value="desayuno">Desayuno</option>
+                    <option value="almuerzo">Almuerzo</option>
+                    <option value="cena">Cena</option>
                   </select>
                   <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
                 </form>
@@ -414,13 +418,14 @@ const AdminScreen = () => {
               <div>
                 <h2>Gestión de Usuarios</h2>
                 <form onSubmit={handleAddUser} style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
-                  <input type="text" placeholder="Nombre" value={newUser.nombre} onChange={e => setNewUser({ ...newUser, nombre: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <input type="text" placeholder="Nombre" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
+                  <input type="email" placeholder="Correo" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
                   <input type="password" placeholder="Contraseña" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <select value={newUser.rol} onChange={e => setNewUser({ ...newUser, rol: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
-                    <option value="admin">Admin</option>
-                    <option value="cajero">Cajero</option>
+                  <select value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
+                    <option value="administrador">Administrador</option>
                     <option value="mesero">Mesero</option>
                     <option value="cocina">Cocina</option>
+                    <option value="cobrador">Cobrador</option>
                   </select>
                   <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
                 </form>
