@@ -41,6 +41,7 @@ const AdminScreen = () => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   // --- NUEVO: Filtro de reporte de pagos ---
   const [paymentReportType, setPaymentReportType] = useState('dia'); // dia, semana, mes
+  const [darkMode, setDarkMode] = useState(false);
   const navigate = useNavigate();
   
   useEffect(() => {
@@ -62,6 +63,10 @@ const AdminScreen = () => {
     const interval = setInterval(fetchAll, 5000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', darkMode);
+  }, [darkMode]);
 
   const handleAddDish = () => {
     axios.post(`${API_URL}/api/dishes`, newDish)
@@ -310,9 +315,12 @@ const AdminScreen = () => {
   }).bind(Swal);
 
   return (
-    <div className="container mt-5">
+    <div className="admin-container">
       <div className="d-flex justify-content-end mb-2">
-        <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
+        <button className="btn btn-outline-secondary" onClick={() => setDarkMode(dm => !dm)}>
+          {darkMode ? '🌙 Modo Claro' : '🌙 Modo Oscuro'}
+        </button>
+        <button className="btn btn-outline-danger ms-2" onClick={handleLogout}>Cerrar sesión</button>
       </div>
       <h1 className="text-center mb-4">⚙️ Pantalla del Administrador</h1>
 

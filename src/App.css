@@ -553,3 +553,47 @@ body {
     padding: 10px 8px;
   }
 }
+
+/* --- Modo oscuro global --- */
+body.dark-mode {
+  background: #181818 !important;
+  color: #f8f8f8 !important;
+}
+.dark-mode .admin-container,
+.dark-mode .cashier-container,
+.dark-mode .waiter-container,
+.dark-mode .kitchen-container {
+  background: linear-gradient(120deg, #232323 60%, #2c2c2c 100%) !important;
+  color: #f8f8f8 !important;
+  box-shadow: 0 2px 16px 0 #222 !important;
+}
+.dark-mode .card,
+.dark-mode .waiter-card,
+.dark-mode .admin-card,
+.dark-mode .kitchen-card,
+.dark-mode .cashier-card {
+  background: #232323 !important;
+  color: #f8f8f8 !important;
+  box-shadow: 0 2px 10px 0 #222 !important;
+}
+.dark-mode .btn,
+.dark-mode .btn-primary,
+.dark-mode .cashier-pay-button {
+  background: linear-gradient(90deg, #bfa76a 0%, #b85c00 100%) !important;
+  color: #fff !important;
+  border: none !important;
+}
+.dark-mode .btn-outline-danger {
+  background: #232323 !important;
+  color: #ffb4a2 !important;
+  border: 1.5px solid #ffb4a2 !important;
+}
+.dark-mode .btn-outline-secondary {
+  background: #232323 !important;
+  color: #bfa76a !important;
+  border: 1.5px solid #bfa76a !important;
+}
+.dark-mode .swal2-popup-delicioso {
+  background: #232323 !important;
+  color: #f8f8f8 !important;
+}
