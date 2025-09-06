@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 
 
 // Función auxiliar para formatear el total de forma segura
@@ -23,10 +24,22 @@ const AdminScreen = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Fetch inicial de datos y modo oscuro
   useEffect(() => {
-  document.body.classList.toggle('dark-mode', darkMode);
-    if (activeMenu === 'ordenes') fetchOrders();
+    fetchDishes();
+    fetchUsers();
+    fetchOrders();
+    fetchPayments();
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('dark-mode', darkMode);
+  }, [darkMode]);
+
+  useEffect(() => {
+    if (activeMenu === 'platillos') fetchDishes();
     if (activeMenu === 'usuarios') fetchUsers();
+    if (activeMenu === 'ordenes') fetchOrders();
     if (activeMenu === 'pagos') fetchPayments();
   }, [activeMenu]);
 
@@ -167,8 +180,19 @@ const AdminScreen = () => {
           </div>
           <div className="admin-header-title">Restaurante</div>
           <button className="btn btn-outline-secondary" onClick={() => setDarkMode(dm => !dm)}>
-            {darkMode ? '🌙 Modo Claro' : '🌙 Modo Oscuro'}
+            {darkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
           </button>
+            {/* Botón exportar a Excel en reportes */}
+            {activeMenu === 'pagos' && report.length > 0 && (
+              <button className="btn btn-success mb-3" onClick={() => {
+                const ws = XLSX.utils.json_to_sheet(report);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+                XLSX.writeFile(wb, `reporte-${reportType}.xlsx`);
+              }}>
+                Exportar reporte a Excel
+              </button>
+            )}
         </header>
         <div style={{display: 'flex', flex: 1}}>
           <aside className="admin-sidebar">
