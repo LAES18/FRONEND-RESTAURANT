@@ -162,7 +162,6 @@ const AdminScreen = () => {
     <div className="admin-dashboard">
       <header className="admin-header">
         <div className="admin-header-logo">
-          <img src="/logo192.png" alt="Logo" style={{height: '40px', marginRight: '12px'}} />
           <span>Panel de Administración</span>
         </div>
         <div className="admin-header-title">Restaurante</div>

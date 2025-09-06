@@ -5,6 +5,7 @@
   background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%);
   display: flex;
   flex-direction: column;
+  width: 100vw;
 }
 .admin-header {
   background: #fff;
@@ -13,6 +14,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
 }
 .admin-header-logo {
   font-size: 2rem;
@@ -29,6 +31,7 @@
 }
 .admin-sidebar {
   width: 260px;
+  min-width: 220px;
   background: #fff3e0;
   color: #343a40;
   padding: 0;
@@ -79,6 +82,7 @@
   flex: 1;
   padding: 32px 32px;
   background: transparent;
+  min-width: 0;
 }
 .admin-crud-table {
   background: #fff;
@@ -181,9 +185,11 @@
 @media (max-width: 900px) {
   .admin-dashboard {
     flex-direction: column;
+    width: 100vw;
   }
   .admin-sidebar {
     width: 100vw;
+    min-width: 0;
     flex-direction: row;
     min-height: auto;
     padding: 0;
@@ -192,6 +198,7 @@
   }
   .admin-main {
     padding: 18px 8px;
+    min-width: 0;
   }
   .admin-crud-table {
     padding: 12px 4px;
