@@ -29,10 +29,12 @@ const AdminScreen = () => {
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode);
-  }, [darkMode]);
-
-  useEffect(() => {
-    if (activeMenu === 'platillos') fetchDishes();
+                    <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
+                      <span>{dish.name} - ${
+                        (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
+                      <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
+                    </li>
     if (activeMenu === 'ordenes') fetchOrders();
     if (activeMenu === 'usuarios') fetchUsers();
     if (activeMenu === 'pagos') fetchPayments();
@@ -218,7 +220,9 @@ const AdminScreen = () => {
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {dishes.map(dish => (
                     <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <span>{dish.name} - ${formatTotal(dish.price)} <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
+                      <span>{dish.name} - ${
+                        (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
                       <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}>Eliminar</button>
                     </li>
                   ))}
@@ -234,7 +238,9 @@ const AdminScreen = () => {
                       <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
                       <ul style={{margin: '8px 0 0 0', padding: 0}}>
                         {order.dishes.map((dish, i) => (
-                          <li key={i}>{dish.name} ({dish.type}) - ${formatTotal(dish.price)}</li>
+                          <li key={i}>{dish.name} ({dish.type}) - ${
+                            (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                          }</li>
                         ))}
                       </ul>
                     </li>
@@ -268,7 +274,9 @@ const AdminScreen = () => {
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {payments.map(payment => (
                     <li key={payment.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <strong>Pago #{payment.id}</strong> - ${formatTotal(payment.total)} - {payment.method}
+                      <strong>Pago #{payment.id}</strong> - ${
+                        (Number(payment.total) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                      } - {payment.method}
                     </li>
                   ))}
                 </ul>
@@ -277,7 +285,9 @@ const AdminScreen = () => {
                   <ul style={{listStyle: 'none', padding: 0}}>
                     {report.map((r, i) => (
                       <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                        <strong>{r.fecha}</strong> - Total: ${formatTotal(r.total)}
+                        <strong>{r.fecha}</strong> - Total: ${
+                          (Number(r.total) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        }
                       </li>
                     ))}
                   </ul>
