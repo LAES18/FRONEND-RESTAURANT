@@ -144,7 +144,13 @@ const AdminScreen = () => {
         throw new Error('Error al buscar en Spoonacular');
       }
       const data = await response.json();
-      setSpoonacularResults(data.results || []);
+      setSpoonacularResults(
+        (data.results || []).map(d => ({
+          id: d.id,
+          name: d.title, // Renombrar title a name
+          image: d.image
+        }))
+      );
     } catch (error) {
       Swal.fire({ icon: 'error', title: 'Error', text: error.message });
     }
@@ -154,22 +160,22 @@ const AdminScreen = () => {
   const handleAddSpoonacularDish = async (dish) => {
     const price = spoonacularPrices[dish.id];
     const type = spoonacularTypes[dish.id];
-    
+
     if (!price || price <= 0) {
       Swal.fire({ icon: 'warning', title: 'Precio requerido', text: 'Por favor ingresa un precio válido' });
       return;
     }
-    
+
     try {
       await axios.post(`${API_URL}/api/dishes`, {
-        name: dish.name,
+        name: dish.name, // Usar name normalizado
         price: Number(price),
         type: type
       });
-      
+
       fetchDishes();
       Swal.fire({ icon: 'success', title: 'Platillo importado', text: 'Platillo agregado desde Spoonacular' });
-      
+
       // Limpiar resultados
       setSpoonacularResults([]);
       setSearch('');
@@ -453,7 +459,7 @@ const AdminScreen = () => {
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                       {spoonacularResults.map((dish, i) => (
                         <li key={dish.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                          <span>{dish.name}</span>
+                          <span>{dish.name}</span> {/* Usar name normalizado */}
                           <input type="number" min="1" value={spoonacularPrices[dish.id]} onChange={e => setSpoonacularPrices(p => ({ ...p, [dish.id]: e.target.value }))} style={{width: '80px', marginLeft: '8px', marginRight: '8px', borderRadius: '6px', border: '1px solid #bfa76a', padding: '4px'}} placeholder="Precio" />
                           <select value={spoonacularTypes[dish.id]} onChange={e => setSpoonacularTypes(t => ({ ...t, [dish.id]: e.target.value }))} style={{marginRight: '8px', borderRadius: '6px', border: '1px solid #bfa76a', padding: '4px'}}>
                             <option value="desayuno">Desayuno</option>
