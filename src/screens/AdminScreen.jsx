@@ -10,6 +10,8 @@ const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' :
 const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
 
 const AdminScreen = () => {
+  // Mover search al principio y asegurarnos de que esté inicializado
+  const [search, setSearch] = useState('');
   const [activeMenu, setActiveMenu] = useState('platillos');
   const [darkMode, setDarkMode] = useState(() => {
     // Persistencia: lee de localStorage si existe
@@ -18,7 +20,6 @@ const AdminScreen = () => {
   });
   const [dishes, setDishes] = useState([]);
   const [newDish, setNewDish] = useState({ name: '', price: '', type: 'desayuno' });
-  const [search, setSearch] = useState(''); // Asegurar inicialización segura
   const [spoonacularResults, setSpoonacularResults] = useState([]);
   const [spoonacularTypes, setSpoonacularTypes] = useState({});
   const [spoonacularPrices, setSpoonacularPrices] = useState({});
@@ -133,7 +134,9 @@ const AdminScreen = () => {
 
   // Función para buscar en Spoonacular
   const handleSearchSpoonacular = async () => {
-    if (!search?.trim()) { // Validar que search esté definido y no vacío
+    // Verificación más estricta del estado search
+    const searchTerm = search || '';
+    if (!searchTerm.trim()) {
       Swal.fire({ icon: 'warning', title: 'Búsqueda vacía', text: 'Por favor ingresa un término de búsqueda' });
       return;
     }
@@ -450,8 +453,21 @@ const AdminScreen = () => {
                   <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
                 </form>
                 <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
-                  <input type="text" placeholder="Buscar en Spoonacular..." value={search} onChange={e => setSearch(e.target.value)} style={{flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
-                  <button className="btn" type="button" onClick={handleSearchSpoonacular}>Buscar</button>
+                  <input 
+                    type="text" 
+                    placeholder="Buscar en Spoonacular..." 
+                    value={search || ''} 
+                    onChange={e => setSearch(e.target.value || '')} 
+                    style={{flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}} 
+                  />
+                  <button 
+                    className="btn" 
+                    type="button" 
+                    onClick={handleSearchSpoonacular}
+                    disabled={!search?.trim()}
+                  >
+                    Buscar
+                  </button>
                 </div>
                 {spoonacularResults.length > 0 && (
                   <div style={{ marginBottom: '18px', background: '#f9f6f2', borderRadius: '10px', padding: '10px' }}>
@@ -568,9 +584,43 @@ const AdminScreen = () => {
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {payments.map(payment => (
                     <li key={payment.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <strong>Pago #{payment.id}</strong> - ${
-                        (Number(payment.total) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      } - {payment.method}
+                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                        <div>
+                          <strong>Pago #{payment.id}</strong>
+                          <span style={{marginLeft: '10px', color: '#666'}}>
+                            {new Date(payment.fecha || payment.created_at).toLocaleDateString('es-ES', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{
+                            background: payment.method === 'efectivo' ? '#4caf50' : '#2196f3',
+                            color: '#fff',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.9em',
+                            marginRight: '10px'
+                          }}>
+                            {payment.method === 'efectivo' ? '💵' : '💳'} {payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}
+                          </span>
+                          <strong style={{fontSize: '1.1em'}}>${
+                            (Number(payment.total) || 0).toLocaleString('en-US', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            })
+                          }</strong>
+                        </div>
+                      </div>
+                      {payment.orden_id && (
+                        <div style={{marginTop: '8px', fontSize: '0.9em', color: '#666'}}>
+                          Orden #{payment.orden_id} {payment.mesa && `- Mesa ${payment.mesa}`}
+                        </div>
+                      )}
                     </li>
                   ))}
                 </ul>
