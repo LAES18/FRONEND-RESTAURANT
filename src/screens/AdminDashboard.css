@@ -1,14 +1,182 @@
-/* --- DARK MODE --- */
+/* --- Estilos base del dashboard --- */
+.admin-dashboard {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+.admin-header {
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.admin-header-logo {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.admin-header-title {
+  color: #666;
+}
+
+.admin-sidebar {
+  background: #fff;
+  padding: 1.5rem;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.admin-sidebar-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: #666;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-sidebar-menu button:hover,
+.admin-sidebar-menu button.active {
+  background: #f0f0f0;
+  color: #b85c00;
+}
+
+/* --- Media Queries --- */
+@media screen and (max-width: 1024px) {
+  .admin-header {
+    padding: 0.75rem;
+  }
+  
+  .admin-sidebar {
+    padding: 1rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .admin-dashboard > div {
+    flex-direction: column;
+  }
+
+  .admin-header {
+    position: fixed;
+    width: 100%;
+  }
+
+  .admin-header-logo,
+  .admin-header-title {
+    text-align: center;
+    width: 100%;
+  }
+
+  .admin-sidebar {
+    margin-top: 60px; /* Altura del header */
+    width: 100%;
+    padding: 1rem 0.5rem;
+  }
+
+  .admin-sidebar-menu {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin: 0 -0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .admin-sidebar-menu button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    margin: 0 0.25rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .admin-header {
+    padding: 0.5rem;
+  }
+
+  .admin-sidebar {
+    margin-top: 100px; /* Header más alto en móviles */
+  }
+
+  .admin-sidebar-menu {
+    flex-direction: column;
+    margin: 0;
+  }
+
+  .admin-sidebar-menu button {
+    width: 100%;
+    margin: 0.25rem 0;
+  }
+}
+
+/* --- Dark Mode --- */
 body.dark-mode {
-  background: #23272f !important;
+  background: #23272f;
 }
+
 .dark-mode .admin-dashboard {
-  background: linear-gradient(120deg, #23272f 60%, #343a40 100%) !important;
+  background: #1a1a1a;
 }
+
 .dark-mode .admin-header {
-  background: #23272f !important;
-  color: #fff !important;
-  box-shadow: 0 2px 8px #181a1f;
+  background: #23272f;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.dark-mode .admin-sidebar {
+  background: #23272f;
+  color: #fff;
+}
+
+.dark-mode .admin-sidebar-menu button {
+  color: #fff;
+}
+
+.dark-mode .admin-sidebar-menu button:hover,
+.dark-mode .admin-sidebar-menu button.active {
+  background: #2d2d2d;
+  color: #38b6ff;
+}
+
+/* --- Animaciones --- */
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.admin-sidebar {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* --- Accesibilidad --- */
+@media (prefers-reduced-motion: reduce) {
+  .admin-sidebar {
+    animation: none;
+  }
+  
+  * {
+    transition: none !important;
+  }
 }
 .dark-mode .admin-header-logo {
   color: #38b6ff !important;
