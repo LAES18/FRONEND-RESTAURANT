@@ -1,9 +1,5 @@
-  // ...existing code...
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
-
-
-// Función auxiliar para formatear el total de forma segura
 import './AdminDashboard.css';
 import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
 import axios from 'axios';
@@ -21,107 +17,20 @@ const AdminScreen = () => {
   const [spoonacularResults, setSpoonacularResults] = useState([]);
   const [spoonacularTypes, setSpoonacularTypes] = useState({});
   const [spoonacularPrices, setSpoonacularPrices] = useState({});
-  // Buscar platillos en Spoonacular y filtrar solo los campos necesarios
-  const handleSearchSpoonacular = async () => {
-    if (!search) return;
-    try {
-      const res = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
-        params: {
-          query: search,
-          number: 5,
-          apiKey: SPOONACULAR_API_KEY,
-          addRecipeInformation: true
-        }
-      });
-      // Solo tomar name, price (editable), y type (editable)
-      const mapped = (res.data.results || []).map(r => ({
-        id: r.id,
-        name: r.title,
-        price: 100,
-        type: 'desayuno'
-      }));
-      setSpoonacularResults(mapped);
-      // Inicializar selects y precios
-      const typesObj = {};
-      const pricesObj = {};
-      mapped.forEach(d => { typesObj[d.id] = 'desayuno'; pricesObj[d.id] = 100; });
-      setSpoonacularTypes(typesObj);
-      setSpoonacularPrices(pricesObj);
-      if (mapped.length === 0) {
-        Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No se encontraron platillos en Spoonacular.' });
-      }
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo buscar en Spoonacular' });
-    }
-  };
-
-  // Importar platillo de Spoonacular (con precio y tipo elegidos)
-  const handleAddSpoonacularDish = async (dish) => {
-    try {
-      await axios.post(`${API_URL}/api/dishes`, {
-        name: dish.name,
-        price: Number(spoonacularPrices[dish.id]) || 0,
-        type: spoonacularTypes[dish.id]
-      });
-      fetchDishes();
-      Swal.fire({ icon: 'success', title: 'Platillo importado', text: 'Platillo importado de Spoonacular' });
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo importar el platillo' });
-    }
-  };
   const [orders, setOrders] = useState([]);
   const [orderFilter, setOrderFilter] = useState({ date: '', month: '' });
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'administrador' });
-  const handleAddUser = async (e) => {
-    e.preventDefault();
-    if (!newUser.name || !newUser.email || !newUser.password) {
-      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre, correo y contraseña son obligatorios' });
-      return;
-    }
-    // Simple email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(newUser.email)) {
-      Swal.fire({ icon: 'warning', title: 'Correo inválido', text: 'Ingresa un correo electrónico válido' });
-      return;
-    }
-    try {
-      await axios.post(`${API_URL}/api/register`, newUser);
-      setNewUser({ name: '', email: '', password: '', role: 'administrador' });
-      fetchUsers();
-      Swal.fire({ icon: 'success', title: 'Usuario creado', text: 'Usuario agregado correctamente' });
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el usuario' });
-    }
-  };
-
-  const handleDeleteUser = async (id) => {
-    const result = await Swal.fire({
-      title: '¿Eliminar usuario?',
-      text: 'Esta acción no se puede deshacer.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
-    });
-    if (result.isConfirmed) {
-      try {
-        await axios.delete(`${API_URL}/api/users/${id}`);
-        fetchUsers();
-        Swal.fire({ icon: 'success', title: 'Eliminado', text: 'Usuario eliminado correctamente' });
-      } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el usuario' });
-      }
-    }
-  };
   const [payments, setPayments] = useState([]);
   const [paymentFilter, setPaymentFilter] = useState({ date: '', month: '' });
   const [reportType, setReportType] = useState('diario');
   const [report, setReport] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  // Estado para edición de usuario
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUser, setEditUser] = useState({ name: '', email: '', password: '', role: 'administrador' });
 
-  // Fetch inicial de datos y modo oscuro
   useEffect(() => {
     fetchDishes();
     fetchUsers();
