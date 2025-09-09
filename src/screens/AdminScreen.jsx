@@ -1,36 +1,4 @@
-  // Estado para edición de usuario
-  const [editUserId, setEditUserId] = useState(null);
-  const [editUser, setEditUser] = useState({ name: '', email: '', password: '', role: 'administrador' });
-
-  // Iniciar edición
-  const handleEditUser = (user) => {
-    setEditUserId(user.id);
-    setEditUser({ name: user.name, email: user.email, password: '', role: user.role });
-  };
-
-  // Guardar edición
-  const handleUpdateUser = async (e) => {
-    e.preventDefault();
-    if (!editUser.name || !editUser.email || !editUser.role) {
-      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre, correo y rol son obligatorios' });
-      return;
-    }
-    try {
-      await axios.put(`${API_URL}/api/users/${editUserId}`, editUser);
-      setEditUserId(null);
-      setEditUser({ name: '', email: '', password: '', role: 'administrador' });
-      fetchUsers();
-      Swal.fire({ icon: 'success', title: 'Usuario actualizado', text: 'Usuario editado correctamente' });
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo editar el usuario' });
-    }
-  };
-
-  // Cancelar edición
-  const handleCancelEditUser = () => {
-    setEditUserId(null);
-    setEditUser({ name: '', email: '', password: '', role: 'administrador' });
-  };
+  // ...existing code...
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 
