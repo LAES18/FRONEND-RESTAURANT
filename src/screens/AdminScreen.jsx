@@ -1,3 +1,36 @@
+  // Estado para edición de usuario
+  const [editUserId, setEditUserId] = useState(null);
+  const [editUser, setEditUser] = useState({ name: '', email: '', password: '', role: 'administrador' });
+
+  // Iniciar edición
+  const handleEditUser = (user) => {
+    setEditUserId(user.id);
+    setEditUser({ name: user.name, email: user.email, password: '', role: user.role });
+  };
+
+  // Guardar edición
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    if (!editUser.name || !editUser.email || !editUser.role) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre, correo y rol son obligatorios' });
+      return;
+    }
+    try {
+      await axios.put(`${API_URL}/api/users/${editUserId}`, editUser);
+      setEditUserId(null);
+      setEditUser({ name: '', email: '', password: '', role: 'administrador' });
+      fetchUsers();
+      Swal.fire({ icon: 'success', title: 'Usuario actualizado', text: 'Usuario editado correctamente' });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo editar el usuario' });
+    }
+  };
+
+  // Cancelar edición
+  const handleCancelEditUser = () => {
+    setEditUserId(null);
+    setEditUser({ name: '', email: '', password: '', role: 'administrador' });
+  };
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -9,14 +42,65 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
-// SPOONACULAR_API_KEY removed, not used in backend
+const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
 
 const AdminScreen = () => {
   const [activeMenu, setActiveMenu] = useState('platillos');
   const [darkMode, setDarkMode] = useState(false);
   const [dishes, setDishes] = useState([]);
   const [newDish, setNewDish] = useState({ name: '', price: '', type: 'desayuno' });
-  // Spoonacular integration removed
+  const [search, setSearch] = useState('');
+  const [spoonacularResults, setSpoonacularResults] = useState([]);
+  const [spoonacularTypes, setSpoonacularTypes] = useState({});
+  const [spoonacularPrices, setSpoonacularPrices] = useState({});
+  // Buscar platillos en Spoonacular y filtrar solo los campos necesarios
+  const handleSearchSpoonacular = async () => {
+    if (!search) return;
+    try {
+      const res = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
+        params: {
+          query: search,
+          number: 5,
+          apiKey: SPOONACULAR_API_KEY,
+          addRecipeInformation: true
+        }
+      });
+      // Solo tomar name, price (editable), y type (editable)
+      const mapped = (res.data.results || []).map(r => ({
+        id: r.id,
+        name: r.title,
+        price: 100,
+        type: 'desayuno'
+      }));
+      setSpoonacularResults(mapped);
+      // Inicializar selects y precios
+      const typesObj = {};
+      const pricesObj = {};
+      mapped.forEach(d => { typesObj[d.id] = 'desayuno'; pricesObj[d.id] = 100; });
+      setSpoonacularTypes(typesObj);
+      setSpoonacularPrices(pricesObj);
+      if (mapped.length === 0) {
+        Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No se encontraron platillos en Spoonacular.' });
+      }
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo buscar en Spoonacular' });
+    }
+  };
+
+  // Importar platillo de Spoonacular (con precio y tipo elegidos)
+  const handleAddSpoonacularDish = async (dish) => {
+    try {
+      await axios.post(`${API_URL}/api/dishes`, {
+        name: dish.name,
+        price: Number(spoonacularPrices[dish.id]) || 0,
+        type: spoonacularTypes[dish.id]
+      });
+      fetchDishes();
+      Swal.fire({ icon: 'success', title: 'Platillo importado', text: 'Platillo importado de Spoonacular' });
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo importar el platillo' });
+    }
+  };
   const [orders, setOrders] = useState([]);
   const [orderFilter, setOrderFilter] = useState({ date: '', month: '' });
   const [users, setUsers] = useState([]);
@@ -161,18 +245,7 @@ const AdminScreen = () => {
     }
   };
 
-  const handleSearchSpoonacular = async () => {
-    if (!search) return;
-    try {
-      const res = await axios.get(`${API_URL}/api/spoonacular?query=${search}&apiKey=${SPOONACULAR_API_KEY}`);
-      setSpoonacularResults(res.data || []);
-      if ((res.data || []).length === 0) {
-        Swal.fire({ icon: 'info', title: 'Sin resultados', text: 'No se encontraron platillos en Spoonacular.' });
-      }
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo buscar en Spoonacular' });
-    }
-  };
+  // (Eliminada duplicada, ahora está arriba con la integración directa a Spoonacular)
 
   const handleAddDishForm = async (e) => {
     e.preventDefault();
@@ -190,15 +263,7 @@ const AdminScreen = () => {
     }
   };
 
-  const handleAddSpoonacularDish = async (dish) => {
-    try {
-      await axios.post(`${API_URL}/api/dishes`, dish);
-      fetchDishes();
-      Swal.fire({ icon: 'success', title: 'Platillo importado', text: 'Platillo importado de Spoonacular' });
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo importar el platillo' });
-    }
-  };
+  // (Eliminada duplicada, ahora está arriba con la integración directa a Spoonacular)
 
   const handleAddDish = async (dish) => {
     try {
@@ -367,8 +432,14 @@ const AdminScreen = () => {
                     <h5>Resultados de Spoonacular</h5>
                     <ul style={{ listStyle: 'none', padding: 0 }}>
                       {spoonacularResults.map((dish, i) => (
-                        <li key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                          <span>{dish.name} - ${ (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
+                        <li key={dish.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                          <span>{dish.name}</span>
+                          <input type="number" min="1" value={spoonacularPrices[dish.id]} onChange={e => setSpoonacularPrices(p => ({ ...p, [dish.id]: e.target.value }))} style={{width: '80px', marginLeft: '8px', marginRight: '8px', borderRadius: '6px', border: '1px solid #bfa76a', padding: '4px'}} placeholder="Precio" />
+                          <select value={spoonacularTypes[dish.id]} onChange={e => setSpoonacularTypes(t => ({ ...t, [dish.id]: e.target.value }))} style={{marginRight: '8px', borderRadius: '6px', border: '1px solid #bfa76a', padding: '4px'}}>
+                            <option value="desayuno">Desayuno</option>
+                            <option value="almuerzo">Almuerzo</option>
+                            <option value="cena">Cena</option>
+                          </select>
                           <button className="btn btn-success" onClick={() => handleAddSpoonacularDish(dish)}><FaPlus /> Importar</button>
                         </li>
                       ))}
@@ -432,8 +503,29 @@ const AdminScreen = () => {
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {users.map(user => (
                     <li key={user.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
-                      <span><strong>{user.nombre}</strong> <span style={{marginLeft: '8px', color: '#bfa76a'}}>{user.rol}</span></span>
-                      <button className="btn btn-danger" onClick={() => handleDeleteUser(user.id)}><FaTrash /> Eliminar</button>
+                      {editUserId === user.id ? (
+                        <form onSubmit={handleUpdateUser} style={{display: 'flex', gap: '8px', alignItems: 'center', flex: 1}}>
+                          <input type="text" value={editUser.name} onChange={e => setEditUser({ ...editUser, name: e.target.value })} placeholder="Nombre" style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
+                          <input type="email" value={editUser.email} onChange={e => setEditUser({ ...editUser, email: e.target.value })} placeholder="Correo" style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
+                          <input type="password" value={editUser.password} onChange={e => setEditUser({ ...editUser, password: e.target.value })} placeholder="Nueva contraseña (opcional)" style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
+                          <select value={editUser.role} onChange={e => setEditUser({ ...editUser, role: e.target.value })} style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}}>
+                            <option value="administrador">Administrador</option>
+                            <option value="mesero">Mesero</option>
+                            <option value="cocina">Cocina</option>
+                            <option value="cobrador">Cobrador</option>
+                          </select>
+                          <button className="btn btn-success" type="submit">Guardar</button>
+                          <button className="btn btn-secondary" type="button" onClick={handleCancelEditUser}>Cancelar</button>
+                        </form>
+                      ) : (
+                        <>
+                          <span><strong>{user.name || user.nombre}</strong> <span style={{marginLeft: '8px', color: '#bfa76a'}}>{user.role || user.rol}</span></span>
+                          <div>
+                            <button className="btn btn-primary" style={{marginRight: '8px'}} onClick={() => handleEditUser(user)}>Editar</button>
+                            <button className="btn btn-danger" onClick={() => handleDeleteUser(user.id)}><FaTrash /> Eliminar</button>
+                          </div>
+                        </>
+                      )}
                     </li>
                   ))}
                 </ul>
