@@ -10,6 +10,20 @@ const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' :
 const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
 
 const AdminScreen = () => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  // Manejar el cambio de tamaño de la ventana
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Mover search al principio y asegurarnos de que esté inicializado
   const [search, setSearch] = useState('');
   const [activeMenu, setActiveMenu] = useState('platillos');
@@ -389,28 +403,68 @@ const AdminScreen = () => {
   try {
     return (
       <div className="admin-dashboard">
-        <header className="admin-header">
-          <div className="admin-header-logo">
-            <span>Panel de Administración</span>
+        <header className="admin-header" style={{
+          padding: isMobile ? '12px' : '1rem',
+          display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          alignItems: 'center',
+          gap: isMobile ? '10px' : '1rem',
+          flexWrap: 'wrap'
+        }}>
+          <div className="admin-header-logo" style={{
+            width: isMobile ? '100%' : 'auto',
+            textAlign: isMobile ? 'center' : 'left'
+          }}>
+            <span style={{fontSize: isMobile ? '1.2rem' : '1.25rem'}}>Panel de Administración</span>
           </div>
-          <div className="admin-header-title">Restaurante</div>
-          <button className="btn btn-outline-secondary" onClick={() => setDarkMode(dm => !dm)}>
-            {darkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
-          </button>
+          <div className="admin-header-title" style={{
+            width: isMobile ? '100%' : 'auto',
+            textAlign: isMobile ? 'center' : 'left',
+            order: isMobile ? 2 : 'initial'
+          }}>
+            Restaurante
+          </div>
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            width: isMobile ? '100%' : 'auto',
+            justifyContent: isMobile ? 'center' : 'flex-end',
+            flexWrap: 'wrap',
+            order: isMobile ? 3 : 'initial'
+          }}>
+            <button 
+              className="btn btn-outline-secondary" 
+              onClick={() => setDarkMode(dm => !dm)}
+              style={{width: isMobile ? '100%' : 'auto'}}
+            >
+              {darkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
+            </button>
             {/* Botón exportar a Excel en reportes */}
             {activeMenu === 'pagos' && report.length > 0 && (
-              <button className="btn btn-success mb-3" onClick={() => {
-                const ws = XLSX.utils.json_to_sheet(report);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
-                XLSX.writeFile(wb, `reporte-${reportType}.xlsx`);
-              }}>
+              <button 
+                className="btn btn-success mb-3" 
+                onClick={() => {
+                  const ws = XLSX.utils.json_to_sheet(report);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
+                  XLSX.writeFile(wb, `reporte-${reportType}.xlsx`);
+                }}
+                style={{width: isMobile ? '100%' : 'auto'}}
+              >
                 Exportar reporte a Excel
               </button>
             )}
+          </div>
         </header>
-        <div style={{display: 'flex', flex: 1}}>
-          <aside className="admin-sidebar">
+        <div className="dashboard-layout" style={{
+            display: 'flex', 
+            flex: 1,
+            flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
+          }}>
+          <aside className="admin-sidebar" style={{
+            width: window.innerWidth <= 768 ? '100%' : '250px',
+            marginBottom: window.innerWidth <= 768 ? '1rem' : '0'
+          }}>
             <div className="admin-sidebar-user">
               <FaUserCircle size={32} style={{marginBottom: '8px'}} />
               <div>Administrador</div>
@@ -442,10 +496,47 @@ const AdminScreen = () => {
             {!loading && !error && activeMenu === 'platillos' && (
               <div>
                 <h2>Gestión de Platillos</h2>
-                <form onSubmit={handleAddDishForm} style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
-                  <input type="text" placeholder="Nombre" value={newDish.name} onChange={e => setNewDish({ ...newDish, name: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <input type="number" placeholder="Precio" value={newDish.price} onChange={e => setNewDish({ ...newDish, price: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a', width: '100px' }} />
-                  <select value={newDish.type} onChange={e => setNewDish({ ...newDish, type: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
+                <form onSubmit={handleAddDishForm} style={{ 
+                    display: 'flex', 
+                    gap: '10px', 
+                    marginBottom: '18px', 
+                    alignItems: 'center',
+                    flexDirection: isMobile ? 'column' : 'row',
+                    width: '100%'
+                  }}>
+                  <input 
+                    type="text" 
+                    placeholder="Nombre" 
+                    value={newDish.name} 
+                    onChange={e => setNewDish({ ...newDish, name: e.target.value })} 
+                    style={{ 
+                      padding: '8px', 
+                      borderRadius: '6px', 
+                      border: '1px solid #bfa76a',
+                      width: isMobile ? '100%' : 'auto'
+                    }} 
+                  />
+                  <input 
+                    type="number" 
+                    placeholder="Precio" 
+                    value={newDish.price} 
+                    onChange={e => setNewDish({ ...newDish, price: e.target.value })} 
+                    style={{ 
+                      padding: '8px', 
+                      borderRadius: '6px', 
+                      border: '1px solid #bfa76a',
+                      width: isMobile ? '100%' : '100px'
+                    }} 
+                  />
+                  <select 
+                    value={newDish.type} 
+                    onChange={e => setNewDish({ ...newDish, type: e.target.value })} 
+                    style={{ 
+                      padding: '8px', 
+                      borderRadius: '6px', 
+                      border: '1px solid #bfa76a',
+                      width: isMobile ? '100%' : 'auto'
+                    }}>
                     <option value="desayuno">Desayuno</option>
                     <option value="almuerzo">Almuerzo</option>
                     <option value="cena">Cena</option>
@@ -510,16 +601,60 @@ const AdminScreen = () => {
                 </div>
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {orders.map(order => (
-                    <li key={order.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
-                        <button className="btn btn-outline-primary" onClick={() => handleReprintInvoice(order.id)}>Reimprimir Factura</button>
+                    <li key={order.id} style={{
+                      background: '#fff', 
+                      borderRadius: '10px', 
+                      marginBottom: '8px', 
+                      padding: isMobile ? '12px' : '10px 18px', 
+                      boxShadow: '0 1px 4px #e3e6ea'
+                    }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'space-between', 
+                        alignItems: isMobile ? 'stretch' : 'center',
+                        gap: isMobile ? '10px' : '0'
+                      }}>
+                        <strong style={{
+                          fontSize: isMobile ? '1.1em' : 'inherit',
+                          textAlign: isMobile ? 'center' : 'left'
+                        }}>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
+                        <button 
+                          className="btn btn-outline-primary" 
+                          onClick={() => handleReprintInvoice(order.id)}
+                          style={{
+                            width: isMobile ? '100%' : 'auto'
+                          }}
+                        >
+                          Reimprimir Factura
+                        </button>
                       </div>
-                      <ul style={{margin: '8px 0 0 0', padding: 0}}>
+                      <ul style={{
+                        margin: '8px 0 0 0', 
+                        padding: 0,
+                        borderTop: '1px solid #eee',
+                        marginTop: '12px',
+                        paddingTop: '12px'
+                      }}>
                         {order.dishes.map((dish, i) => (
-                          <li key={i}>{dish.name} ({dish.type}) - ${
-                            (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                          }</li>
+                          <li key={i} style={{
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            justifyContent: 'space-between',
+                            alignItems: isMobile ? 'flex-start' : 'center',
+                            padding: '4px 0',
+                            borderBottom: i < order.dishes.length - 1 ? '1px solid #f5f5f5' : 'none'
+                          }}>
+                            <span style={{marginBottom: isMobile ? '4px' : '0'}}>
+                              {dish.name} <small style={{color: '#666'}}>({dish.type})</small>
+                            </span>
+                            <strong>${
+                              (Number(dish.price) || 0).toLocaleString('en-US', { 
+                                minimumFractionDigits: 2, 
+                                maximumFractionDigits: 2 
+                              })
+                            }</strong>
+                          </li>
                         ))}
                       </ul>
                     </li>
@@ -544,13 +679,72 @@ const AdminScreen = () => {
                 </form>
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {users.map(user => (
-                    <li key={user.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea', display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                    <li key={user.id} style={{
+                      background: '#fff', 
+                      borderRadius: '10px', 
+                      marginBottom: '8px', 
+                      padding: isMobile ? '12px' : '10px 18px', 
+                      boxShadow: '0 1px 4px #e3e6ea', 
+                      display: 'flex', 
+                      flexDirection: isMobile ? 'column' : 'row',
+                      alignItems: isMobile ? 'stretch' : 'center', 
+                      justifyContent: 'space-between',
+                      gap: isMobile ? '10px' : '0'
+                    }}>
                       {editUserId === user.id ? (
-                        <form onSubmit={handleUpdateUser} style={{display: 'flex', gap: '8px', alignItems: 'center', flex: 1}}>
-                          <input type="text" value={editUser.name} onChange={e => setEditUser({ ...editUser, name: e.target.value })} placeholder="Nombre" style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
-                          <input type="email" value={editUser.email} onChange={e => setEditUser({ ...editUser, email: e.target.value })} placeholder="Correo" style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
-                          <input type="password" value={editUser.password} onChange={e => setEditUser({ ...editUser, password: e.target.value })} placeholder="Nueva contraseña (opcional)" style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}} />
-                          <select value={editUser.role} onChange={e => setEditUser({ ...editUser, role: e.target.value })} style={{padding: '6px', borderRadius: '6px', border: '1px solid #bfa76a'}}>
+                        <form onSubmit={handleUpdateUser} style={{
+                          display: 'flex', 
+                          flexDirection: isMobile ? 'column' : 'row',
+                          gap: '8px', 
+                          alignItems: isMobile ? 'stretch' : 'center', 
+                          flex: 1,
+                          width: '100%'
+                        }}>
+                          <input 
+                            type="text" 
+                            value={editUser.name} 
+                            onChange={e => setEditUser({ ...editUser, name: e.target.value })} 
+                            placeholder="Nombre" 
+                            style={{
+                              padding: '6px', 
+                              borderRadius: '6px', 
+                              border: '1px solid #bfa76a',
+                              width: isMobile ? '100%' : 'auto'
+                            }} 
+                          />
+                          <input 
+                            type="email" 
+                            value={editUser.email} 
+                            onChange={e => setEditUser({ ...editUser, email: e.target.value })} 
+                            placeholder="Correo" 
+                            style={{
+                              padding: '6px', 
+                              borderRadius: '6px', 
+                              border: '1px solid #bfa76a',
+                              width: isMobile ? '100%' : 'auto'
+                            }} 
+                          />
+                          <input 
+                            type="password" 
+                            value={editUser.password} 
+                            onChange={e => setEditUser({ ...editUser, password: e.target.value })} 
+                            placeholder="Nueva contraseña (opcional)" 
+                            style={{
+                              padding: '6px', 
+                              borderRadius: '6px', 
+                              border: '1px solid #bfa76a',
+                              width: isMobile ? '100%' : 'auto'
+                            }} 
+                          />
+                          <select 
+                            value={editUser.role} 
+                            onChange={e => setEditUser({ ...editUser, role: e.target.value })} 
+                            style={{
+                              padding: '6px', 
+                              borderRadius: '6px', 
+                              border: '1px solid #bfa76a',
+                              width: isMobile ? '100%' : 'auto'
+                            }}>
                             <option value="administrador">Administrador</option>
                             <option value="mesero">Mesero</option>
                             <option value="cocina">Cocina</option>
@@ -583,11 +777,29 @@ const AdminScreen = () => {
                 </div>
                 <ul style={{listStyle: 'none', padding: 0}}>
                   {payments.map(payment => (
-                    <li key={payment.id} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <div>
+                    <li key={payment.id} style={{
+                      background: '#fff', 
+                      borderRadius: '10px', 
+                      marginBottom: '8px', 
+                      padding: isMobile ? '12px' : '10px 18px',
+                      boxShadow: '0 1px 4px #e3e6ea'
+                    }}>
+                      <div style={{
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'space-between', 
+                        alignItems: isMobile ? 'flex-start' : 'center',
+                        gap: isMobile ? '8px' : '0'
+                      }}>
+                        <div style={{width: isMobile ? '100%' : 'auto'}}>
                           <strong>Pago #{payment.id}</strong>
-                          <span style={{marginLeft: '10px', color: '#666'}}>
+                          <span style={{
+                            display: isMobile ? 'block' : 'inline',
+                            marginLeft: isMobile ? '0' : '10px',
+                            marginTop: isMobile ? '4px' : '0',
+                            color: '#666',
+                            fontSize: isMobile ? '0.9em' : 'inherit'
+                          }}>
                             {new Date(payment.fecha || payment.created_at).toLocaleDateString('es-ES', {
                               year: 'numeric',
                               month: 'long',
@@ -597,18 +809,29 @@ const AdminScreen = () => {
                             })}
                           </span>
                         </div>
-                        <div>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: isMobile ? 'column' : 'row',
+                          alignItems: isMobile ? 'flex-start' : 'center',
+                          gap: isMobile ? '8px' : '10px',
+                          width: isMobile ? '100%' : 'auto'
+                        }}>
                           <span style={{
                             background: payment.method === 'efectivo' ? '#4caf50' : '#2196f3',
                             color: '#fff',
                             padding: '4px 8px',
                             borderRadius: '4px',
                             fontSize: '0.9em',
-                            marginRight: '10px'
+                            width: isMobile ? '100%' : 'auto',
+                            textAlign: isMobile ? 'center' : 'left'
                           }}>
                             {payment.method === 'efectivo' ? '💵' : '💳'} {payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}
                           </span>
-                          <strong style={{fontSize: '1.1em'}}>${
+                          <strong style={{
+                            fontSize: '1.1em',
+                            width: isMobile ? '100%' : 'auto',
+                            textAlign: isMobile ? 'center' : 'right'
+                          }}>${
                             (Number(payment.total) || 0).toLocaleString('en-US', {
                               minimumFractionDigits: 2,
                               maximumFractionDigits: 2
@@ -617,7 +840,13 @@ const AdminScreen = () => {
                         </div>
                       </div>
                       {payment.orden_id && (
-                        <div style={{marginTop: '8px', fontSize: '0.9em', color: '#666'}}>
+                        <div style={{
+                          marginTop: '8px', 
+                          fontSize: '0.9em', 
+                          color: '#666',
+                          borderTop: isMobile ? '1px solid #eee' : 'none',
+                          paddingTop: isMobile ? '8px' : '0'
+                        }}>
                           Orden #{payment.orden_id} {payment.mesa && `- Mesa ${payment.mesa}`}
                         </div>
                       )}
