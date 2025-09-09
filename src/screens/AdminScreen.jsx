@@ -4,6 +4,7 @@ import './AdminDashboard.css';
 import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { Navigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001');
 const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
@@ -386,6 +387,12 @@ const AdminScreen = () => {
     }
   };
 
+  const isAuthenticated = true; // Reemplazar con lógica real de autenticación
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" />;
+  }
+
   let renderError = null;
   try {
     return (
@@ -621,7 +628,7 @@ const AdminScreen = () => {
   return (
     <div className="admin-dashboard">
       {renderError && (
-        <div style={{color: 'red', textAlign: 'center', marginTop: '40px', fontWeight: 700}}>
+        <div style={{ color: 'red', textAlign: 'center', marginTop: '40px', fontWeight: 700 }}>
           Error inesperado: {renderError.message || renderError.toString()}
         </div>
       )}
