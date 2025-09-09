@@ -18,7 +18,7 @@ const AdminScreen = () => {
   });
   const [dishes, setDishes] = useState([]);
   const [newDish, setNewDish] = useState({ name: '', price: '', type: 'desayuno' });
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(''); // Asegurar inicialización segura
   const [spoonacularResults, setSpoonacularResults] = useState([]);
   const [spoonacularTypes, setSpoonacularTypes] = useState({});
   const [spoonacularPrices, setSpoonacularPrices] = useState({});
@@ -133,37 +133,20 @@ const AdminScreen = () => {
 
   // Función para buscar en Spoonacular
   const handleSearchSpoonacular = async () => {
-    if (!search.trim()) {
+    if (!search?.trim()) { // Validar que search esté definido y no vacío
       Swal.fire({ icon: 'warning', title: 'Búsqueda vacía', text: 'Por favor ingresa un término de búsqueda' });
       return;
     }
-    
-    setLoading(true);
+
     try {
       const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${search}&number=10&apiKey=${SPOONACULAR_API_KEY}`);
-      const data = await response.json();
-      
-      if (data.results) {
-        const results = data.results.map(recipe => ({
-          id: recipe.id,
-          name: recipe.title
-        }));
-        setSpoonacularResults(results);
-        
-        // Inicializar precios y tipos por defecto
-        const defaultPrices = {};
-        const defaultTypes = {};
-        results.forEach(recipe => {
-          defaultPrices[recipe.id] = '';
-          defaultTypes[recipe.id] = 'almuerzo';
-        });
-        setSpoonacularPrices(defaultPrices);
-        setSpoonacularTypes(defaultTypes);
+      if (!response.ok) {
+        throw new Error('Error al buscar en Spoonacular');
       }
+      const data = await response.json();
+      setSpoonacularResults(data.results || []);
     } catch (error) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Error al buscar en Spoonacular' });
-    } finally {
-      setLoading(false);
+      Swal.fire({ icon: 'error', title: 'Error', text: error.message });
     }
   };
 
