@@ -5,12 +5,16 @@ import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaU
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001/api');
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '/api' : 'http://localhost:3001');
 const SPOONACULAR_API_KEY = '67ce982a724d41798877cf212f48d0de';
 
 const AdminScreen = () => {
   const [activeMenu, setActiveMenu] = useState('platillos');
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Persistencia: lee de localStorage si existe
+    const saved = localStorage.getItem('admin-dark-mode');
+    return saved === 'true';
+  });
   const [dishes, setDishes] = useState([]);
   const [newDish, setNewDish] = useState({ name: '', price: '', type: 'desayuno' });
   const [search, setSearch] = useState('');
@@ -40,6 +44,10 @@ const AdminScreen = () => {
 
   useEffect(() => {
     document.body.classList.toggle('dark-mode', darkMode);
+    // Guardar preferencia
+    localStorage.setItem('admin-dark-mode', darkMode);
+    // Animación suave
+    document.body.style.transition = 'background 0.4s, color 0.4s';
   }, [darkMode]);
 
   useEffect(() => {
@@ -122,7 +130,69 @@ const AdminScreen = () => {
     }
   };
 
-  // (Eliminada duplicada, ahora está arriba con la integración directa a Spoonacular)
+  // Función para buscar en Spoonacular
+  const handleSearchSpoonacular = async () => {
+    if (!search.trim()) {
+      Swal.fire({ icon: 'warning', title: 'Búsqueda vacía', text: 'Por favor ingresa un término de búsqueda' });
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const response = await fetch(`https://api.spoonacular.com/recipes/complexSearch?query=${search}&number=10&apiKey=${SPOONACULAR_API_KEY}`);
+      const data = await response.json();
+      
+      if (data.results) {
+        const results = data.results.map(recipe => ({
+          id: recipe.id,
+          name: recipe.title
+        }));
+        setSpoonacularResults(results);
+        
+        // Inicializar precios y tipos por defecto
+        const defaultPrices = {};
+        const defaultTypes = {};
+        results.forEach(recipe => {
+          defaultPrices[recipe.id] = '';
+          defaultTypes[recipe.id] = 'almuerzo';
+        });
+        setSpoonacularPrices(defaultPrices);
+        setSpoonacularTypes(defaultTypes);
+      }
+    } catch (error) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Error al buscar en Spoonacular' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función para agregar platillo desde Spoonacular
+  const handleAddSpoonacularDish = async (dish) => {
+    const price = spoonacularPrices[dish.id];
+    const type = spoonacularTypes[dish.id];
+    
+    if (!price || price <= 0) {
+      Swal.fire({ icon: 'warning', title: 'Precio requerido', text: 'Por favor ingresa un precio válido' });
+      return;
+    }
+    
+    try {
+      await axios.post(`${API_URL}/api/dishes`, {
+        name: dish.name,
+        price: Number(price),
+        type: type
+      });
+      
+      fetchDishes();
+      Swal.fire({ icon: 'success', title: 'Platillo importado', text: 'Platillo agregado desde Spoonacular' });
+      
+      // Limpiar resultados
+      setSpoonacularResults([]);
+      setSearch('');
+    } catch (err) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el platillo' });
+    }
+  };
 
   const handleAddDishForm = async (e) => {
     e.preventDefault();
@@ -139,8 +209,6 @@ const AdminScreen = () => {
       Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo agregar el platillo' });
     }
   };
-
-  // (Eliminada duplicada, ahora está arriba con la integración directa a Spoonacular)
 
   const handleAddDish = async (dish) => {
     try {
@@ -165,6 +233,91 @@ const AdminScreen = () => {
         Swal.fire({icon: 'success', title: 'Eliminado', text: 'Platillo eliminado correctamente'});
       } catch (err) {
         Swal.fire({icon: 'error', title: 'Error', text: 'No se pudo eliminar el platillo'});
+      }
+    }
+  };
+
+  // Función para agregar usuario
+  const handleAddUser = async (e) => {
+    e.preventDefault();
+    if (!newUser.name || !newUser.email || !newUser.password) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Todos los campos son obligatorios' });
+      return;
+    }
+    
+    try {
+      await axios.post(`${API_URL}/api/register`, newUser);
+      setNewUser({ name: '', email: '', password: '', role: 'administrador' });
+      fetchUsers();
+      Swal.fire({ icon: 'success', title: 'Usuario agregado', text: 'Usuario creado correctamente' });
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Error al crear usuario';
+      Swal.fire({ icon: 'error', title: 'Error', text: errorMessage });
+    }
+  };
+
+  // Función para iniciar edición de usuario
+  const handleEditUser = (user) => {
+    setEditUserId(user.id);
+    setEditUser({
+      name: user.name || user.nombre,
+      email: user.email,
+      password: '',
+      role: user.role || user.rol
+    });
+  };
+
+  // Función para cancelar edición
+  const handleCancelEditUser = () => {
+    setEditUserId(null);
+    setEditUser({ name: '', email: '', password: '', role: 'administrador' });
+  };
+
+  // Función para actualizar usuario
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    if (!editUser.name || !editUser.email || !editUser.role) {
+      Swal.fire({ icon: 'warning', title: 'Campos requeridos', text: 'Nombre, email y rol son obligatorios' });
+      return;
+    }
+    
+    try {
+      const updateData = {
+        name: editUser.name,
+        email: editUser.email,
+        role: editUser.role,
+        password: editUser.password || 'unchanged'
+      };
+      
+      await axios.put(`${API_URL}/api/users/${editUserId}`, updateData);
+      setEditUserId(null);
+      setEditUser({ name: '', email: '', password: '', role: 'administrador' });
+      fetchUsers();
+      Swal.fire({ icon: 'success', title: 'Usuario actualizado', text: 'Usuario actualizado correctamente' });
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || 'Error al actualizar usuario';
+      Swal.fire({ icon: 'error', title: 'Error', text: errorMessage });
+    }
+  };
+
+  // Función para eliminar usuario
+  const handleDeleteUser = async (id) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar usuario?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar'
+    });
+    
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/api/users/${id}`);
+        fetchUsers();
+        Swal.fire({ icon: 'success', title: 'Eliminado', text: 'Usuario eliminado correctamente' });
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el usuario' });
       }
     }
   };

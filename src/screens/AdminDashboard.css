@@ -1,3 +1,119 @@
+/* --- DARK MODE --- */
+body.dark-mode {
+  background: #23272f !important;
+}
+.dark-mode .admin-dashboard {
+  background: linear-gradient(120deg, #23272f 60%, #343a40 100%) !important;
+}
+.dark-mode .admin-header {
+  background: #23272f !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px #181a1f;
+}
+.dark-mode .admin-header-logo {
+  color: #38b6ff !important;
+}
+.dark-mode .admin-header-title {
+  color: #fff !important;
+}
+.dark-mode .admin-sidebar {
+  background: #23272f !important;
+  color: #fff !important;
+  box-shadow: 0 2px 8px #181a1f;
+}
+.dark-mode .admin-sidebar-user {
+  background: linear-gradient(120deg, #38b6ff 60%, #23272f 100%) !important;
+  color: #fff !important;
+}
+.dark-mode .admin-sidebar-menu button {
+  color: #fff !important;
+}
+.dark-mode .admin-sidebar-menu button.active,
+.dark-mode .admin-sidebar-menu button:hover {
+  background: #343a40 !important;
+  color: #38b6ff !important;
+}
+.dark-mode .admin-main {
+  background: transparent !important;
+  color: #fff !important;
+}
+.dark-mode .admin-crud-table {
+  background: #23272f !important;
+  color: #fff !important;
+  box-shadow: 0 2px 12px #181a1f;
+}
+.dark-mode .admin-crud-table-title {
+  color: #38b6ff !important;
+}
+.dark-mode .admin-crud-table-table th {
+  background: #343a40 !important;
+  color: #38b6ff !important;
+  border-bottom: 2px solid #38b6ff !important;
+}
+.dark-mode .admin-crud-table-table td {
+  color: #fff !important;
+  border-bottom: 1px solid #343a40 !important;
+}
+.dark-mode .admin-crud-table-table tr:last-child td {
+  border-bottom: none !important;
+}
+.dark-mode .admin-crud-table-table .action-btn {
+  color: #38b6ff !important;
+}
+.dark-mode .admin-crud-table-table .action-btn:hover {
+  color: #bfa76a !important;
+}
+.dark-mode .admin-crud-table-actions .btn {
+  background: #38b6ff !important;
+  color: #fff !important;
+}
+.dark-mode .admin-crud-table-actions .btn:hover {
+  background: #b85c00 !important;
+}
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+  background: #181a1f !important;
+  color: #fff !important;
+  border: 1px solid #38b6ff !important;
+}
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+  color: #bfa76a !important;
+}
+.dark-mode .btn,
+.dark-mode button {
+  background: #343a40 !important;
+  color: #38b6ff !important;
+  border: 1px solid #38b6ff !important;
+}
+.dark-mode .btn-primary {
+  background: #38b6ff !important;
+  color: #fff !important;
+  border: none !important;
+}
+.dark-mode .btn-danger {
+  background: #b85c00 !important;
+  color: #fff !important;
+  border: none !important;
+}
+.dark-mode .btn-success {
+  background: #4caf50 !important;
+  color: #fff !important;
+  border: none !important;
+}
+.dark-mode .btn-secondary {
+  background: #bfa76a !important;
+  color: #fff !important;
+  border: none !important;
+}
+.dark-mode .swal2-popup-delicioso {
+  background: #23272f !important;
+  color: #fff !important;
+}
+.dark-mode .spinner-border.text-warning {
+  border-color: #38b6ff #23272f #23272f #23272f !important;
+}
 /* AdminDashboard.css - estilos exclusivos para el dashboard de administrador */
 /* --- Dashboard estilo CRUD Admin Panel --- */
 .admin-dashboard {
