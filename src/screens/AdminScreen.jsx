@@ -1,5 +1,4 @@
   // Función básica para generar y descargar un PDF de factura
-  // import jsPDF from 'jspdf';
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import './AdminScreen.css';
