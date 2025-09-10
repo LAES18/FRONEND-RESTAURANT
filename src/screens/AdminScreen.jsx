@@ -109,7 +109,21 @@ const AdminScreen = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_URL}/api/orders`);
+      let url = `${API_URL}/api/orders`;
+      const params = new URLSearchParams();
+      
+      if (orderFilter.date) {
+        params.append('date', orderFilter.date);
+      }
+      if (orderFilter.month) {
+        params.append('month', orderFilter.month);
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const res = await axios.get(url);
       setOrders(res.data);
     } catch (err) {
       setError('Error al cargar órdenes');
@@ -137,7 +151,21 @@ const AdminScreen = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_URL}/api/payments`);
+      let url = `${API_URL}/api/payments`;
+      const params = new URLSearchParams();
+      
+      if (paymentFilter.date) {
+        params.append('date', paymentFilter.date);
+      }
+      if (paymentFilter.month) {
+        params.append('month', paymentFilter.month);
+      }
+      
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      
+      const res = await axios.get(url);
       setPayments(res.data);
     } catch (err) {
       setError('Error al cargar pagos');
@@ -281,6 +309,253 @@ const AdminScreen = () => {
     setEditUser({ name: '', email: '', password: '', role: 'administrador' });
   };
 
+  // Función unificada para reimprimir factura
+  const handleReprintInvoice = async (item) => {
+    try {
+      let orderId;
+      let order;
+      
+      // Si recibimos un objeto payment
+      if (item.order_id) {
+        orderId = item.order_id;
+        const res = await axios.get(`${API_URL}/api/orders/${orderId}`);
+        order = res.data;
+      } else {
+        // Si recibimos directamente un orderId o una orden
+        orderId = typeof item === 'object' ? item.id : item;
+        order = typeof item === 'object' ? item : null;
+        
+        if (!order) {
+          const res = await axios.get(`${API_URL}/api/orders/${orderId}`);
+          order = res.data;
+        }
+      }
+      
+      // Generar y descargar el PDF
+      generateInvoicePDF(order);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Factura Reimpresa',
+        text: `La factura de la orden #${orderId} ha sido reimpresa`
+      });
+    } catch (err) {
+      console.error('Error al reimprimir factura:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo reimprimir la factura'
+      });
+    }
+  };
+
+  // Función para generar reporte PDF
+  const generateSalesReport = async (type) => {
+    try {
+      // Obtener órdenes pagadas
+      const payments = await axios.get(`${API_URL}/api/payments`);
+      const orders = await axios.get(`${API_URL}/api/orders?status=pagado`);
+      
+      // Procesar datos para el reporte
+      const ordersWithPayments = orders.data.map(order => {
+        const payment = payments.data.find(p => p.order_id === order.id);
+        return {
+          ...order,
+          payment: payment || {}
+        };
+      });
+
+      // Filtrar por período
+      const now = new Date();
+      const filteredOrders = ordersWithPayments.filter(order => {
+        const orderDate = new Date(order.created_at);
+        switch(type) {
+          case 'daily':
+            return orderDate.toDateString() === now.toDateString();
+          case 'weekly':
+            const weekAgo = new Date(now);
+            weekAgo.setDate(now.getDate() - 7);
+            return orderDate >= weekAgo;
+          case 'monthly':
+            return orderDate.getMonth() === now.getMonth() && 
+                   orderDate.getFullYear() === now.getFullYear();
+          default:
+            return true;
+        }
+      });
+
+      // Agrupar ventas por platillo
+      const salesByDish = {};
+      filteredOrders.forEach(order => {
+        order.dishes.forEach(dish => {
+          if (!salesByDish[dish.name]) {
+            salesByDish[dish.name] = {
+              quantity: 0,
+              total: 0,
+              type: dish.type
+            };
+          }
+          salesByDish[dish.name].quantity += 1;
+          salesByDish[dish.name].total += parseFloat(dish.price);
+        });
+      });
+
+      // Convertir a array para el reporte
+      const salesData = Object.entries(salesByDish).map(([name, data]) => ({
+        name,
+        ...data
+      }));
+
+      // Generar PDF
+      const doc = new jsPDF();
+      let y = 20;
+
+      // Título
+      doc.setFontSize(20);
+      doc.text('Reporte de Ventas - Restaurante', 105, y, { align: 'center' });
+      y += 15;
+
+      // Subtítulo con periodo
+      doc.setFontSize(12);
+      const periodText = type === 'daily' ? 'Reporte Diario' : 
+                        type === 'weekly' ? 'Reporte Semanal' : 
+                        'Reporte Mensual';
+      doc.text(periodText, 105, y, { align: 'center' });
+      y += 15;
+
+      // Periodo
+      doc.setFontSize(12);
+      const period = type === 'daily' ? 'Diario' : type === 'weekly' ? 'Semanal' : 'Mensual';
+      doc.text(`Periodo: ${period}`, 20, y);
+      y += 10;
+
+      // Encabezados de tabla
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Platillo', 20, y);
+      doc.text('Tipo', 80, y);
+      doc.text('Cantidad', 130, y);
+      doc.text('Total', 170, y);
+      y += 5;
+      doc.line(20, y, 190, y);
+      y += 10;
+
+      // Contenido de la tabla
+      doc.setFont('helvetica', 'normal');
+      let totalVentas = 0;
+      let ventasPorTipo = {
+        desayuno: 0,
+        almuerzo: 0,
+        cena: 0
+      };
+
+      let totalGeneral = 0;
+      salesData.forEach(item => {
+        doc.text(item.name.substring(0, 40), 20, y);
+        doc.text(item.type, 80, y);
+        doc.text(item.quantity.toString(), 130, y);
+        doc.text(`$${item.total.toFixed(2)}`, 170, y);
+        y += 7;
+        totalGeneral += item.total;
+        ventasPorTipo[item.type] += item.total;
+      });
+
+      y += 5;
+      doc.line(20, y, 190, y);
+      y += 10;
+
+      // Resumen por tipo de platillo
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Resumen por Tipo:', 20, y);
+      y += 10;
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      Object.entries(ventasPorTipo).forEach(([tipo, total]) => {
+        if (total > 0) {
+          doc.text(`${tipo.charAt(0).toUpperCase() + tipo.slice(1)}:`, 30, y);
+          doc.text(`$${total.toFixed(2)}`, 170, y);
+          y += 7;
+        }
+      });
+
+      y += 5;
+      doc.line(20, y, 190, y);
+      y += 10;
+
+      // Total General
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Total General:', 30, y);
+      doc.text(`$${totalGeneral.toFixed(2)}`, 170, y);
+
+      // Fecha del reporte
+      y += 20;
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Reporte generado el ${new Date().toLocaleString()}`, 105, y, { align: 'center' });
+
+      // Guardar PDF
+      doc.save(`reporte-ventas-${type}-${new Date().toISOString().split('T')[0]}.pdf`);
+
+      // Generar Excel
+      const wb = XLSX.utils.book_new();
+      
+      // Hoja de Detalle de Ventas
+      const ws_data = [
+        ['Platillo', 'Tipo', 'Cantidad', 'Precio Unitario', 'Total'],
+        ...salesData.map(item => [
+          item.name,
+          item.type,
+          item.quantity,
+          (item.total / item.quantity).toFixed(2),
+          item.total.toFixed(2)
+        ])
+      ];
+      
+      // Agregar totales por tipo
+      ws_data.push([]);
+      ws_data.push(['Resumen por Tipo']);
+      Object.entries(ventasPorTipo).forEach(([tipo, total]) => {
+        if (total > 0) {
+          ws_data.push([tipo.charAt(0).toUpperCase() + tipo.slice(1), '', '', '', total.toFixed(2)]);
+        }
+      });
+      
+      // Agregar total general
+      ws_data.push([]);
+      ws_data.push(['Total General', '', '', '', totalGeneral.toFixed(2)]);
+      
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      
+      // Dar formato a las columnas
+      const cols = [
+        { wch: 40 }, // Platillo
+        { wch: 15 }, // Tipo
+        { wch: 10 }, // Cantidad
+        { wch: 15 }, // Precio Unitario
+        { wch: 15 }  // Total
+      ];
+      ws['!cols'] = cols;
+      
+      XLSX.utils.book_append_sheet(wb, ws, "Reporte de Ventas");
+      XLSX.writeFile(wb, `reporte-ventas-${type}-${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Reportes Generados',
+        text: 'Los reportes han sido generados en PDF y Excel'
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo generar el reporte'
+      });
+    }
+  };
+
   // Función para actualizar usuario
   const handleUpdateUser = async (e) => {
     e.preventDefault();
@@ -382,15 +657,6 @@ const AdminScreen = () => {
       setPayments([]);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleReprintInvoice = async (orderId) => {
-    try {
-      await axios.post(`${API_URL}/api/orders/${orderId}/reprint`);
-      Swal.fire({ icon: 'success', title: 'Factura reimpresa', text: `Factura de la orden #${orderId} reimpresa` });
-    } catch (err) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo reimprimir la factura' });
     }
   };
 

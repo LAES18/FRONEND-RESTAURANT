@@ -1,0 +1,364 @@
+/* CashierScreen.css */
+.cashier-screen {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+}
+
+/* Panel de órdenes pendientes */
+.pending-orders {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  height: calc(100vh - 3rem);
+  position: sticky;
+  top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.pending-orders h2 {
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.orders-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.orders-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.orders-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.orders-list::-webkit-scrollbar-thumb {
+  background: #b85c00;
+  border-radius: 3px;
+}
+
+.order-item {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.order-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-color: #b85c00;
+}
+
+.order-item.selected {
+  border: 2px solid #b85c00;
+  background: #fff8e1;
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px dashed #eee;
+}
+
+.order-info {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.order-time {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.order-total {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #b85c00;
+}
+
+/* Panel de pago */
+.payment-panel {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-header h2 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.order-details {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.dishes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dish-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.dish-item:last-child {
+  border-bottom: none;
+}
+
+.dish-name {
+  color: #2c3e50;
+}
+
+.dish-price {
+  font-weight: 500;
+  color: #b85c00;
+}
+
+.payment-summary {
+  background: #fff8e1;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.summary-row.total {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  border-top: 2px dashed #eee;
+  padding-top: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.payment-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.btn-payment {
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-payment.cash {
+  background: #b85c00;
+  color: white;
+}
+
+.btn-payment.card {
+  background: #2c3e50;
+  color: white;
+}
+
+.btn-payment:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-payment:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Modo oscuro */
+body.dark-mode .cashier-screen {
+  background: #1a1a1a;
+}
+
+body.dark-mode .pending-orders,
+body.dark-mode .payment-panel {
+  background: #2d2d2d;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+body.dark-mode .order-item {
+  background: #2d2d2d;
+  border-color: #3d3d3d;
+}
+
+body.dark-mode .order-item:hover {
+  border-color: #38b6ff;
+}
+
+body.dark-mode .order-item.selected {
+  background: #38b6ff22;
+  border-color: #38b6ff;
+}
+
+body.dark-mode .order-header {
+  border-bottom-color: #3d3d3d;
+}
+
+body.dark-mode h2,
+body.dark-mode .order-info,
+body.dark-mode .dish-name {
+  color: #fff;
+}
+
+body.dark-mode .order-time {
+  color: #aaa;
+}
+
+body.dark-mode .order-total,
+body.dark-mode .dish-price {
+  color: #38b6ff;
+}
+
+body.dark-mode .payment-summary {
+  background: #23272f;
+}
+
+body.dark-mode .summary-row {
+  color: #aaa;
+}
+
+body.dark-mode .summary-row.total {
+  color: #fff;
+  border-top-color: #3d3d3d;
+}
+
+/* Responsivo */
+@media screen and (max-width: 1200px) {
+  .cashier-screen {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .pending-orders {
+    height: calc(100vh - 2rem);
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .cashier-screen {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .cashier-screen {
+    grid-template-columns: 1fr;
+    padding: 0;
+    gap: 0;
+  }
+
+  .pending-orders {
+    height: auto;
+    max-height: 40vh;
+    position: relative;
+    top: 0;
+    border-radius: 0;
+  }
+
+  .payment-panel {
+    border-radius: 0;
+    padding: 1rem;
+  }
+
+  .payment-actions {
+    position: sticky;
+    bottom: 0;
+    background: inherit;
+    padding: 1rem;
+    margin: 0 -1rem -1rem;
+    border-top: 1px solid #eee;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .payment-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animaciones */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.order-item {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .order-item {
+    animation: none;
+  }
+  
+  .btn-payment:hover {
+    transform: none;
+  }
+}

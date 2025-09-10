@@ -3,6 +3,7 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import './CashierScreen.css';
 
 // Asegúrate que todos los endpoints usen /api/ como prefijo, igual que en Railway.
 const API_URL =
@@ -195,64 +196,94 @@ const CashierScreen = () => {
   }).bind(Swal);
 
   return (
-    <div className="cashier-container">
-      <div className="d-flex justify-content-end mb-2">
-        <button className="btn btn-outline-danger" onClick={handleLogout}>Cerrar sesión</button>
-      </div>
-
-      <h1 className="cashier-title">💳 Pantalla del Cobrador</h1>
-
-      <h2 className="cashier-section-title">Órdenes Servidas</h2>
-      <ul className="cashier-orders-list">
-        {orders.map(order => (
-          <li
-            className={`cashier-order-item ${selectedOrders.includes(order) ? 'selected' : ''}`}
-            key={order.id}
-            onClick={() => handleSelectOrder(order)}
-          >
-            <div>
-              <strong>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
-              <ul className="cashier-dishes-list">
+    <div className="cashier-screen">
+      <div className="pending-orders">
+        <h2>💳 Órdenes Pendientes de Cobro</h2>
+        <div className="orders-list">
+          {orders.map(order => (
+            <div
+              className={`order-item ${selectedOrders.includes(order) ? 'selected' : ''}`}
+              key={order.id}
+              onClick={() => handleSelectOrder(order)}
+            >
+              <div className="order-header">
+                <div className="order-info">Orden #{order.id} - Mesa {order.mesa || 'N/A'}</div>
+                <div className="order-time">{new Date().toLocaleTimeString()}</div>
+              </div>
+              <ul className="dishes-list">
                 {order.dishes.map((dish, i) => (
-                  <li key={i}>{dish.name} ({dish.type}) - ${dish.price}</li>
+                  <li key={i} className="dish-item">
+                    <span className="dish-name">{dish.name}</span>
+                    <span className="dish-price">${parseFloat(dish.price).toFixed(2)}</span>
+                  </li>
                 ))}
               </ul>
+              <div className="order-total">
+                Total: ${order.dishes.reduce((sum, dish) => sum + parseFloat(dish.price), 0).toFixed(2)}
+              </div>
             </div>
-            <span className="cashier-order-total">Total: ${order.dishes.reduce((sum, dish) => sum + parseFloat(dish.price), 0).toFixed(2)}</span>
-          </li>
-        ))}
-      </ul>
-
-      <h2 className="cashier-section-title">Procesar Pago</h2>
-      {error && <div className="cashier-error">{error}</div>}
-
-      <div className="cashier-summary">
-        <span>Total a pagar: ${calculateTotal()}</span>
+          ))}
+        </div>
       </div>
 
-      <div className="cashier-payment-method">
-        <label>Método de Pago:</label>
-        <select
-          value={paymentMethod}
-          onChange={e => setPaymentMethod(e.target.value)}
+      <div className="payment-panel">
+        <div className="payment-header">
+          <h2>Procesar Pago</h2>
+          <button className="btn-payment" onClick={handleLogout}>Cerrar sesión</button>
+        </div>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <div className="order-details">
+          <h3>Resumen de Orden</h3>
+          <div className="payment-summary">
+            <div className="summary-row">
+              <span>Subtotal</span>
+              <span>${calculateTotal()}</span>
+            </div>
+            <div className="summary-row">
+              <span>IVA (7%)</span>
+              <span>${(parseFloat(calculateTotal()) * 0.07).toFixed(2)}</span>
+            </div>
+            <div className="summary-row total">
+              <span>Total a Pagar</span>
+              <span>${(parseFloat(calculateTotal()) * 1.07).toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="payment-actions">
+          <button
+            className={`btn-payment ${paymentMethod === 'efectivo' ? 'cash' : ''}`}
+            onClick={() => setPaymentMethod('efectivo')}
+          >
+            💵 Efectivo
+          </button>
+          <button
+            className={`btn-payment ${paymentMethod === 'tarjeta' ? 'card' : ''}`}
+            onClick={() => setPaymentMethod('tarjeta')}
+          >
+            💳 Tarjeta
+          </button>
+        </div>
+
+        <button
+          className="btn-payment cash"
+          onClick={handlePayment}
+          disabled={selectedOrders.length === 0}
         >
-          <option value="efectivo">Efectivo</option>
-          <option value="tarjeta">Tarjeta</option>
-          <option value="transferencia">Transferencia</option>
-        </select>
-      </div>
-
-      <button className="cashier-pay-button" onClick={handlePayment}>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a5 5 0 00-10 0v2M5 13h14l1 9H4l1-9zm2 0V7a3 3 0 016 0v6" /></svg>
-        Procesar Pago
-      </button>
-      {/* El botón manual de descarga de factura sigue disponible si se desea */}
-      {lastInvoice && (
-        <button className="cashier-pay-button mt-2" onClick={() => downloadTicket(lastInvoice)}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-          Descargar Factura Último Pago
+          Procesar Pago
         </button>
-      )}
+
+        {lastInvoice && (
+          <button
+            className="btn-payment card"
+            onClick={() => handleDownloadInvoice(lastInvoice)}
+          >
+            📄 Descargar Última Factura
+          </button>
+        )}
+      </div>
     </div>
   );
 };
