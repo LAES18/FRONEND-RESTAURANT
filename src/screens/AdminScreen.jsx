@@ -44,6 +44,15 @@ const AdminScreen = () => {
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'administrador' });
   const [payments, setPayments] = useState([]);
   const [paymentFilter, setPaymentFilter] = useState({ date: '', month: '' });
+  // Filtros reactivos para órdenes
+  useEffect(() => {
+    fetchOrders();
+  }, [orderFilter.date, orderFilter.month]);
+
+  // Filtros reactivos para pagos
+  useEffect(() => {
+    fetchPayments();
+  }, [paymentFilter.date, paymentFilter.month]);
   const [reportType, setReportType] = useState('diario');
   const [report, setReport] = useState([]);
   const [error, setError] = useState(null);
