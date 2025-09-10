@@ -24,19 +24,13 @@ function App() {
   }
 
   return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-md-6">
-          <div className="card">
-            <div className="card-body">
-              {isLogin ? (
-                <LoginForm toggleForm={toggleForm} setRole={setRole} />
-              ) : (
-                <RegisterForm toggleForm={toggleForm} />
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="login-container">
+      <div className="login-card">
+        {isLogin ? (
+          <LoginForm toggleForm={toggleForm} setRole={setRole} />
+        ) : (
+          <RegisterForm toggleForm={toggleForm} />
+        )}
       </div>
     </div>
   );

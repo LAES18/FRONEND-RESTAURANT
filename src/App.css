@@ -1,3 +1,56 @@
+/* --- Login Custom Styles --- */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+.login-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 #e0c9a6;
+  padding: 2.5rem 2.5rem 2rem 2.5rem;
+  max-width: 400px;
+  margin: auto;
+  border: 1.5px solid #bfa76a;
+}
+.login-card h3 {
+  color: #b85c00;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+.login-card .form-label {
+  color: #b85c00;
+  font-weight: 500;
+}
+.login-card .form-control {
+  border-radius: 8px;
+  border: 1.5px solid #bfa76a;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+.login-card .btn-primary {
+  background: linear-gradient(90deg, #b85c00 60%, #bfa76a 100%);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px #e0c9a6;
+  margin-top: 0.5rem;
+}
+.login-card .btn-primary:hover {
+  background: linear-gradient(90deg, #bfa76a 0%, #b85c00 100%);
+}
+.login-card .text-primary {
+  color: #b85c00 !important;
+  font-weight: 600;
+}
+.login-card p {
+  margin-top: 1.2rem;
+  text-align: center;
+}
 /* Bootstrap overrides for restaurant theme */
 
 /* General body styling */
