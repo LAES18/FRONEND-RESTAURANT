@@ -1,9 +1,5 @@
   // Función básica para generar y descargar un PDF de factura
   // import jsPDF from 'jspdf';
-  // Función deshabilitada temporalmente para evitar error de módulo jsPDF
-  function generateInvoicePDF(order) {
-    Swal.fire({ icon: 'info', title: 'PDF deshabilitado', text: 'La generación de factura PDF está temporalmente deshabilitada.' });
-  }
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import './AdminScreen.css';
