@@ -1,55 +1,132 @@
-/* --- Login Custom Styles --- */
-.login-container {
-  min-height: 100vh;
+
+/* ----------- TARJETAS (CARDS) ----------- */
+.card, .waiter-card, .kitchen-card, .cashier-card {
+  position: relative !important;
+  margin: 0 auto !important;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%) !important;
+  border-radius: 24px !important;
+  padding: 2rem 1.2rem 1.5rem;
+  max-width: 350px;
+  min-width: 300px;
+  min-height: 340px;
+  width: 100%;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
-  background: #f8f9fa;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.login-card {
-  background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 4px 32px 0 #e0c9a6;
-  padding: 2.5rem 2.5rem 2rem 2.5rem;
-  max-width: 400px;
-  margin: auto;
-  border: 1.5px solid #bfa76a;
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(184, 92, 0, 0.18);
 }
-.login-card h3 {
+
+/* LOGIN CARD CON BARRA MULTICOLOR */
+.card.login-card {
+  overflow: visible;
+  padding: 2.1rem 1.3rem 1.5rem;
+  border-radius: 18px !important;
+  border: 1.5px solid #ffe7b3;
+  box-shadow: 0 4px 16px rgba(184, 92, 0, 0.13);
+  background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%) !important;
+}
+.card.login-card::before {
+  content: '';
+  height: 8px;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(90deg, #f8b500 0%, #f86c3c 20%, #fceabb 50%, #f8b500 80%, #b85c00 100%);
+}
+
+/* ----------- FORMULARIOS EN TARJETAS ----------- */
+.card form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.1rem;
+}
+
+.card .form-control {
+  border-radius: 0.25rem;
+  padding: 0.9rem 1.1rem !important;
+  background: #fffbe9 !important;
+  font-size: 1.08rem;
+  border: 1.5px solid #ffe7b3 !important;
+  box-shadow: 0 2px 8px rgba(248, 181, 0, 0.04);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card .form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.card label, .card .form-label {
   color: #b85c00;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-.login-card .form-label {
-  color: #b85c00;
-  font-weight: 500;
-}
-.login-card .form-control {
-  border-radius: 8px;
-  border: 1.5px solid #bfa76a;
-  margin-bottom: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
   font-size: 1.05rem;
 }
-.login-card .btn-primary {
-  background: linear-gradient(90deg, #b85c00 60%, #bfa76a 100%);
+
+/* ----------- BOTONES ----------- */
+.card .btn, .btn-primary, .waiter-add-btn, .kitchen-add-btn, .cashier-add-btn {
+  background: #b85c00 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.8rem 0;
+  box-shadow: 0 2px 8px #ffe7b3;
+  margin: 0.5rem 0;
+}
+.card .btn:hover, .btn-primary:hover {
+  background: #f8b500 !important;
+  color: #fff !important;
+}
+
+.btn-success, .waiter-send-btn, .kitchen-send-btn, .cashier-send-btn {
+  background: #28a745; /* Green for success actions */
   border: none;
-  border-radius: 8px;
   font-weight: 600;
   font-size: 1.1rem;
-  box-shadow: 0 2px 8px #e0c9a6;
-  margin-top: 0.5rem;
+  margin-top: 10px;
 }
-.login-card .btn-primary:hover {
-  background: linear-gradient(90deg, #bfa76a 0%, #b85c00 100%);
+.btn-success:disabled {
+  background: #bdbdbd !important;
+  color: #fff !important;
 }
-.login-card .text-primary {
+
+.btn-danger, .waiter-remove-btn, .kitchen-remove-btn, .cashier-remove-btn {
+  background: #dc3545; /* Red for delete actions */
+  border: none !important;
+}
+.btn-danger:hover {
+  background: #c82333; /* Darker red on hover */
+}
+
+/* ----------- TEXTOS Y TÍTULOS ----------- */
+.text-primary {
   color: #b85c00 !important;
   font-weight: 600;
+  cursor: pointer;
 }
-.login-card p {
-  margin-top: 1.2rem;
-  text-align: center;
+.text-primary:hover {
+  color: #f8b500 !important;
+  text-decoration: underline;
+}
+.text-muted {
+  color: #bfa76a !important;
+}
+.text-center {
+  margin-bottom: 1.2rem;
 }
 /* Bootstrap overrides for restaurant theme */
 
