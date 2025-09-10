@@ -27,22 +27,17 @@
 /* LOGIN CARD CON BARRA MULTICOLOR */
 .card.login-card {
   overflow: visible;
-  padding: 2.1rem 1.3rem 1.5rem;
-  border-radius: 18px !important;
+  padding: 1.2rem 1.1rem 1.1rem 1.1rem;
+  border-radius: 16px !important;
   border: 1.5px solid #ffe7b3;
-  box-shadow: 0 4px 16px rgba(184, 92, 0, 0.13);
+  box-shadow: 0 2px 12px rgba(184, 92, 0, 0.10);
   background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%) !important;
+  max-width: 320px;
+  min-width: 220px;
+  min-height: 0;
 }
 .card.login-card::before {
-  content: '';
-  height: 8px;
-  width: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  border-radius: 18px 18px 0 0;
-  background: linear-gradient(90deg, #f8b500 0%, #f86c3c 20%, #fceabb 50%, #f8b500 80%, #b85c00 100%);
+  display: none;
 }
 
 /* ----------- FORMULARIOS EN TARJETAS ----------- */
@@ -55,12 +50,12 @@
 }
 
 .card .form-control {
-  border-radius: 0.25rem;
-  padding: 0.9rem 1.1rem !important;
+  border-radius: 8px !important;
+  padding: 0.7rem 1rem !important;
   background: #fffbe9 !important;
-  font-size: 1.08rem;
+  font-size: 1rem;
   border: 1.5px solid #ffe7b3 !important;
-  box-shadow: 0 2px 8px rgba(248, 181, 0, 0.04);
+  box-shadow: 0 1px 4px rgba(248, 181, 0, 0.04);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -71,21 +66,21 @@
 
 .card label, .card .form-label {
   color: #b85c00;
-  font-weight: 600;
-  margin-bottom: 0.3rem;
-  font-size: 1.05rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+  font-size: 0.98rem;
 }
 
 /* ----------- BOTONES ----------- */
 .card .btn, .btn-primary, .waiter-add-btn, .kitchen-add-btn, .cashier-add-btn {
   background: #b85c00 !important;
   border: none !important;
-  border-radius: 12px !important;
-  font-size: 1.1rem;
+  border-radius: 10px !important;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 0.8rem 0;
-  box-shadow: 0 2px 8px #ffe7b3;
-  margin: 0.5rem 0;
+  padding: 0.6rem 0;
+  box-shadow: 0 1px 4px #ffe7b3;
+  margin: 0.3rem 0;
 }
 .card .btn:hover, .btn-primary:hover {
   background: #f8b500 !important;
@@ -126,7 +121,7 @@
   color: #bfa76a !important;
 }
 .text-center {
-  margin-bottom: 1.2rem;
+  margin-bottom: 0.8rem;
 }
 /* Bootstrap overrides for restaurant theme */
 
