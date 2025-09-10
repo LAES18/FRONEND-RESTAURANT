@@ -1,67 +1,8 @@
   // Función básica para generar y descargar un PDF de factura
-  import jsPDF from 'jspdf';
-  // Genera un PDF de factura presentable para una orden
+  // import jsPDF from 'jspdf';
+  // Función deshabilitada temporalmente para evitar error de módulo jsPDF
   function generateInvoicePDF(order) {
-    if (!order) {
-      Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontró la orden para imprimir.' });
-      return;
-    }
-    const doc = new jsPDF();
-    let y = 20;
-
-    // Encabezado
-    doc.setFontSize(18);
-    doc.text('Restaurante - Factura', 105, y, { align: 'center' });
-    y += 10;
-    doc.setFontSize(12);
-    doc.text(`Fecha: ${order.created_at ? new Date(order.created_at).toLocaleString() : new Date().toLocaleString()}`, 20, y);
-    doc.text(`Factura #${order.id || ''}`, 160, y);
-    y += 8;
-    doc.text(`Mesa: ${order.mesa || 'N/A'}`, 20, y);
-    y += 8;
-
-    // Línea separadora
-    doc.line(20, y, 190, y);
-    y += 6;
-
-    // Tabla de productos
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Producto', 22, y);
-    doc.text('Tipo', 92, y);
-    doc.text('Precio', 132, y);
-    doc.text('Total', 172, y);
-    y += 6;
-    doc.setFont('helvetica', 'normal');
-
-    let total = 0;
-    (order.dishes || []).forEach((dish) => {
-      doc.text(String(dish.name).substring(0, 30), 22, y);
-      doc.text(dish.type || '', 92, y);
-      doc.text(`$${Number(dish.price).toFixed(2)}`, 132, y);
-      doc.text(`$${Number(dish.price).toFixed(2)}`, 172, y);
-      total += Number(dish.price);
-      y += 6;
-      if (y > 270) {
-        doc.addPage();
-        y = 20;
-      }
-    });
-
-    y += 4;
-    doc.line(120, y, 190, y);
-    y += 8;
-    doc.setFont('helvetica', 'bold');
-    doc.text('Total:', 132, y);
-    doc.text(`$${total.toFixed(2)}`, 172, y);
-    y += 10;
-
-    // Pie de página
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('¡Gracias por su compra!', 105, 285, { align: 'center' });
-
-    doc.save(`factura-orden-${order.id || 'N/A'}.pdf`);
+    Swal.fire({ icon: 'info', title: 'PDF deshabilitado', text: 'La generación de factura PDF está temporalmente deshabilitada.' });
   }
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
