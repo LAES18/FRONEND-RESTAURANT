@@ -1,3 +1,32 @@
+  // Función básica para generar y descargar un PDF de factura
+  function generateInvoicePDF(order) {
+    if (!order) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontró la orden para imprimir.' });
+      return;
+    }
+    const doc = new window.jspdf.jsPDF();
+    let y = 20;
+    doc.setFontSize(16);
+    doc.text(`Factura - Orden #${order.id}`, 20, y);
+    y += 10;
+    doc.setFontSize(12);
+    doc.text(`Mesa: ${order.mesa || 'N/A'}`, 20, y);
+    y += 10;
+    doc.text(`Fecha: ${(order.created_at || new Date().toLocaleString())}`, 20, y);
+    y += 10;
+    doc.text('Platillos:', 20, y);
+    y += 8;
+    let total = 0;
+    (order.dishes || []).forEach(dish => {
+      doc.text(`- ${dish.name} (${dish.type}) $${Number(dish.price).toFixed(2)}`, 25, y);
+      y += 7;
+      total += Number(dish.price);
+    });
+    y += 8;
+    doc.setFontSize(13);
+    doc.text(`Total: $${total.toFixed(2)}`, 20, y);
+    doc.save(`factura-orden-${order.id}.pdf`);
+  }
 import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import './AdminScreen.css';
