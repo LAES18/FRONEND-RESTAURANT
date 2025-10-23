@@ -5,6 +5,26 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    historyApiFallback: true
+    port: 5176,
+    host: true,
+    cors: true,
+    proxy: {
+      '/api': {
+        target: 'https://backend-restaurant-production-b56f.up.railway.app',
+        changeOrigin: true,
+        secure: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('Proxy error:', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request to Railway:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Railway Response:', proxyRes.statusCode, req.url);
+          });
+        },
+      }
+    }
   }
 })

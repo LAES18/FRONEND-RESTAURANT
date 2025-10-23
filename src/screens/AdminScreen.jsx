@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import './AdminScreen.css';
 import './AdminDashboard.css';
-import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar } from 'react-icons/fa';
+import { FaUserCircle, FaPlus, FaTrash, FaSignOutAlt, FaUtensils, FaListAlt, FaUsers, FaMoneyCheckAlt, FaChartBar, FaFilter, FaPrint, FaDownload } from 'react-icons/fa';
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { Navigate } from 'react-router-dom';
@@ -90,7 +90,7 @@ const AdminScreen = () => {
       customClass: {
         confirmButton: 'btn btn-primary',
         cancelButton: 'btn btn-secondary',
-        popup: 'swal2-popup-delicioso'
+        popup: 'swal2-popup-restosmart'
       },
       buttonsStyling: false,
       color: '#343a40',
@@ -670,6 +670,35 @@ const AdminScreen = () => {
     }
   };
 
+  // Función para buscar en Spoonacular (alias para handleSearchSpoonacular)
+  const handleSpoonacularSearch = handleSearchSpoonacular;
+
+  // Función para agregar platillo desde Spoonacular (alias para handleAddSpoonacularDish)
+  const handleAddFromSpoonacular = handleAddSpoonacularDish;
+
+  // Función para agregar usuario (alias para handleAddUser)
+  const handleAddUserForm = handleAddUser;
+
+  // Función para exportar reportes a Excel
+  const handleExportToExcel = () => {
+    try {
+      if (report.length === 0) {
+        Swal.fire('Advertencia', 'No hay datos para exportar', 'warning');
+        return;
+      }
+      
+      const ws = XLSX.utils.json_to_sheet(report);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, `Reporte-${reportType}`);
+      XLSX.writeFile(wb, `reporte-${reportType}-${new Date().toLocaleDateString()}.xlsx`);
+      
+      Swal.fire('Éxito', 'Reporte exportado correctamente', 'success');
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      Swal.fire('Error', 'No se pudo exportar el reporte', 'error');
+    }
+  };
+
   const isAuthenticated = true; // Reemplazar con lógica real de autenticación
 
   if (!isAuthenticated) {
@@ -679,506 +708,734 @@ const AdminScreen = () => {
   let renderError = null;
   try {
     return (
-      <div className="admin-dashboard">
-        <header className="admin-header" style={{
-          padding: isMobile ? '12px' : '1rem',
-          display: 'flex',
-          flexDirection: isMobile ? 'column' : 'row',
-          alignItems: 'center',
-          gap: isMobile ? '10px' : '1rem',
-          flexWrap: 'wrap'
-        }}>
-          <div className="admin-header-logo" style={{
-            width: isMobile ? '100%' : 'auto',
-            textAlign: isMobile ? 'center' : 'left'
-          }}>
-            <span style={{fontSize: isMobile ? '1.2rem' : '1.25rem'}}>Panel de Administración</span>
-          </div>
-          <div className="admin-header-title" style={{
-            width: isMobile ? '100%' : 'auto',
-            textAlign: isMobile ? 'center' : 'left',
-            order: isMobile ? 2 : 'initial'
-          }}>
-            Restaurante
-          </div>
-          <div style={{
-            display: 'flex',
-            gap: '10px',
-            width: isMobile ? '100%' : 'auto',
-            justifyContent: isMobile ? 'center' : 'flex-end',
-            flexWrap: 'wrap',
-            order: isMobile ? 3 : 'initial'
-          }}>
-            <button 
-              className="btn btn-outline-secondary" 
-              onClick={() => setDarkMode(dm => !dm)}
-              style={{width: isMobile ? '100%' : 'auto'}}
-            >
-              {darkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
-            </button>
-            {/* Botón exportar a Excel en reportes */}
-            {activeMenu === 'pagos' && report.length > 0 && (
-              <button 
-                className="btn btn-success mb-3" 
-                onClick={() => {
-                  const ws = XLSX.utils.json_to_sheet(report);
-                  const wb = XLSX.utils.book_new();
-                  XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
-                  XLSX.writeFile(wb, `reporte-${reportType}.xlsx`);
-                }}
-                style={{width: isMobile ? '100%' : 'auto'}}
-              >
-                Exportar reporte a Excel
-              </button>
-            )}
+      <div className="container-fluid p-0">
+        {/* Header unificado con nuevo diseño */}
+        <header className="restaurant-header">
+          <div className="container">
+            <h1 className="restaurant-title">
+              <FaUserCircle className="me-3" />
+              Panel de Administración
+            </h1>
+            <p className="restaurant-subtitle">Sistema de Gestión del Restaurante</p>
           </div>
         </header>
-        <div className="dashboard-layout" style={{
-            display: 'flex', 
-            flex: 1,
-            flexDirection: window.innerWidth <= 768 ? 'column' : 'row'
-          }}>
-          <aside className="admin-sidebar" style={{
-            width: window.innerWidth <= 768 ? '100%' : '250px',
-            marginBottom: window.innerWidth <= 768 ? '1rem' : '0'
-          }}>
-            <div className="admin-sidebar-user">
-              <FaUserCircle size={32} style={{marginBottom: '8px'}} />
-              <div>Administrador</div>
-              <div style={{fontSize: '0.95rem', fontWeight: '400'}}>Superadmin</div>
-            </div>
-            <ul className="admin-sidebar-menu">
-              <li><button className={activeMenu === 'platillos' ? 'active' : ''} onClick={() => setActiveMenu('platillos')}><FaUtensils /> Gestión de Platillos</button></li>
-              <li><button className={activeMenu === 'ordenes' ? 'active' : ''} onClick={() => setActiveMenu('ordenes')}><FaListAlt /> Órdenes</button></li>
-              <li><button className={activeMenu === 'usuarios' ? 'active' : ''} onClick={() => setActiveMenu('usuarios')}><FaUsers /> Gestión de Usuarios</button></li>
-              <li><button className={activeMenu === 'pagos' ? 'active' : ''} onClick={() => setActiveMenu('pagos')}><FaMoneyCheckAlt /> Pagos</button></li>
-              <li><button onClick={handleLogout}><FaSignOutAlt /> Cerrar sesión</button></li>
-            </ul>
-          </aside>
-          <main className="admin-main">
-            <nav style={{marginBottom: '18px', color: '#b85c00', fontWeight: 500}}>
-              <span style={{marginRight: '8px'}}>🏠 /</span> <span>{activeMenu}</span>
-            </nav>
-            {loading && (
-              <div style={{textAlign: 'center', margin: '40px 0'}}>
-                <div className="spinner-border text-warning" role="status">
-                  <span className="visually-hidden">Cargando...</span>
-                </div>
-                <div style={{marginTop: '12px'}}>Cargando...</div>
+
+        <div className="container my-4">
+          {/* Navigation responsiva */}
+          <nav className="restaurant-nav">
+            {isMobile ? (
+              <div className="dropdown w-100">
+                <button 
+                  className="btn btn-restaurant-primary dropdown-toggle w-100 d-flex justify-content-between align-items-center"
+                  type="button" 
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  <span>
+                    {activeMenu === 'platillos' && (<><FaUtensils className="me-2" />Platillos</>)}
+                    {activeMenu === 'pedidos' && (<><FaListAlt className="me-2" />Pedidos</>)}
+                    {activeMenu === 'usuarios' && (<><FaUsers className="me-2" />Usuarios</>)}
+                    {activeMenu === 'ventas' && (<><FaMoneyCheckAlt className="me-2" />Ventas</>)}
+                    {activeMenu === 'dashboard' && (<><FaChartBar className="me-2" />Dashboard</>)}
+                  </span>
+                </button>
+                <ul className="dropdown-menu w-100">
+                  <li>
+                    <button 
+                      className={`dropdown-item ${activeMenu === 'platillos' ? 'active' : ''}`}
+                      onClick={() => setActiveMenu('platillos')}
+                    >
+                      <FaUtensils className="me-2" />Platillos
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`dropdown-item ${activeMenu === 'pedidos' ? 'active' : ''}`}
+                      onClick={() => setActiveMenu('pedidos')}
+                    >
+                      <FaListAlt className="me-2" />Pedidos
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`dropdown-item ${activeMenu === 'usuarios' ? 'active' : ''}`}
+                      onClick={() => setActiveMenu('usuarios')}
+                    >
+                      <FaUsers className="me-2" />Usuarios
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`dropdown-item ${activeMenu === 'ventas' ? 'active' : ''}`}
+                      onClick={() => setActiveMenu('ventas')}
+                    >
+                      <FaMoneyCheckAlt className="me-2" />Ventas
+                    </button>
+                  </li>
+                  <li>
+                    <button 
+                      className={`dropdown-item ${activeMenu === 'dashboard' ? 'active' : ''}`}
+                      onClick={() => setActiveMenu('dashboard')}
+                    >
+                      <FaChartBar className="me-2" />Dashboard
+                    </button>
+                  </li>
+                </ul>
               </div>
-            )}
-            {error && (
-              <div style={{textAlign: 'center', color: 'red', margin: '20px 0', fontWeight: 600}}>{error}</div>
-            )}
-            {!loading && !error && activeMenu === 'platillos' && (
-              <div>
-                <h2>Gestión de Platillos</h2>
-                <form onSubmit={handleAddDishForm} style={{ 
-                    display: 'flex', 
-                    gap: '10px', 
-                    marginBottom: '18px', 
-                    alignItems: 'center',
-                    flexDirection: isMobile ? 'column' : 'row',
-                    width: '100%'
-                  }}>
-                  <input 
-                    type="text" 
-                    placeholder="Nombre" 
-                    value={newDish.name} 
-                    onChange={e => setNewDish({ ...newDish, name: e.target.value })} 
-                    style={{ 
-                      padding: '8px', 
-                      borderRadius: '6px', 
-                      border: '1px solid #bfa76a',
-                      width: isMobile ? '100%' : 'auto'
-                    }} 
-                  />
-                  <input 
-                    type="number" 
-                    placeholder="Precio" 
-                    value={newDish.price} 
-                    onChange={e => setNewDish({ ...newDish, price: e.target.value })} 
-                    style={{ 
-                      padding: '8px', 
-                      borderRadius: '6px', 
-                      border: '1px solid #bfa76a',
-                      width: isMobile ? '100%' : '100px'
-                    }} 
-                  />
-                  <select 
-                    value={newDish.type} 
-                    onChange={e => setNewDish({ ...newDish, type: e.target.value })} 
-                    style={{ 
-                      padding: '8px', 
-                      borderRadius: '6px', 
-                      border: '1px solid #bfa76a',
-                      width: isMobile ? '100%' : 'auto'
-                    }}>
-                    <option value="desayuno">Desayuno</option>
-                    <option value="almuerzo">Almuerzo</option>
-                    <option value="cena">Cena</option>
-                  </select>
-                  <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
-                </form>
-                <div style={{display: 'flex', gap: '12px', marginBottom: '18px'}}>
-                  <input 
-                    type="text" 
-                    placeholder="Buscar en Spoonacular..." 
-                    value={search || ''} 
-                    onChange={e => setSearch(e.target.value || '')} 
-                    style={{flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}} 
-                  />
+            ) : (
+              <ul className="nav nav-pills justify-content-center">
+                <li className="nav-item">
                   <button 
-                    className="btn" 
-                    type="button" 
-                    onClick={handleSearchSpoonacular}
-                    disabled={!search?.trim()}
-                  >
-                    Buscar
-                  </button>
+                    className={`nav-link ${activeMenu === 'platillos' ? 'active' : ''}`}
+                    onClick={() => setActiveMenu('platillos')}
+                >
+                  <FaUtensils className="me-2" />
+                  Platillos
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeMenu === 'usuarios' ? 'active' : ''}`}
+                  onClick={() => setActiveMenu('usuarios')}
+                >
+                  <FaUsers className="me-2" />
+                  Usuarios  
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeMenu === 'ordenes' ? 'active' : ''}`}
+                  onClick={() => setActiveMenu('ordenes')}
+                >
+                  <FaListAlt className="me-2" />
+                  Órdenes
+                </button>
+              </li>
+              <li className="nav-item">
+                <button 
+                  className={`nav-link ${activeMenu === 'pagos' ? 'active' : ''}`}
+                  onClick={() => setActiveMenu('pagos')}
+                >
+                  <FaMoneyCheckAlt className="me-2" />
+                  Pagos & Reportes
+                </button>
+              </li>
+            </ul>
+            )}
+            
+            {/* Controles superiores responsivos */}
+            <div className={`${isMobile ? 'd-grid gap-2' : 'd-flex justify-content-between align-items-center'} mt-3`}>
+              <div className={isMobile ? 'd-grid gap-2' : 'd-flex gap-2 align-items-center'}>
+                <button 
+                  className={`btn-restaurant-outline ${isMobile ? '' : 'btn-sm'}`}
+                  onClick={() => setDarkMode(!darkMode)}
+                >
+                  {darkMode ? '☀️' : '🌙'} {darkMode ? 'Modo Claro' : 'Modo Oscuro'}
+                </button>
+              </div>
+              <button 
+                className={`btn-restaurant-danger ${isMobile ? '' : 'btn-sm'}`}
+                onClick={handleLogout}
+              >
+                <FaSignOutAlt className="me-2" />
+                Cerrar Sesión
+              </button>
+            </div>
+          </nav>
+
+          {/* Loading y Error States */}
+          {loading && (
+            <div className="text-center py-4">
+              <div className="spinner-border" style={{color: 'var(--primary-color)'}} role="status">
+                <span className="visually-hidden">Cargando...</span>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="alert alert-danger d-flex align-items-center" role="alert">
+              <strong>Error:</strong> {error}
+            </div>
+          )}
+
+          {/* SECCIÓN PLATILLOS */}
+          {!loading && !error && activeMenu === 'platillos' && (
+            <div className="restaurant-card">
+              <div className="card-header bg-transparent border-bottom-0">
+                <h3 className="mb-0" style={{color: 'var(--primary-color)'}}>
+                  <FaUtensils className="me-2" />
+                  Gestión de Platillos
+                </h3>
+              </div>
+              <div className="card-body">
+                {/* Formulario Agregar Platillo */}
+                <form onSubmit={handleAddDishForm} className="mb-4">
+                  <div className="row g-3">
+                    <div className="col-md-4">
+                      <input
+                        type="text"
+                        className="restaurant-form-control"
+                        placeholder="Nombre del platillo"
+                        value={newDish.name}
+                        onChange={(e) => setNewDish({...newDish, name: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="restaurant-form-control"
+                        placeholder="Precio"
+                        value={newDish.price}
+                        onChange={(e) => setNewDish({...newDish, price: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <select
+                        className="restaurant-form-control"
+                        value={newDish.type}
+                        onChange={(e) => setNewDish({...newDish, type: e.target.value})}
+                      >
+                        <option value="desayuno">Desayuno</option>
+                        <option value="almuerzo">Almuerzo</option>
+                        <option value="cena">Cena</option>
+                        <option value="bebida">Bebida</option>
+                        <option value="postre">Postre</option>
+                      </select>
+                    </div>
+                    <div className="col-md-2">
+                      <button type="submit" className="btn-restaurant-primary w-100">
+                        <FaPlus className="me-2" />
+                        Agregar
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                {/* Búsqueda con Spoonacular */}
+                <div className="mb-4">
+                  <div className="row g-3">
+                    <div className="col-md-8">
+                      <input
+                        type="text"
+                        className="restaurant-form-control"
+                        placeholder="Buscar recetas en Spoonacular..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </div>
+                    <div className="col-md-4">
+                      <button
+                        type="button"
+                        className="btn-restaurant-outline w-100"
+                        onClick={handleSpoonacularSearch}
+                      >
+                        🔍 Buscar Recetas
+                      </button>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Resultados de Spoonacular */}
                 {spoonacularResults.length > 0 && (
-                  <div style={{ marginBottom: '18px', background: '#f9f6f2', borderRadius: '10px', padding: '10px' }}>
-                    <h5>Resultados de Spoonacular</h5>
-                    <ul style={{ listStyle: 'none', padding: 0 }}>
-                      {spoonacularResults.map((dish, i) => (
-                        <li key={dish.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                          <span>{dish.name}</span> {/* Usar name normalizado */}
-                          <input type="number" min="1" value={spoonacularPrices[dish.id]} onChange={e => setSpoonacularPrices(p => ({ ...p, [dish.id]: e.target.value }))} style={{width: '80px', marginLeft: '8px', marginRight: '8px', borderRadius: '6px', border: '1px solid #bfa76a', padding: '4px'}} placeholder="Precio" />
-                          <select value={spoonacularTypes[dish.id]} onChange={e => setSpoonacularTypes(t => ({ ...t, [dish.id]: e.target.value }))} style={{marginRight: '8px', borderRadius: '6px', border: '1px solid #bfa76a', padding: '4px'}}>
-                            <option value="desayuno">Desayuno</option>
-                            <option value="almuerzo">Almuerzo</option>
-                            <option value="cena">Cena</option>
-                          </select>
-                          <button className="btn btn-success" onClick={() => handleAddSpoonacularDish(dish)}><FaPlus /> Importar</button>
-                        </li>
+                  <div className="mb-4">
+                    <h5 style={{color: 'var(--secondary-color)'}}>Recetas encontradas:</h5>
+                    <div className="row g-3">
+                      {spoonacularResults.map((recipe) => (
+                        <div key={recipe.id} className="col-md-6 col-lg-4">
+                          <div className="card h-100 border-0 shadow-sm">
+                            <img 
+                              src={recipe.image} 
+                              alt={recipe.title}
+                              className="card-img-top"
+                              style={{height: '200px', objectFit: 'cover'}}
+                            />
+                            <div className="card-body">
+                              <h6 className="card-title">{recipe.title}</h6>
+                              <div className="row g-2 mb-3">
+                                <div className="col-6">
+                                  <select
+                                    className="form-select form-select-sm"
+                                    value={spoonacularTypes[recipe.id] || 'desayuno'}
+                                    onChange={(e) => setSpoonacularTypes({
+                                      ...spoonacularTypes,
+                                      [recipe.id]: e.target.value
+                                    })}
+                                  >
+                                    <option value="desayuno">Desayuno</option>
+                                    <option value="almuerzo">Almuerzo</option>
+                                    <option value="cena">Cena</option>
+                                    <option value="bebida">Bebida</option>
+                                    <option value="postre">Postre</option>
+                                  </select>
+                                </div>
+                                <div className="col-6">
+                                  <input
+                                    type="number"
+                                    step="0.01"
+                                    className="form-control form-control-sm"
+                                    placeholder="Precio"
+                                    value={spoonacularPrices[recipe.id] || ''}
+                                    onChange={(e) => setSpoonacularPrices({
+                                      ...spoonacularPrices,
+                                      [recipe.id]: e.target.value
+                                    })}
+                                  />
+                                </div>
+                              </div>
+                              <button
+                                className="btn-restaurant-success btn-sm w-100"
+                                onClick={() => handleAddFromSpoonacular(recipe)}
+                              >
+                                Agregar al Menú
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </div>
                 )}
-                <ul style={{listStyle: 'none', padding: 0}}>
-                  {dishes.map(dish => (
-                    <li key={dish.id} style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                      <span>{dish.name} - ${
-                        (Number(dish.price) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                      } <span style={{background: '#bfa76a', color: '#fff', borderRadius: '6px', padding: '2px 8px', marginLeft: '8px', fontSize: '0.95rem'}}>{dish.type}</span></span>
-                      <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id)}><FaTrash /> Eliminar</button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {!loading && !error && activeMenu === 'ordenes' && (
-              <div>
-                <h2>Órdenes</h2>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
-                  <input type="date" value={orderFilter.date} onChange={e => setOrderFilter({ ...orderFilter, date: e.target.value, month: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <input type="month" value={orderFilter.month} onChange={e => setOrderFilter({ ...orderFilter, month: e.target.value, date: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <button className="btn btn-secondary" type="button" onClick={handleOrderFilter}>Filtrar</button>
+
+                {/* Lista de Platillos */}
+                <div>
+                  <h5 style={{color: 'var(--secondary-color)'}}>Platillos Actuales:</h5>
+                  {dishes.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-muted">No hay platillos registrados</p>
+                    </div>
+                  ) : (
+                    <div className="table-responsive">
+                      <table className="restaurant-table">
+                        <thead>
+                          <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th>Precio</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {dishes.map((dish) => (
+                            <tr key={dish.id}>
+                              <td className="fw-medium">{dish.name}</td>
+                              <td>
+                                <span className="badge rounded-pill" style={{
+                                  backgroundColor: 'var(--accent-color)',
+                                  color: 'var(--primary-color)'
+                                }}>
+                                  {dish.type}
+                                </span>
+                              </td>
+                              <td className="fw-bold">${dish.price}</td>
+                              <td>
+                                <button
+                                  className="btn-restaurant-danger btn-sm"
+                                  onClick={() => handleDeleteDish(dish.id)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
-                <ul style={{listStyle: 'none', padding: 0}}>
-                  {orders.map(order => (
-                    <li key={order.id} style={{
-                      background: '#fff', 
-                      borderRadius: '10px', 
-                      marginBottom: '8px', 
-                      padding: isMobile ? '12px' : '10px 18px', 
-                      boxShadow: '0 1px 4px #e3e6ea'
-                    }}>
-                      <div style={{ 
-                        display: 'flex', 
-                        flexDirection: isMobile ? 'column' : 'row',
-                        justifyContent: 'space-between', 
-                        alignItems: isMobile ? 'stretch' : 'center',
-                        gap: isMobile ? '10px' : '0'
-                      }}>
-                        <strong style={{
-                          fontSize: isMobile ? '1.1em' : 'inherit',
-                          textAlign: isMobile ? 'center' : 'left'
-                        }}>Orden #{order.id} - Mesa {order.mesa || 'N/A'}</strong>
-                        <button 
-                          className="btn btn-outline-primary" 
-                          onClick={() => handleReprintInvoice(order.id)}
-                          style={{
-                            width: isMobile ? '100%' : 'auto'
-                          }}
-                        >
-                          Reimprimir Factura
-                        </button>
-                      </div>
-                      <ul style={{
-                        margin: '8px 0 0 0', 
-                        padding: 0,
-                        borderTop: '1px solid #eee',
-                        marginTop: '12px',
-                        paddingTop: '12px'
-                      }}>
-                        {order.dishes.map((dish, i) => (
-                          <li key={i} style={{
-                            display: 'flex',
-                            flexDirection: isMobile ? 'column' : 'row',
-                            justifyContent: 'space-between',
-                            alignItems: isMobile ? 'flex-start' : 'center',
-                            padding: '4px 0',
-                            borderBottom: i < order.dishes.length - 1 ? '1px solid #f5f5f5' : 'none'
-                          }}>
-                            <span style={{marginBottom: isMobile ? '4px' : '0'}}>
-                              {dish.name} <small style={{color: '#666'}}>({dish.type})</small>
-                            </span>
-                            <strong>${
-                              (Number(dish.price) || 0).toLocaleString('en-US', { 
-                                minimumFractionDigits: 2, 
-                                maximumFractionDigits: 2 
-                              })
-                            }</strong>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
               </div>
-            )}
-            {!loading && !error && activeMenu === 'usuarios' && (
-              <div>
-                <h2>Gestión de Usuarios</h2>
-                <form onSubmit={handleAddUser} style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
-                  <input type="text" placeholder="Nombre" value={newUser.name} onChange={e => setNewUser({ ...newUser, name: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <input type="email" placeholder="Correo" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <input type="password" placeholder="Contraseña" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <select value={newUser.role} onChange={e => setNewUser({ ...newUser, role: e.target.value })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }}>
-                    <option value="administrador">Administrador</option>
-                    <option value="mesero">Mesero</option>
-                    <option value="cocina">Cocina</option>
-                    <option value="cobrador">Cobrador</option>
-                  </select>
-                  <button className="btn btn-primary" type="submit"><FaPlus /> Agregar</button>
-                </form>
-                <ul style={{listStyle: 'none', padding: 0}}>
-                  {users.map(user => (
-                    <li key={user.id} style={{
-                      background: '#fff', 
-                      borderRadius: '10px', 
-                      marginBottom: '8px', 
-                      padding: isMobile ? '12px' : '10px 18px', 
-                      boxShadow: '0 1px 4px #e3e6ea', 
-                      display: 'flex', 
-                      flexDirection: isMobile ? 'column' : 'row',
-                      alignItems: isMobile ? 'stretch' : 'center', 
-                      justifyContent: 'space-between',
-                      gap: isMobile ? '10px' : '0'
-                    }}>
-                      {editUserId === user.id ? (
-                        <form onSubmit={handleUpdateUser} style={{
-                          display: 'flex', 
-                          flexDirection: isMobile ? 'column' : 'row',
-                          gap: '8px', 
-                          alignItems: isMobile ? 'stretch' : 'center', 
-                          flex: 1,
-                          width: '100%'
-                        }}>
-                          <input 
-                            type="text" 
-                            value={editUser.name} 
-                            onChange={e => setEditUser({ ...editUser, name: e.target.value })} 
-                            placeholder="Nombre" 
-                            style={{
-                              padding: '6px', 
-                              borderRadius: '6px', 
-                              border: '1px solid #bfa76a',
-                              width: isMobile ? '100%' : 'auto'
-                            }} 
-                          />
-                          <input 
-                            type="email" 
-                            value={editUser.email} 
-                            onChange={e => setEditUser({ ...editUser, email: e.target.value })} 
-                            placeholder="Correo" 
-                            style={{
-                              padding: '6px', 
-                              borderRadius: '6px', 
-                              border: '1px solid #bfa76a',
-                              width: isMobile ? '100%' : 'auto'
-                            }} 
-                          />
-                          <input 
-                            type="password" 
-                            value={editUser.password} 
-                            onChange={e => setEditUser({ ...editUser, password: e.target.value })} 
-                            placeholder="Nueva contraseña (opcional)" 
-                            style={{
-                              padding: '6px', 
-                              borderRadius: '6px', 
-                              border: '1px solid #bfa76a',
-                              width: isMobile ? '100%' : 'auto'
-                            }} 
-                          />
-                          <select 
-                            value={editUser.role} 
-                            onChange={e => setEditUser({ ...editUser, role: e.target.value })} 
-                            style={{
-                              padding: '6px', 
-                              borderRadius: '6px', 
-                              border: '1px solid #bfa76a',
-                              width: isMobile ? '100%' : 'auto'
-                            }}>
-                            <option value="administrador">Administrador</option>
-                            <option value="mesero">Mesero</option>
-                            <option value="cocina">Cocina</option>
-                            <option value="cobrador">Cobrador</option>
-                          </select>
-                          <button className="btn btn-success" type="submit">Guardar</button>
-                          <button className="btn btn-secondary" type="button" onClick={handleCancelEditUser}>Cancelar</button>
-                        </form>
-                      ) : (
-                        <>
-                          <span><strong>{user.name || user.nombre}</strong> <span style={{marginLeft: '8px', color: '#bfa76a'}}>{user.role || user.rol}</span></span>
-                          <div>
-                            <button className="btn btn-primary" style={{marginRight: '8px'}} onClick={() => handleEditUser(user)}>Editar</button>
-                            <button className="btn btn-danger" onClick={() => handleDeleteUser(user.id)}><FaTrash /> Eliminar</button>
-                          </div>
-                        </>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+            </div>
+          )}
+
+          {/* SECCIÓN USUARIOS */}
+          {!loading && !error && activeMenu === 'usuarios' && (
+            <div className="restaurant-card">
+              <div className="card-header bg-transparent border-bottom-0">
+                <h3 className="mb-0" style={{color: 'var(--primary-color)'}}>
+                  <FaUsers className="me-2" />
+                  Gestión de Usuarios
+                </h3>
               </div>
-            )}
-            {!loading && !error && activeMenu === 'pagos' && (
-              <div>
-                <h2>Pagos</h2>
-                <div style={{ display: 'flex', gap: '10px', marginBottom: '18px', alignItems: 'center' }}>
-                  <input type="date" value={paymentFilter.date} onChange={e => setPaymentFilter({ ...paymentFilter, date: e.target.value, month: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <input type="month" value={paymentFilter.month} onChange={e => setPaymentFilter({ ...paymentFilter, month: e.target.value, date: '' })} style={{ padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a' }} />
-                  <button className="btn btn-secondary" type="button" onClick={handlePaymentFilter}>Filtrar</button>
-                </div>
-                <ul style={{listStyle: 'none', padding: 0}}>
-                  {payments.map(payment => (
-                    <li key={payment.id} style={{
-                      background: '#fff', 
-                      borderRadius: '10px', 
-                      marginBottom: '8px', 
-                      padding: isMobile ? '12px' : '10px 18px',
-                      boxShadow: '0 1px 4px #e3e6ea'
-                    }}>
-                      <div style={{
-                        display: 'flex', 
-                        flexDirection: isMobile ? 'column' : 'row',
-                        justifyContent: 'space-between', 
-                        alignItems: isMobile ? 'flex-start' : 'center',
-                        gap: isMobile ? '8px' : '0'
-                      }}>
-                        <div style={{width: isMobile ? '100%' : 'auto'}}>
-                          <strong>Pago #{payment.id}</strong>
-                          <span style={{
-                            display: isMobile ? 'block' : 'inline',
-                            marginLeft: isMobile ? '0' : '10px',
-                            marginTop: isMobile ? '4px' : '0',
-                            color: '#666',
-                            fontSize: isMobile ? '0.9em' : 'inherit'
-                          }}>
-                            {new Date(payment.fecha || payment.created_at).toLocaleDateString('es-ES', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </span>
-                        </div>
-                        <div style={{
-                          display: 'flex',
-                          flexDirection: isMobile ? 'column' : 'row',
-                          alignItems: isMobile ? 'flex-start' : 'center',
-                          gap: isMobile ? '8px' : '10px',
-                          width: isMobile ? '100%' : 'auto'
-                        }}>
-                          <span style={{
-                            background: payment.method === 'efectivo' ? '#4caf50' : '#2196f3',
-                            color: '#fff',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            fontSize: '0.9em',
-                            width: isMobile ? '100%' : 'auto',
-                            textAlign: isMobile ? 'center' : 'left'
-                          }}>
-                            {payment.method === 'efectivo' ? '💵' : '💳'} {payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}
-                          </span>
-                          <strong style={{
-                            fontSize: '1.1em',
-                            width: isMobile ? '100%' : 'auto',
-                            textAlign: isMobile ? 'center' : 'right'
-                          }}>${
-                            (Number(payment.total) || 0).toLocaleString('en-US', {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2
-                            })
-                          }</strong>
-                        </div>
-                      </div>
-                      {payment.orden_id && (
-                        <div style={{
-                          marginTop: '8px', 
-                          fontSize: '0.9em', 
-                          color: '#666',
-                          borderTop: isMobile ? '1px solid #eee' : 'none',
-                          paddingTop: isMobile ? '8px' : '0'
-                        }}>
-                          Orden #{payment.orden_id} {payment.mesa && `- Mesa ${payment.mesa}`}
-                        </div>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-                <div style={{marginTop: '18px'}}>
-                  <h4>Reporte {reportType.charAt(0).toUpperCase() + reportType.slice(1)}</h4>
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', alignItems: 'center' }}>
-                    <select value={reportType} onChange={e => handleReport(e.target.value)} style={{padding: '8px', borderRadius: '6px', border: '1px solid #bfa76a'}}>
-                      <option value="diario">Diario</option>
-                      <option value="semanal">Semanal</option>
-                      <option value="mensual">Mensual</option>
-                    </select>
-                    <button className="btn" onClick={() => handleReport(reportType)}><FaChartBar /> Ver Reporte</button>
-                    {report.length > 0 && (
-                      <button className="btn btn-success" onClick={() => {
-                        const ws = XLSX.utils.json_to_sheet(report);
-                        const wb = XLSX.utils.book_new();
-                        XLSX.utils.book_append_sheet(wb, ws, 'Reporte');
-                        XLSX.writeFile(wb, `reporte-${reportType}.xlsx`);
-                      }}>
-                        Exportar reporte a Excel
+              <div className="card-body">
+                {/* Formulario Agregar Usuario */}
+                <form onSubmit={handleAddUserForm} className="mb-4">
+                  <div className="row g-3">
+                    <div className="col-md-3">
+                      <input
+                        type="text"
+                        className="restaurant-form-control"
+                        placeholder="Nombre completo"
+                        value={newUser.name}
+                        onChange={(e) => setNewUser({...newUser, name: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-3">
+                      <input
+                        type="email"
+                        className="restaurant-form-control"
+                        placeholder="Email"
+                        value={newUser.email}
+                        onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <input
+                        type="password"
+                        className="restaurant-form-control"
+                        placeholder="Contraseña"
+                        value={newUser.password}
+                        onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="col-md-2">
+                      <select
+                        className="restaurant-form-control"
+                        value={newUser.role}
+                        onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                      >
+                        <option value="administrador">Administrador</option>
+                        <option value="cajero">Cajero</option>
+                        <option value="mesero">Mesero</option>
+                        <option value="cocinero">Cocinero</option>
+                      </select>
+                    </div>
+                    <div className="col-md-2">
+                      <button type="submit" className="btn-restaurant-primary w-100">
+                        <FaPlus className="me-2" />
+                        Agregar
                       </button>
-                    )}
+                    </div>
                   </div>
-                  <ul style={{listStyle: 'none', padding: 0}}>
-                    {report.map((r, i) => (
-                      <li key={i} style={{background: '#fff', borderRadius: '10px', marginBottom: '8px', padding: '10px 18px', boxShadow: '0 1px 4px #e3e6ea'}}>
-                        <strong>{r.fecha}</strong> - Total: ${
-                          (Number(r.total) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                        }
-                      </li>
-                    ))}
-                  </ul>
+                </form>
+
+                {/* Lista de Usuarios */}
+                <div>
+                  <h5 style={{color: 'var(--secondary-color)'}}>Usuarios del Sistema:</h5>
+                  {users.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-muted">No hay usuarios registrados</p>
+                    </div>
+                  ) : (
+                    <div className="table-responsive">
+                      <table className="restaurant-table">
+                        <thead>
+                          <tr>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {users.map((user) => (
+                            <tr key={user.id}>
+                              <td className="fw-medium">{user.name}</td>
+                              <td>{user.email}</td>
+                              <td>
+                                <span className="badge rounded-pill" style={{
+                                  backgroundColor: 'var(--accent-color)',
+                                  color: 'var(--primary-color)'
+                                }}>
+                                  {user.role}
+                                </span>
+                              </td>
+                              <td>
+                                <button
+                                  className="btn-restaurant-danger btn-sm"
+                                  onClick={() => handleDeleteUser(user.id)}
+                                >
+                                  <FaTrash />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
-          </main>
+            </div>
+          )}
+
+          {/* SECCIÓN ÓRDENES */}
+          {!loading && !error && activeMenu === 'ordenes' && (
+            <div className="restaurant-card">
+              <div className="card-header bg-transparent border-bottom-0">
+                <h3 className="mb-0" style={{color: 'var(--primary-color)'}}>
+                  <FaListAlt className="me-2" />
+                  Órdenes del Restaurante
+                </h3>
+              </div>
+              <div className="card-body">
+                {/* Filtros de Órdenes */}
+                <div className="row g-3 mb-4">
+                  <div className="col-md-4">
+                    <label className="form-label">Filtrar por fecha:</label>
+                    <input
+                      type="date"
+                      className="restaurant-form-control"
+                      value={orderFilter.date}
+                      onChange={(e) => setOrderFilter({...orderFilter, date: e.target.value, month: ''})}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label">O por mes:</label>
+                    <input
+                      type="month"
+                      className="restaurant-form-control"
+                      value={orderFilter.month}
+                      onChange={(e) => setOrderFilter({...orderFilter, month: e.target.value, date: ''})}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label">&nbsp;</label>
+                    <div className="d-grid">
+                      <button
+                        type="button"
+                        className="btn-restaurant-outline"
+                        onClick={handleOrderFilter}
+                      >
+                        <FaFilter className="me-2" />
+                        Aplicar Filtros
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lista de Órdenes */}
+                <div>
+                  <h5 style={{color: 'var(--secondary-color)'}}>Órdenes Registradas:</h5>
+                  {orders.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-muted">No hay órdenes registradas</p>
+                    </div>
+                  ) : (
+                    <div className="row g-3">
+                      {orders.map((order) => (
+                        <div key={order.id} className="col-md-6 col-lg-4">
+                          <div className="card border-0 shadow-sm h-100">
+                            <div className="card-header bg-transparent border-bottom-0">
+                              <div className="d-flex justify-content-between align-items-center">
+                                <h6 className="mb-0">Orden #{order.id}</h6>
+                                <span className="badge" style={{
+                                  backgroundColor: 'var(--primary-color)',
+                                  color: 'white'
+                                }}>
+                                  Mesa {order.mesa || 'N/A'}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="card-body">
+                              <div className="mb-3">
+                                {order.dishes.map((dish, index) => (
+                                  <div key={index} className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                                    <div>
+                                      <span className="fw-medium">{dish.name}</span>
+                                      <small className="text-muted d-block">{dish.type}</small>
+                                    </div>
+                                    <span className="fw-bold">${dish.price}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="d-flex justify-content-between align-items-center">
+                                <strong>Total: ${order.total}</strong>
+                                <button
+                                  className="btn-restaurant-outline btn-sm"
+                                  onClick={() => handleReprintInvoice(order.id)}
+                                >
+                                  <FaPrint className="me-1" />
+                                  Reimprimir
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECCIÓN PAGOS Y REPORTES */}
+          {!loading && !error && activeMenu === 'pagos' && (
+            <div className="restaurant-card">
+              <div className="card-header bg-transparent border-bottom-0">
+                <h3 className="mb-0" style={{color: 'var(--primary-color)'}}>
+                  <FaMoneyCheckAlt className="me-2" />
+                  Pagos y Reportes
+                </h3>
+              </div>
+              <div className="card-body">
+                {/* Filtros de Pagos */}
+                <div className="row g-3 mb-4">
+                  <div className="col-md-4">
+                    <label className="form-label">Filtrar por fecha:</label>
+                    <input
+                      type="date"
+                      className="restaurant-form-control"
+                      value={paymentFilter.date}
+                      onChange={(e) => setPaymentFilter({...paymentFilter, date: e.target.value, month: ''})}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label">O por mes:</label>
+                    <input
+                      type="month"
+                      className="restaurant-form-control"
+                      value={paymentFilter.month}
+                      onChange={(e) => setPaymentFilter({...paymentFilter, month: e.target.value, date: ''})}
+                    />
+                  </div>
+                  <div className="col-md-4">
+                    <label className="form-label">&nbsp;</label>
+                    <div className="d-grid">
+                      <button
+                        type="button"
+                        className="btn-restaurant-outline"
+                        onClick={handlePaymentFilter}
+                      >
+                        <FaFilter className="me-2" />
+                        Aplicar Filtros
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Lista de Pagos */}
+                <div className="mb-5">
+                  <h5 style={{color: 'var(--secondary-color)'}}>Historial de Pagos:</h5>
+                  {payments.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-muted">No hay pagos registrados</p>
+                    </div>
+                  ) : (
+                    <div className="table-responsive">
+                      <table className="restaurant-table">
+                        <thead>
+                          <tr>
+                            <th>Pago ID</th>
+                            <th>Orden</th>
+                            <th>Mesa</th>
+                            <th>Método</th>
+                            <th>Total</th>
+                            <th>Fecha</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {payments.map((payment) => (
+                            <tr key={payment.id}>
+                              <td className="fw-medium">#{payment.id}</td>
+                              <td>{payment.orden_id ? `#${payment.orden_id}` : 'N/A'}</td>
+                              <td>{payment.mesa || 'N/A'}</td>
+                              <td>
+                                <span className="badge rounded-pill" style={{
+                                  backgroundColor: payment.method === 'efectivo' ? '#28a745' : '#007bff',
+                                  color: 'white'
+                                }}>
+                                  {payment.method === 'efectivo' ? 'Efectivo' : 'Tarjeta'}
+                                </span>
+                              </td>
+                              <td className="fw-bold">${payment.total}</td>
+                              <td>{new Date(payment.fecha || payment.created_at).toLocaleDateString()}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sección de Reportes */}
+                <div className="border-top pt-4">
+                  <h5 style={{color: 'var(--secondary-color)'}}>Reportes de Ventas:</h5>
+                  
+                  <div className="row g-3 mb-4">
+                    <div className="col-md-6">
+                      <select
+                        className="restaurant-form-control"
+                        value={reportType}
+                        onChange={(e) => setReportType(e.target.value)}
+                      >
+                        <option value="diario">Reporte Diario</option>
+                        <option value="semanal">Reporte Semanal</option>
+                        <option value="mensual">Reporte Mensual</option>
+                      </select>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="d-flex gap-2">
+                        <button
+                          type="button"
+                          className="btn-restaurant-primary"
+                          onClick={() => handleReport(reportType)}
+                        >
+                          <FaChartBar className="me-2" />
+                          Generar Reporte
+                        </button>
+                        {report.length > 0 && (
+                          <button
+                            type="button"
+                            className="btn-restaurant-success"
+                            onClick={handleExportToExcel}
+                          >
+                            <FaDownload className="me-2" />
+                            Exportar Excel
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Resultados del Reporte */}
+                  {report.length > 0 && (
+                    <div>
+                      <h6>Resultados del Reporte {reportType.charAt(0).toUpperCase() + reportType.slice(1)}:</h6>
+                      <div className="table-responsive">
+                        <table className="restaurant-table">
+                          <thead>
+                            <tr>
+                              <th>Período</th>
+                              <th>Total de Ventas</th>
+                              <th>Número de Órdenes</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {report.map((item, index) => (
+                              <tr key={index}>
+                                <td className="fw-medium">{item.fecha}</td>
+                                <td className="fw-bold text-success">${item.total}</td>
+                                <td>{item.ordenes || 'N/A'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
   } catch (e) {
-    renderError = e;
-  }
-
-  return (
-    <div className="admin-dashboard">
-      {renderError && (
-        <div style={{ color: 'red', textAlign: 'center', marginTop: '40px', fontWeight: 700 }}>
-          Error inesperado: {renderError.message || renderError.toString()}
+    return (
+      <div className="container text-center mt-5">
+        <div className="alert alert-danger">
+          <h4>Error inesperado</h4>
+          <p>{e.message || e.toString()}</p>
         </div>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 };
 
 export default AdminScreen;

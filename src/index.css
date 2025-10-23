@@ -11,6 +11,17 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Variables CSS globales para RestoSmart */
+  --primary-color: #b85c00;
+  --primary-dark: #8b4513;
+  --primary-light: #d2691e;
+  --accent-color: #fff8e1;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --secondary-color: #6c757d;
 }
 
 a {

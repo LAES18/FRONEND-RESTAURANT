@@ -1,4 +1,10 @@
 /* CashierScreen.css */
+
+/* Estilos específicos del contenedor cashier */
+.cashier-container * {
+  box-sizing: border-box;
+}
+
 .cashier-screen {
   min-height: 100vh;
   display: grid;
