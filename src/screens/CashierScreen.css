@@ -2122,3 +2122,110 @@
     font-size: 3rem;
   }
 }
+
+/* ========================================
+   🖥️ ULTRA HD (2560px+)
+   ======================================== */
+
+@media (min-width: 2560px) {
+  .cashier-container {
+    max-width: 3000px;
+    grid-template-columns: 600px 1fr;
+    gap: 4rem;
+    padding: 4.5rem;
+  }
+
+  .cashier-header {
+    padding: 2.5rem 4rem;
+  }
+
+  .cashier-logo {
+    width: 5rem;
+    height: 5rem;
+    font-size: 2.5rem;
+  }
+
+  .cashier-title h1 {
+    font-size: 2.75rem;
+  }
+
+  .stats-container {
+    max-width: 3000px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+    padding: 0 4.5rem;
+  }
+
+  .stat-card {
+    padding: 3rem;
+  }
+
+  .stat-value {
+    font-size: 3.5rem;
+  }
+
+  .stat-label {
+    font-size: 1.25rem;
+  }
+
+  .orders-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+
+  .total-amount {
+    font-size: 4rem;
+  }
+
+ .payment-btn {
+    padding: 1.5rem;
+    font-size: 1.25rem;
+  }
+}
+
+/* ========================================
+   ♿ ACCESSIBILITY
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+  }
+}
+
+
+/* ========================================
+   🖥️ ULTRA HD (2560px+)
+   ======================================== */
+
+@media (min-width: 2560px) {
+  .cashier-container {
+    max-width: 3000px;
+    grid-template-columns: 600px 1fr;
+    gap: 4rem;
+    padding: 4.5rem;
+  }
+
+  .stats-container {
+    max-width: 3000px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 3rem;
+  }
+
+  .stat-value {
+    font-size: 3.5rem;
+  }
+
+  .total-amount {
+    font-size: 4rem;
+  }
+}
+
+/* ♿ Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms;
+    transition-duration: 0.01ms;
+  }
+}

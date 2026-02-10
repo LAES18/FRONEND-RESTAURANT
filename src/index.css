@@ -13,6 +13,17 @@
   --info-color: #17a2b8;
   --secondary-color: #6c757d;
   
+  /* Breakpoints unificados para todas las pantallas */
+  --breakpoint-xs: 320px;    /* Extra small devices */
+  --breakpoint-sm: 576px;    /* Small devices (mobile) */
+  --breakpoint-md: 768px;    /* Medium devices (tablet) */
+  --breakpoint-lg: 992px;    /* Large devices (desktop) */
+  --breakpoint-xl: 1200px;   /* Extra large */
+  --breakpoint-2xl: 1400px;  /* 2X large */
+  --breakpoint-3xl: 1600px;  /* 3X large */
+  --breakpoint-4k: 1920px;   /* 4K/2K displays */
+  --breakpoint-uhd: 2560px;  /* Ultra HD/4K displays */
+  
   /* Transiciones */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s ease;

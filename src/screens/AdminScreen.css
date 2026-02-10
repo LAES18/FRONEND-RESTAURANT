@@ -1317,6 +1317,184 @@
 }
 
 /* ========================================
+   📱 MÓVILES MUY PEQUEÑOS (320px - 575px)
+   ======================================== */
+
+@media (max-width: 575px) and (min-width: 320px) {
+  .admin-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .admin-logo {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+  }
+
+  .admin-title-section h1 {
+    font-size: 1.125rem;
+  }
+
+  .admin-title-section p {
+    font-size: 0.75rem;
+  }
+
+  .admin-logout-btn {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .admin-sidebar-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .admin-grid-3,
+  .admin-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 0.875rem;
+  }
+
+  .admin-table-wrapper {
+    font-size: 0.8125rem;
+  }
+
+  .admin-btn-sm {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+
+  .admin-form-row {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+  }
+
+  .admin-input,
+  .admin-select {
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem;
+  }
+
+  .admin-stat-card {
+    padding: 1rem;
+  }
+
+  .admin-stat-value {
+    font-size: 1.75rem;
+  }
+}
+
+/* ========================================
+   🖥️ 4K / ULTRA HD (1920px+)
+   ======================================== */
+
+@media (min-width: 1920px) {
+  .admin-header {
+    padding: 2rem 3rem;
+  }
+
+  .admin-header-content {
+    max-width: 2400px;
+  }
+
+  .admin-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: 2.25rem;
+  }
+
+  .admin-title-section h1 {
+    font-size: 2.25rem;
+  }
+
+  .admin-title-section p {
+    font-size: 1.125rem;
+  }
+
+  .admin-logout-btn {
+    padding: 1rem 2rem;
+    font-size: 1.125rem;
+  }
+
+  .admin-container {
+    max-width: 2400px;
+  }
+
+  .admin-sidebar-item {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.125rem;
+  }
+
+  .admin-sidebar-icon {
+    font-size: 1.5rem;
+  }
+
+  .admin-main {
+    padding: 3rem;
+  }
+
+  .admin-section-header h2 {
+    font-size: 2.25rem;
+  }
+
+  .admin-grid-3 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .admin-grid-2 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-form-row {
+    gap: 2rem;
+  }
+
+  .admin-input,
+  .admin-select,
+  .admin-textarea {
+    padding: 1rem 1.25rem;
+    font-size: 1.0625rem;
+  }
+
+  .admin-btn-primary,
+  .admin-btn-secondary {
+    padding: 1rem 2rem;
+    font-size: 1.0625rem;
+  }
+
+  .admin-table {
+    font-size: 1.0625rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .admin-order-card,
+  .admin-payment-card {
+    padding: 2rem;
+  }
+
+  .admin-stat-card {
+    padding: 2rem;
+  }
+
+  .admin-stat-value {
+    font-size: 3rem;
+  }
+
+  .admin-stat-label {
+    font-size: 1.125rem;
+  }
+}
+
+/* ========================================
    PRINT STYLES
    ======================================== */
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './KitchenScreen.css';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { FaUtensils, FaCheck, FaClock, FaFire, FaSignOutAlt, FaPlay, FaChartLine, FaExclamationTriangle, FaListAlt, FaCheckCircle } from 'react-icons/fa';
