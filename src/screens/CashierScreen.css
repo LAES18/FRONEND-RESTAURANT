@@ -317,7 +317,7 @@
   .pending-orders {
     position: relative;
     top: 0;
-    max-height: 400px;
+    max-height: 55vh;
   }
 }
 
@@ -767,7 +767,7 @@
   .pending-orders {
     position: relative;
     top: 0;
-    max-height: 400px;
+    max-height: 55vh;
     order: 1;
   }
 
@@ -886,7 +886,7 @@
     position: relative;
     top: 0;
     padding: 1rem;
-    max-height: 400px;
+    max-height: 60vh;
     margin-bottom: 1rem;
   }
 
@@ -1005,7 +1005,7 @@
   }
 
   .pending-orders {
-    max-height: 350px;
+    max-height: 55vh;
     padding: 0.875rem;
   }
 
@@ -1266,7 +1266,7 @@
   }
 
   .pending-orders {
-    max-height: 280px;
+    max-height: 50vh;
   }
 }
 
