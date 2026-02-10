@@ -849,7 +849,55 @@ const AdminScreen = () => {
         fetchUsers();
         Swal.fire({ icon: 'success', title: 'Eliminado', text: 'Usuario eliminado correctamente' });
       } catch (err) {
-        Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo eliminar el usuario' });
+        console.error('Error al eliminar usuario:', err);
+        
+        // Verificar si es debido a órdenes asociadas
+        if (err.response?.status === 400 && err.response?.data?.order_count) {
+          const orderCount = err.response.data.order_count;
+          Swal.fire({
+            icon: 'warning',
+            title: 'No se puede eliminar',
+            html: `<p>Este usuario tiene <strong>${orderCount}</strong> ${orderCount === 1 ? 'orden asociada' : 'órdenes asociadas'}.</p><p style="font-size: 0.9em; color: #666; margin-top: 10px;">Elimina primero las órdenes o asígnalas a otro usuario.</p>`,
+            confirmButtonText: 'Entendido'
+          });
+        } else {
+          const errorMsg = err.response?.data?.error || 'No se pudo eliminar el usuario';
+          Swal.fire({ icon: 'error', title: 'Error', text: errorMsg });
+        }
+      }
+    }
+  };
+
+  // Función para eliminar orden
+  const handleDeleteOrder = async (orderId, orderNumber) => {
+    const result = await Swal.fire({
+      title: '¿Eliminar orden?',
+      html: `<p>Se eliminará la orden <strong>#${orderNumber}</strong> y todos sus registros asociados.</p><p style="color: #d33; font-size: 0.9em; margin-top: 10px;">Esta acción no se puede deshacer.</p>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#d33'
+    });
+    
+    if (result.isConfirmed) {
+      try {
+        await axios.delete(`${API_URL}/api/orders/${orderId}`);
+        fetchOrders();
+        Swal.fire({ 
+          icon: 'success', 
+          title: 'Eliminada', 
+          text: 'Orden eliminada correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      } catch (err) {
+        console.error('Error al eliminar orden:', err);
+        Swal.fire({ 
+          icon: 'error', 
+          title: 'Error', 
+          text: err.response?.data || 'No se pudo eliminar la orden' 
+        });
       }
     }
   };
@@ -1639,14 +1687,24 @@ const AdminScreen = () => {
                           <div className="admin-order-total">
                             Total: Q{order.total ? parseFloat(order.total).toFixed(2) : '0.00'}
                           </div>
-                          <button
-                            className="admin-btn-secondary"
-                            onClick={() => handleReprintInvoice(order.id)}
-                            style={{padding: '0.625rem 1.25rem', fontSize: '0.9rem'}}
-                          >
-                            <FaPrint />
-                            <span style={{marginLeft: '0.5rem'}}>Reimprimir</span>
-                          </button>
+                          <div style={{display: 'flex', gap: '0.5rem'}}>
+                            <button
+                              className="admin-btn-secondary"
+                              onClick={() => handleReprintInvoice(order.id)}
+                              style={{padding: '0.625rem 1.25rem', fontSize: '0.9rem'}}
+                            >
+                              <FaPrint />
+                              <span style={{marginLeft: '0.5rem'}}>Reimprimir</span>
+                            </button>
+                            <button
+                              className="admin-btn-danger"
+                              onClick={() => handleDeleteOrder(order.id, order.daily_order_number || order.id)}
+                              style={{padding: '0.625rem 1.25rem', fontSize: '0.9rem'}}
+                              title="Eliminar orden"
+                            >
+                              <FaTrash />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

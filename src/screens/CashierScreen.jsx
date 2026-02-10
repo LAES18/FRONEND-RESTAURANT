@@ -80,6 +80,28 @@ const CashierScreen = () => {
       })
       .catch(error => {
         console.error('Error al procesar el pago:', error);
+        const errorMessage = error.response?.data || error.message || 'Error al procesar el pago.';
+        
+        // Verificar si es un error de validación de total
+        if (errorMessage.includes('Total inválido') || errorMessage.includes('no coincide')) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error de Validación',
+            html: '<p>El total del pago no coincide con los precios actuales.</p><p style="font-size: 0.9em; color: #666; margin-top: 10px;">Por favor, recarga las órdenes e intenta nuevamente.</p>',
+            confirmButtonText: 'Recargar',
+            confirmButtonColor: '#d33'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.reload();
+            }
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error al procesar pago',
+            text: typeof errorMessage === 'string' ? errorMessage : 'No se pudo procesar el pago. Intenta nuevamente.'
+          });
+        }
         setError('Error al procesar el pago.');
       });
   };
