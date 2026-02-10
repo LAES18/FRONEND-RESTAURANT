@@ -5,10 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { FaUtensils, FaCheck, FaClock, FaFire, FaSignOutAlt, FaPlay, FaChartLine, FaExclamationTriangle, FaListAlt, FaCheckCircle } from 'react-icons/fa';
 
-// Usa siempre `${API_URL}/api/` como prefijo para todos los endpoints de API en Railway.
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  'https://backend-restaurant-production-b56f.up.railway.app';
+// Usar ruta relativa si VITE_API_URL está vacío
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const KitchenScreen = () => {
   const [orders, setOrders] = useState([]);
@@ -27,11 +25,10 @@ const KitchenScreen = () => {
 
   useEffect(() => {
     const fetchOrders = () => {
-      axios.get(`${API_URL}/api/orders`)
+      // Usar endpoint específico de cocina que devuelve solo items pendientes
+      axios.get(`${API_URL}/api/orders/kitchen`)
         .then(response => {
-          // Mostrar solo órdenes pendientes o en_proceso
-          const filteredOrders = response.data.filter(order => order.status === 'pendiente' || order.status === 'en_proceso');
-          setOrders(filteredOrders);
+          setOrders(response.data);
         })
         .catch(error => console.error('Error al obtener las órdenes:', error));
     };
@@ -142,9 +139,15 @@ const KitchenScreen = () => {
                     <FaUtensils size={18} />
                   </div>
                   <div>
-                    <h5 className="mb-0 fw-bold">Orden #{order.id}</h5>
+                    <h5 className="mb-0 fw-bold">Orden #{order.daily_order_number || order.id}</h5>
                     <small className="opacity-75">
                       Mesa {order.mesa || 'N/A'} • {formatTimeAgo(order)}
+                      {order.waiter_name && (
+                        <>
+                          <br />
+                          <span style={{fontSize: '0.85em'}}>Mesero: {order.waiter_name}</span>
+                        </>
+                      )}
                     </small>
                   </div>
                 </div>
@@ -238,7 +241,7 @@ const KitchenScreen = () => {
                           color: 'var(--primary-color)',
                           fontSize: '1.1rem'
                         }}>
-                          ${dish.price}
+                          Q{dish.price}
                         </span>
                       </div>
                     </div>
@@ -246,6 +249,30 @@ const KitchenScreen = () => {
                 ))}
               </div>
             </div>
+            
+            {/* Notas u observaciones */}
+            {order.notes && (
+              <div className="mb-3 p-3" style={{
+                background: 'linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%)',
+                borderRadius: '12px',
+                border: '2px solid #ffc107'
+              }}>
+                <div className="d-flex align-items-start">
+                  <div className="me-2" style={{
+                    color: '#856404',
+                    fontSize: '1.2rem'
+                  }}>📝</div>
+                  <div style={{flex: 1}}>
+                    <strong style={{color: '#856404', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.5px'}}>Observaciones:</strong>
+                    <p className="mb-0 mt-1" style={{
+                      color: '#664d03',
+                      fontSize: '0.95rem',
+                      lineHeight: '1.5'
+                    }}>{order.notes}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Botón de acción elegante */}
             <div className="d-grid">
@@ -347,35 +374,44 @@ const KitchenScreen = () => {
   return (
     <div className="container-fluid p-0">
       {/* Header elegante del sistema de cocina */}
-      <header className="restaurant-header position-relative overflow-hidden">
+      <header className="restaurant-header position-sticky overflow-hidden" style={{
+        top: 0,
+        zIndex: 1000,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+      }}>
         <div className="position-absolute top-0 start-0 w-100 h-100" style={{
           background: 'linear-gradient(135deg, rgba(184, 92, 0, 0.95), rgba(139, 69, 19, 0.90))',
           backdropFilter: 'blur(10px)'
         }}></div>
-        <div className="container position-relative">
+        <div className="container position-relative" style={{padding: '1.5rem 2rem'}}>
           <div className={`${isMobile ? 'd-grid gap-4' : 'd-flex justify-content-between align-items-center'}`}>
             <div className={`${isMobile ? 'text-center' : ''} position-relative`}>
               <div className="d-flex align-items-center justify-content-center justify-content-md-start mb-2">
-                <div className="me-3 p-3 rounded-circle" style={{
+                <div className="me-3" style={{
+                  width: '55px',
+                  height: '55px',
                   background: 'rgba(255, 255, 255, 0.2)',
-                  backdropFilter: 'blur(10px)'
+                  backdropFilter: 'blur(10px)',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '2px solid rgba(255, 255, 255, 0.3)'
                 }}>
                   <FaFire size={24} style={{color: '#fff'}} />
                 </div>
                 <div>
                   <h1 className="restaurant-title mb-1" style={{
-                    fontSize: isMobile ? '1.8rem' : '2.2rem',
+                    fontSize: '1.75rem',
                     fontWeight: '700',
-                    background: 'linear-gradient(45deg, #fff, #f8f9fa)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                    color: 'white',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.2)'
                   }}>
                     Sistema de Cocina
                   </h1>
                   <p className="restaurant-subtitle mb-0" style={{
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    fontSize: isMobile ? '0.9rem' : '1rem',
+                    color: 'rgba(255, 255, 255, 0.85)',
+                    fontSize: '0.95rem',
                     fontWeight: '400'
                   }}>
                     Gestión de Pedidos y Preparación • RestoSmart
@@ -384,23 +420,30 @@ const KitchenScreen = () => {
               </div>
             </div>
             <button 
-              className={`btn ${isMobile ? 'w-100 py-3' : 'px-4 py-2'} border-0 rounded-pill`}
+              className={`btn border-0`}
               onClick={handleLogout}
               style={{
-                background: 'linear-gradient(45deg, #dc3545, #c82333)',
+                background: 'rgba(255, 255, 255, 0.2)',
+                border: '2px solid rgba(255, 255, 255, 0.3)',
                 color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
                 fontWeight: '600',
-                fontSize: isMobile ? '1.1rem' : '0.95rem',
-                boxShadow: '0 4px 15px rgba(220, 53, 69, 0.4)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                fontSize: '0.95rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.3s ease'
               }}
               onMouseEnter={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.3)';
                 e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(220, 53, 69, 0.5)';
+                e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
               }}
               onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(220, 53, 69, 0.4)';
+                e.target.style.boxShadow = 'none';
               }}
             >
               <FaSignOutAlt className="me-2" />
@@ -670,7 +713,7 @@ const KitchenScreen = () => {
                 )}
 
                 {/* Sección de órdenes pendientes */}
-                {orders.filter(order => order.status === 'pendiente').length > 0 && (
+                {orders.length > 0 && (
                   <div className="mb-5">
                     <div className="card border-0 shadow-lg mb-4" style={{
                       borderRadius: '15px',
@@ -691,19 +734,18 @@ const KitchenScreen = () => {
                               <FaClock size={20} />
                             </div>
                             <div>
-                              <h5 className="mb-0 fw-bold">Pendientes de Comenzar</h5>
-                              <small className="opacity-75">Listas para iniciar preparación</small>
+                              <h5 className="mb-0 fw-bold">Platillos Pendientes</h5>
+                              <small className="opacity-75">Listos para preparar</small>
                             </div>
                           </div>
                           <span className="badge bg-light text-dark px-3 py-2 rounded-pill fs-6">
-                            {orders.filter(order => order.status === 'pendiente').length}
+                            {orders.length}
                           </span>
                         </div>
                       </div>
                     </div>
                     <div className="row g-4">
                       {orders
-                        .filter(order => order.status === 'pendiente')
                         .sort((a, b) => {
                           // Primero por prioridad, luego por tiempo
                           const priorityOrder = { 'high': 0, 'medium': 1, 'normal': 2 };

@@ -1,4 +1,7 @@
 /* --- Estilos base del dashboard --- */
+/* NOTA: Los estilos de .admin-header y .admin-screen están en AdminScreen.css
+   para evitar conflictos. No duplicar aquí. */
+
 .admin-dashboard {
   min-height: 100vh;
   width: 100%;
@@ -7,6 +10,7 @@
   background: #f8f9fa;
 }
 
+/* Comentado para evitar conflicto con AdminScreen.css
 .admin-header {
   background: #fff;
   padding: 1rem;
@@ -25,6 +29,7 @@
 .admin-header-title {
   color: #666;
 }
+*/
 
 .admin-sidebar {
   background: #fff;
@@ -55,6 +60,7 @@
 }
 
 /* --- Media Queries --- */
+/* Comentado para evitar conflicto con AdminScreen.css
 @media screen and (max-width: 1024px) {
   .admin-header {
     padding: 0.75rem;
@@ -82,7 +88,7 @@
   }
 
   .admin-sidebar {
-    margin-top: 60px; /* Altura del header */
+    margin-top: 60px;
     width: 100%;
     padding: 1rem 0.5rem;
   }
@@ -108,7 +114,7 @@
   }
 
   .admin-sidebar {
-    margin-top: 100px; /* Header más alto en móviles */
+    margin-top: 100px;
   }
 
   .admin-sidebar-menu {
@@ -121,8 +127,10 @@
     margin: 0.25rem 0;
   }
 }
+*/
 
 /* --- Dark Mode --- */
+/* Comentado para evitar conflicto con AdminScreen.css
 body.dark-mode {
   background: #23272f;
 }
@@ -136,6 +144,7 @@ body.dark-mode {
   color: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
+*/
 
 .dark-mode .admin-sidebar {
   background: #23272f;
@@ -178,12 +187,14 @@ body.dark-mode {
     transition: none !important;
   }
 }
+/* Comentado para evitar conflicto con AdminScreen.css
 .dark-mode .admin-header-logo {
   color: #38b6ff !important;
 }
 .dark-mode .admin-header-title {
   color: #fff !important;
 }
+*/
 .dark-mode .admin-sidebar {
   background: #23272f !important;
   color: #fff !important;
@@ -284,6 +295,7 @@ body.dark-mode {
 }
 /* AdminDashboard.css - estilos exclusivos para el dashboard de administrador */
 /* --- Dashboard estilo CRUD Admin Panel --- */
+/* Comentado para evitar conflicto con AdminScreen.css
 .admin-dashboard {
   min-height: 100vh;
   background: linear-gradient(120deg, #fff8e1 60%, #ffe7b3 100%);
@@ -313,6 +325,7 @@ body.dark-mode {
   color: #343a40;
   font-weight: 600;
 }
+*/
 .admin-sidebar {
   width: 260px;
   min-width: 220px;

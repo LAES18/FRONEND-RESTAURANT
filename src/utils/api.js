@@ -2,8 +2,11 @@ import { mockUsers, mockDishes, mockOrders, mockDelay } from './mockData.js';
 
 // Utility para manejar requests con reintentos y mejor manejo de errores
 export const apiRequest = async (endpoint, options = {}) => {
-  const baseURL = import.meta.env.VITE_API_URL || 'https://backend-restaurant-production-b56f.up.railway.app';
-  const url = `${baseURL}/api/${endpoint}`;
+  // Si VITE_API_URL está vacío, usa ruta relativa (mismo dominio)
+  const baseURL = import.meta.env.VITE_API_URL || '';
+  // Si endpoint ya incluye /api/, no lo agregamos de nuevo
+  const cleanEndpoint = endpoint.startsWith('api/') ? endpoint : `api/${endpoint}`;
+  const url = baseURL ? `${baseURL}/${cleanEndpoint}` : `/${cleanEndpoint}`;
   
   const defaultOptions = {
     method: 'GET',

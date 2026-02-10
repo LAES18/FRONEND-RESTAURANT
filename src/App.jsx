@@ -3,8 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import { useNavigate } from 'react-router-dom';
 
-// Configuración de API URL para Railway
-const API_URL = import.meta.env.VITE_API_URL || 'https://backend-restaurant-production-b56f.up.railway.app';
+// Configuración de API URL - usa ruta relativa si VITE_API_URL está vacío
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function App() {
   const [isLogin, setIsLogin] = useState(true);
@@ -261,46 +261,38 @@ function LoginForm({ setRole, windowWidth }) {
   const handleLogin = async (e) => {
     e.preventDefault();
     
-    let loginExitoso = false;
+    // Usar API_URL configurado (ruta relativa o URL absoluta)
+    const loginUrl = API_URL ? `${API_URL}/api/login` : '/api/login';
     
-    // Intentar primero con el proxy local, luego directo
-    const urls = ['/api/login', 'https://backend-restaurant-production-b56f.up.railway.app/api/login'];
-    
-    for (const url of urls) {
-      try {
-        console.log('Intentando login a:', url);
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          ...(url.startsWith('http') && { mode: 'cors' }),
-          body: JSON.stringify({ email, password }),
-        });
+    try {
+      console.log('Intentando login a:', loginUrl);
+      const response = await fetch(loginUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ email, password }),
+      });
         
-        console.log('Respuesta del servidor:', response.status);
+      console.log('Respuesta del servidor:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Login exitoso:', data);
         
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Login exitoso:', data);
-          setRole(data.role);
-          loginExitoso = true;
-          return; // Salir si fue exitoso
-        } else {
-          const errorData = await response.text();
-          console.log('Error del servidor:', errorData);
-          if (url === urls[urls.length - 1]) { // Si es la última URL
-            alert('Credenciales inválidas');
-          }
-        }
-      } catch (error) {
-        console.error(`Error al intentar ${url}:`, error);
-        // Solo mostrar error de conexión si es la última URL Y no hubo login exitoso
-        if (url === urls[urls.length - 1] && !loginExitoso) {
-          alert('Error de conexión. El servidor no está disponible.');
-        }
+        // Guardar toda la información del usuario en localStorage
+        localStorage.setItem('user', JSON.stringify(data));
+        
+        setRole(data.role);
+      } else {
+        const errorData = await response.text();
+        console.log('Error del servidor:', errorData);
+        alert('Credenciales inválidas');
       }
+    } catch (error) {
+      console.error(`Error al intentar login:`, error);
+      alert('Error de conexión. El servidor no está disponible.');
     }
   };
 
@@ -409,69 +401,56 @@ function RegisterForm({ toggleForm }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    let registroExitoso = false;
+    // Usar API_URL configurado (ruta relativa o URL absoluta)
+    const registerUrl = API_URL ? `${API_URL}/api/register` : '/api/register';
     
-    // Intentar primero con el proxy local, luego directo
-    const urls = ['/api/register', 'https://backend-restaurant-production-b56f.up.railway.app/api/register'];
-    
-    for (const url of urls) {
-      try {
-        console.log('Intentando registro a:', url);
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          ...(url.startsWith('http') && { mode: 'cors' }),
-          body: JSON.stringify({ name, email, password, role }),
-        });
+    try {
+      console.log('Intentando registro a:', registerUrl);
+      const response = await fetch(registerUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password, role }),
+      });
+      
+      console.log('Respuesta del servidor:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Registro exitoso:', data);
+        alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
+        toggleForm(); // Cambiar a login después del registro
+        // Limpiar formulario
+        setName('');
+        setEmail('');
+        setPassword('');
+        setRole('mesero');
+      } else {
+        const errorData = await response.text();
+        console.log('Error del servidor:', errorData);
         
-        console.log('Respuesta del servidor:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('Registro exitoso:', data);
-          alert('¡Registro exitoso! Ahora puedes iniciar sesión.');
-          toggleForm(); // Cambiar a login después del registro
-          // Limpiar formulario
-          setName('');
-          setEmail('');
-          setPassword('');
-          setRole('mesero');
-          registroExitoso = true;
-          return; // Salir si fue exitoso
-        } else {
-          const errorData = await response.text();
-          console.log('Error del servidor:', errorData);
-          
-          // Solo mostrar error si es la última URL
-          if (url === urls[urls.length - 1]) {
-            // Mejor manejo de errores para email duplicado
-            try {
-              const errorObj = JSON.parse(errorData);
-              if (errorObj.error && errorObj.error.includes('ya está registrado')) {
-                alert('Este correo electrónico ya está registrado.\n\nPrueba con un email diferente o usa el botón "Iniciar Sesión" si ya tienes cuenta.');
-              } else {
-                alert(`Error: ${errorObj.error || 'Error desconocido'}`);
-              }
-            } catch (e) {
-              // Si no es JSON válido
-              if (errorData.includes('ya está registrado') || errorData.includes('Duplicate entry')) {
-                alert('Este correo electrónico ya está registrado.\n\nPrueba con un email diferente o usa el botón "Iniciar Sesión".');
-              } else {
-                alert('Error al registrar usuario');
-              }
-            }
+        // Mejor manejo de errores para email duplicado
+        try {
+          const errorObj = JSON.parse(errorData);
+          if (errorObj.error && errorObj.error.includes('ya está registrado')) {
+            alert('Este correo electrónico ya está registrado.\n\nPrueba con un email diferente o usa el botón "Iniciar Sesión" si ya tienes cuenta.');
+          } else {
+            alert(`Error: ${errorObj.error || 'Error desconocido'}`);
+          }
+        } catch (e) {
+          // Si no es JSON válido
+          if (errorData.includes('ya está registrado') || errorData.includes('Duplicate entry')) {
+            alert('Este correo electrónico ya está registrado.\n\nPrueba con un email diferente o usa el botón "Iniciar Sesión".');
+          } else {
+            alert('Error al registrar usuario');
           }
         }
-      } catch (error) {
-        console.error(`Error al intentar ${url}:`, error);
-        // Solo mostrar error de conexión si es la última URL Y no hubo registro exitoso
-        if (url === urls[urls.length - 1] && !registroExitoso) {
-          alert('Error de conexión. El servidor no está disponible.');
-        }
       }
+    } catch (error) {
+      console.error('Error al intentar registro:', error);
+      alert('Error de conexión. El servidor no está disponible.');
     }
   };
 
