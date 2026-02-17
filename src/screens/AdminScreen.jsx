@@ -16,6 +16,12 @@ const AdminScreen = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   
+  // Obtener datos del usuario actual
+  const [userData] = useState(() => {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  });
+  const isSuperAdmin = userData.role === 'super_admin';
+  
   // Manejar el cambio de tamaño de la ventana
   useEffect(() => {
     const handleResize = () => {
@@ -1418,58 +1424,74 @@ const AdminScreen = () => {
                   <FaUsers />
                   Gestión de Usuarios
                 </h2>
+                {!isSuperAdmin && (
+                  <div style={{
+                    padding: '1rem',
+                    backgroundColor: '#fff3cd',
+                    borderLeft: '4px solid #ffc107',
+                    marginBottom: '1rem',
+                    borderRadius: '4px'
+                  }}>
+                    <p style={{margin: 0, color: '#856404', fontSize: '0.9rem'}}>
+                      ℹ️ Como Administrador, puedes visualizar y editar usuarios, pero solo los Super Administradores pueden agregar o eliminar usuarios del sistema.
+                    </p>
+                  </div>
+                )}
               </div>
               
-              {/* Formulario Agregar Usuario */}
-              <form onSubmit={handleAddUserForm} className="admin-form">
-                <div className="admin-form-row" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))'}}>
-                  <input
-                    type="text"
-                    className="admin-input"
-                    placeholder="Nombre"
-                    value={newUser.first_name}
-                    onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
-                    required
-                  />
-                  <input
-                    type="text"
-                    className="admin-input"
-                    placeholder="Apellido"
-                    value={newUser.last_name}
-                    onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
-                  />
-                  <input
-                    type="email"
-                    className="admin-input"
-                    placeholder="Email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-                    required
-                  />
-                  <input
-                    type="password"
-                    className="admin-input"
-                    placeholder="Contraseña"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser({...newUser, password: e.target.value})}
-                    required
-                  />
-                  <select
-                    className="admin-select"
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({...newUser, role: e.target.value})}
-                  >
-                    <option value="administrador">Administrador</option>
-                    <option value="cajero">Cajero</option>
-                    <option value="mesero">Mesero</option>
-                    <option value="cocinero">Cocinero</option>
-                  </select>
-                  <button type="submit" className="admin-btn-primary">
-                    <FaPlus />
-                    Agregar
-                  </button>
+              {/* Formulario Agregar Usuario - Solo para Super Admin */}
+              {isSuperAdmin && (
+                <form onSubmit={handleAddUserForm} className="admin-form">
+                  <div className="admin-form-row" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))'}}>
+                    <input
+                      type="text"
+                      className="admin-input"
+                      placeholder="Nombre"
+                      value={newUser.first_name}
+                      onChange={(e) => setNewUser({...newUser, first_name: e.target.value})}
+                      required
+                    />
+                    <input
+                      type="text"
+                      className="admin-input"
+                      placeholder="Apellido"
+                      value={newUser.last_name}
+                      onChange={(e) => setNewUser({...newUser, last_name: e.target.value})}
+                    />
+                    <input
+                      type="email"
+                      className="admin-input"
+                      placeholder="Email"
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+                      required
+                    />
+                    <input
+                      type="password"
+                      className="admin-input"
+                      placeholder="Contraseña"
+                      value={newUser.password}
+                      onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+                      required
+                    />
+                    <select
+                      className="admin-select"
+                      value={newUser.role}
+                      onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                    >
+                      <option value="super_admin">Super Administrador</option>
+                      <option value="administrador">Administrador</option>
+                      <option value="cajero">Cajero</option>
+                      <option value="mesero">Mesero</option>
+                      <option value="cocinero">Cocinero</option>
+                    </select>
+                    <button type="submit" className="admin-btn-primary">
+                      <FaPlus />
+                      Agregar
+                    </button>
                 </div>
               </form>
+              )}
 
               {/* Lista de Usuarios */}
               <div>
@@ -1520,6 +1542,7 @@ const AdminScreen = () => {
                                     onChange={(e) => setEditUser({...editUser, role: e.target.value})}
                                     style={{margin: 0}}
                                   >
+                                    <option value="super_admin">Super Administrador</option>
                                     <option value="administrador">Administrador</option>
                                     <option value="cajero">Cajero</option>
                                     <option value="mesero">Mesero</option>
@@ -1573,13 +1596,15 @@ const AdminScreen = () => {
                                     >
                                       ✏️ Editar
                                     </button>
-                                    <button
-                                      className="admin-btn-danger"
-                                      onClick={() => handleDeleteUser(user.id)}
-                                      style={{padding: '0.5rem 1rem', fontSize: '0.85rem'}}
-                                    >
-                                      <FaTrash />
-                                    </button>
+                                    {isSuperAdmin && (
+                                      <button
+                                        className="admin-btn-danger"
+                                        onClick={() => handleDeleteUser(user.id)}
+                                        style={{padding: '0.5rem 1rem', fontSize: '0.85rem'}}
+                                      >
+                                        <FaTrash />
+                                      </button>
+                                    )}
                                   </div>
                                 </td>
                               </>

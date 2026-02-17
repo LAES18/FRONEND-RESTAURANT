@@ -1024,6 +1024,99 @@
 }
 
 /* ========================================
+   RESPONSIVE - IPAD PRO 12.9" PORTRAIT
+   (1024x1366px viewport)
+   ======================================== */
+
+@media (min-width: 1024px) and (max-width: 1100px) and (orientation: portrait) {
+  .admin-container {
+    padding: 1.75rem 2rem;
+    max-width: 100%;
+  }
+
+  .admin-header-content {
+    padding: 0 1rem;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .admin-form-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .admin-nav-tabs {
+    gap: 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .admin-nav-tab {
+    min-width: 140px;
+    padding: 1rem 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .admin-section-grid,
+  .users-grid,
+  .dishes-grid,
+  .orders-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  .admin-card {
+    padding: 1.5rem;
+  }
+}
+
+/* ========================================
+   RESPONSIVE - IPAD PRO 12.9" LANDSCAPE
+   (1366x1024px viewport)
+   ======================================== */
+
+@media (min-width: 1280px) and (max-width: 1400px) and (orientation: landscape) {
+  .admin-container {
+    padding: 2rem 2.5rem;
+    max-width: 1360px;
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+
+  .admin-form-row {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .admin-section-grid,
+  .users-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .dishes-grid,
+  .orders-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .admin-nav-tabs {
+    gap: 1rem;
+  }
+
+  .admin-nav-tab {
+    padding: 1rem 1.75rem;
+    font-size: 1rem;
+  }
+}
+
+/* ========================================
    RESPONSIVE - TABLET (max-width: 992px)
    ======================================== */
 
