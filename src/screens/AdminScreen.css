@@ -733,14 +733,19 @@
 
 .admin-form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
   align-items: end;
-}\n\n@media (min-width: 1400px) {
+}
+
+@media (min-width: 1400px) {
   .admin-form-row {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
-}\n\n@media (max-width: 768px) {
+}
+
+@media (max-width: 768px) {
   .admin-form-row {
     grid-template-columns: 1fr;
   }

@@ -367,80 +367,133 @@
 /* 📱 Extra Small (320px - 575px) */
 @media (max-width: 575px) {
   .kitchen-header {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
   .kitchen-header-content {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: 0.75rem;
   }
 
   .kitchen-logo {
-    width: 2.8125rem; /* 45px */
-    height: 2.8125rem;
-    font-size: 1.5rem;
+    width: 2.5rem; /* 40px */
+    height: 2.5rem;
+    font-size: 1.3rem;
   }
 
   .kitchen-title h1 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
+    line-height: 1.3;
   }
 
   .kitchen-title p {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
+    display: none; /* Ocultar en móviles muy pequeños */
   }
 
   .kitchen-logout-btn {
-    padding: 0.625rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .kitchen-logout-btn span {
+    font-size: 1.2rem;
   }
 
   .kitchen-stats {
     grid-template-columns: 1fr;
-    padding: 1rem;
+    padding: 0.875rem;
     gap: 0.75rem;
   }
 
   .kitchen-stat-card {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
   .kitchen-stat-icon {
-    width: 3.125rem; /* 50px */
-    height: 3.125rem;
-    font-size: 1.375rem;
+    width: 3rem; /* 48px */
+    height: 3rem;
+    font-size: 1.3rem;
   }
 
   .kitchen-stat-info h3 {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
+  }
+
+  .kitchen-stat-info p {
+    font-size: 0.8rem;
   }
 
   .kitchen-main {
-    padding: 1rem;
+    padding: 0.875rem;
   }
 
   .kitchen-orders-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.875rem;
   }
 
   .kitchen-order-card {
-    padding: 1rem;
+    padding: 0.875rem;
+    border-radius: 0.75rem;
   }
 
   .kitchen-order-header {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+
+  .kitchen-order-info h4 {
+    font-size: 1.1rem;
   }
 
   .kitchen-order-meta {
     width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .kitchen-badge {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8rem;
+  }
+
+  .kitchen-item {
+    padding: 0.625rem;
+    font-size: 0.875rem;
+  }
+
+  .kitchen-item-name {
+    font-size: 0.875rem;
   }
 
   .kitchen-order-actions {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .kitchen-btn {
     width: 100%;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .kitchen-empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .kitchen-empty-state svg,
+  .kitchen-empty-state .empty-icon {
+    font-size: 3rem;
+  }
+
+  .kitchen-empty-state h3 {
+    font-size: 1.1rem;
+  }
+
+  .kitchen-empty-state p {
+    font-size: 0.875rem;
   }
 }
 
@@ -452,6 +505,86 @@
 
   .kitchen-orders-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* 📱 Pantallas extra pequeñas (320px-480px) */
+@media (max-width: 480px) {
+  .kitchen-header {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .kitchen-logo {
+    width: 2.25rem;
+    height: 2.25rem;
+    font-size: 1.2rem;
+  }
+
+  .kitchen-title h1 {
+    font-size: 1rem;
+  }
+
+  .kitchen-title p {
+    display: none;
+  }
+
+  .kitchen-logout-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .kitchen-stats {
+    padding: 0.625rem;
+    gap: 0.5rem;
+  }
+
+  .kitchen-stat-card {
+    padding: 0.75rem;
+  }
+
+  .kitchen-stat-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.2rem;
+  }
+
+  .kitchen-stat-info h3 {
+    font-size: 1.3rem;
+  }
+
+  .kitchen-stat-info p {
+    font-size: 0.75rem;
+  }
+
+  .kitchen-main {
+    padding: 0.625rem;
+  }
+
+  .kitchen-orders-grid {
+    gap: 0.625rem;
+  }
+
+  .kitchen-order-card {
+    padding: 0.75rem;
+  }
+
+  .kitchen-order-info h4 {
+    font-size: 1rem;
+  }
+
+  .kitchen-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+  }
+
+  .kitchen-item {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .kitchen-btn {
+    padding: 0.625rem;
+    font-size: 0.8rem;
   }
 }
 
