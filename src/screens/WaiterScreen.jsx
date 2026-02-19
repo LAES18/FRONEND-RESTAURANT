@@ -20,6 +20,8 @@ const WaiterScreen = () => {
   const [pendingOrders, setPendingOrders] = useState([]);
   const [showPendingOrders, setShowPendingOrders] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
+  const [notificationPermission, setNotificationPermission] = useState('default');
+  const [previousOrders, setPreviousOrders] = useState([]);
   
   // Guardar datos del usuario al cargar el componente (no se sobrescribe con otras pestañas)
   const [userData] = useState(() => {
@@ -27,6 +29,97 @@ const WaiterScreen = () => {
   });
   
   const navigate = useNavigate();
+
+  // Solicitar permisos de notificación al cargar el componente
+  useEffect(() => {
+    if ('Notification' in window) {
+      setNotificationPermission(Notification.permission);
+      
+      if (Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          setNotificationPermission(permission);
+          if (permission === 'granted') {
+            new Notification('Notificaciones activadas', {
+              body: 'Recibirás notificaciones cuando tus órdenes estén listas',
+              icon: '/restaurant-icon.png',
+              badge: '/restaurant-icon.png'
+            });
+          }
+        });
+      }
+    }
+  }, []);
+
+  // Función para enviar notificación del navegador
+  const sendBrowserNotification = (order) => {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      const notification = new Notification('🔔 ¡Orden Lista!', {
+        body: `Mesa ${order.mesa} - Orden #${order.daily_order_number || order.id}\nLista para servir`,
+        icon: '/restaurant-icon.png',
+        badge: '/restaurant-icon.png',
+        tag: `order-${order.id}`,
+        requireInteraction: true,
+        vibrate: [200, 100, 200]
+      });
+
+      notification.onclick = () => {
+        window.focus();
+        setShowPendingOrders(true);
+        fetchPendingOrders();
+        notification.close();
+      };
+
+      // Auto cerrar después de 10 segundos
+      setTimeout(() => notification.close(), 10000);
+    }
+  };
+
+  // Polling cada 10 segundos para detectar órdenes listas
+  useEffect(() => {
+    const checkForReadyOrders = async () => {
+      try {
+        // Obtener todas las órdenes servidas
+        const response = await axios.get(`${API_URL}/api/orders?status=servido&unpaid=true`);
+        const currentOrders = response.data;
+        
+        // Comparar con órdenes anteriores para detectar nuevas órdenes listas
+        if (previousOrders.length > 0) {
+          const previousOrderIds = previousOrders.map(o => o.id);
+          const newReadyOrders = currentOrders.filter(order => !previousOrderIds.includes(order.id));
+          
+          // Enviar notificación por cada orden nueva que esté lista
+          newReadyOrders.forEach(order => {
+            sendBrowserNotification(order);
+            // También mostrar notificación SweetAlert si el usuario está activo
+            if (document.visibilityState === 'visible') {
+              Swal.fire({
+                icon: 'success',
+                title: '🔔 ¡Orden Lista!',
+                html: `<strong>Mesa ${order.mesa}</strong><br>Orden #${order.daily_order_number || order.id}<br>Lista para servir`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+              });
+            }
+          });
+        }
+        
+        setPreviousOrders(currentOrders);
+      } catch (error) {
+        console.error('Error al verificar órdenes listas:', error);
+      }
+    };
+
+    // Ejecutar inmediatamente
+    checkForReadyOrders();
+
+    // Polling cada 10 segundos
+    const interval = setInterval(checkForReadyOrders, 10000);
+
+    return () => clearInterval(interval);
+  }, [previousOrders, API_URL]);
 
   useEffect(() => {
     const fetchDishes = () => {
@@ -197,6 +290,50 @@ const WaiterScreen = () => {
     setCartOpen(false);
   };
 
+  const handleRequestNotifications = async () => {
+    if ('Notification' in window) {
+      if (Notification.permission === 'denied') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Notificaciones Bloqueadas',
+          html: 'Has bloqueado las notificaciones. Para activarlas:<br><br>1. Haz clic en el candado 🔒 en la barra de dirección<br>2. Busca "Notificaciones"<br>3. Cambia a "Permitir"',
+          confirmButtonText: 'Entendido'
+        });
+      } else if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        setNotificationPermission(permission);
+        if (permission === 'granted') {
+          new Notification('✅ Notificaciones Activadas', {
+            body: 'Recibirás notificaciones cuando tus órdenes estén listas',
+            icon: '/restaurant-icon.png'
+          });
+          Swal.fire({
+            icon: 'success',
+            title: 'Notificaciones Activadas',
+            text: 'Recibirás alertas cuando tus órdenes estén listas',
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      } else {
+        // Ya están permitidas
+        Swal.fire({
+          icon: 'success',
+          title: 'Notificaciones Activas',
+          text: 'Las notificaciones ya están activadas correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+      }
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'No Compatible',
+        text: 'Tu navegador no soporta notificaciones'
+      });
+    }
+  };
+
   Swal.mixin({
     customClass: {
       confirmButton: 'btn btn-primary',
@@ -221,6 +358,28 @@ const WaiterScreen = () => {
             </div>
           </div>
           <div style={{display: 'flex', gap: '0.75rem'}}>
+            <button 
+              className="waiter-logout-btn" 
+              onClick={handleRequestNotifications}
+              style={{
+                background: notificationPermission === 'granted' 
+                  ? 'rgba(40, 167, 69, 0.2)' 
+                  : 'rgba(255, 193, 7, 0.2)', 
+                borderColor: notificationPermission === 'granted' 
+                  ? 'rgba(40, 167, 69, 0.3)' 
+                  : 'rgba(255, 193, 7, 0.3)'
+              }}
+              title={
+                notificationPermission === 'granted' 
+                  ? 'Notificaciones activas' 
+                  : notificationPermission === 'denied' 
+                  ? 'Notificaciones bloqueadas - Click para ayuda' 
+                  : 'Click para activar notificaciones'
+              }
+            >
+              <span>{notificationPermission === 'granted' ? '🔔' : '🔕'}</span> 
+              {notificationPermission === 'granted' ? 'Notificaciones' : 'Activar Alertas'}
+            </button>
             <button 
               className="waiter-logout-btn" 
               onClick={() => {
