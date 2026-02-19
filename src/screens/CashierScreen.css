@@ -109,9 +109,10 @@
 }
 
 /* ========================================
-   STATISTICS CARDS
+   STATISTICS CARDS - DISABLED
    ======================================== */
 
+/*
 .stats-container {
   max-width: 1800px;
   margin: 2rem auto;
@@ -239,6 +240,7 @@
   font-size: 0.85rem;
   color: #6c757d;
 }
+*/
 
 /* ========================================
    MAIN LAYOUT

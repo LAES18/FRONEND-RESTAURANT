@@ -265,53 +265,6 @@ const CashierScreen = () => {
         </div>
       </header>
 
-      {/* Tarjetas de estadísticas */}
-      <div className="stats-container">
-        <div className="stat-card stat-pending">
-          <div className="stat-icon">
-            <FaReceipt />
-          </div>
-          <div className="stat-content">
-            <h3 className="stat-value">{orders.length}</h3>
-            <p className="stat-label">Pendientes</p>
-            <small className="stat-sublabel">Por cobrar</small>
-          </div>
-        </div>
-
-        <div className="stat-card stat-selected">
-          <div className="stat-icon">
-            <FaMoneyBillAlt />
-          </div>
-          <div className="stat-content">
-            <h3 className="stat-value">{selectedOrders.length}</h3>
-            <p className="stat-label">Seleccionadas</p>
-            <small className="stat-sublabel">Para cobrar</small>
-          </div>
-        </div>
-
-        <div className="stat-card stat-total">
-          <div className="stat-icon">
-            <FaDollarSign />
-          </div>
-          <div className="stat-content">
-            <h3 className="stat-value">Q{calculateTotal()}</h3>
-            <p className="stat-label">Total</p>
-            <small className="stat-sublabel">A cobrar</small>
-          </div>
-        </div>
-
-        <div className="stat-card stat-method">
-          <div className="stat-icon">
-            {paymentMethod === 'efectivo' ? <FaMoneyBillAlt /> : <FaCreditCard />}
-          </div>
-          <div className="stat-content">
-            <h3 className="stat-value">{paymentMethod === 'efectivo' ? 'Efectivo' : 'Tarjeta'}</h3>
-            <p className="stat-label">Método</p>
-            <small className="stat-sublabel">Seleccionado</small>
-          </div>
-        </div>
-      </div>
-
       <div className="cashier-screen">
         {/* Panel de órdenes pendientes */}
         <div className="pending-orders">
