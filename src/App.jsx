@@ -579,6 +579,7 @@ function RoleBasedPage({ role }) {
 
   useEffect(() => {
     switch (role) {
+      case 'super_admin':
       case 'administrador':
         navigate('/admin');
         break;
