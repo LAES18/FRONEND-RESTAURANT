@@ -360,28 +360,6 @@ const WaiterScreen = () => {
           <div style={{display: 'flex', gap: '0.75rem'}}>
             <button 
               className="waiter-logout-btn" 
-              onClick={handleRequestNotifications}
-              style={{
-                background: notificationPermission === 'granted' 
-                  ? 'rgba(40, 167, 69, 0.2)' 
-                  : 'rgba(255, 193, 7, 0.2)', 
-                borderColor: notificationPermission === 'granted' 
-                  ? 'rgba(40, 167, 69, 0.3)' 
-                  : 'rgba(255, 193, 7, 0.3)'
-              }}
-              title={
-                notificationPermission === 'granted' 
-                  ? 'Notificaciones activas' 
-                  : notificationPermission === 'denied' 
-                  ? 'Notificaciones bloqueadas - Click para ayuda' 
-                  : 'Click para activar notificaciones'
-              }
-            >
-              <span>{notificationPermission === 'granted' ? '🔔' : '🔕'}</span> 
-              {notificationPermission === 'granted' ? 'Notificaciones' : 'Activar Alertas'}
-            </button>
-            <button 
-              className="waiter-logout-btn" 
               onClick={() => {
                 fetchPendingOrders();
                 setShowPendingOrders(true);
@@ -470,6 +448,28 @@ const WaiterScreen = () => {
           </div>
         )}
       </div>
+
+      {/* Botón flotante de notificaciones */}
+      <button 
+        className="waiter-notification-button" 
+        onClick={handleRequestNotifications}
+        style={{
+          background: notificationPermission === 'granted' 
+            ? 'linear-gradient(135deg, #28a745 0%, #1e7e34 100%)' 
+            : notificationPermission === 'denied'
+            ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)'
+            : 'linear-gradient(135deg, #ffc107 0%, #e0a800 100%)'
+        }}
+        title={
+          notificationPermission === 'granted' 
+            ? 'Notificaciones activas' 
+            : notificationPermission === 'denied' 
+            ? 'Notificaciones bloqueadas - Click para ayuda' 
+            : 'Click para activar notificaciones'
+        }
+      >
+        {notificationPermission === 'granted' ? '🔔' : '🔕'}
+      </button>
 
       {/* Botón flotante del carrito */}
       <button 
