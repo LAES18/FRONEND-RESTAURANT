@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import jsPDF from 'jspdf';
 import './WaiterScreen.css';
 
 // Usar ruta relativa si VITE_API_URL está vacío
@@ -288,6 +289,135 @@ const WaiterScreen = () => {
     setMesa('');
     setNotes('');
     setCartOpen(false);
+  };
+
+  const handlePrintOrder = (order) => {
+    const ticketWidth = 156; // 55mm en puntos
+    const margin = 8;
+    const lineHeight = 12;
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: [ticketWidth, 400]
+    });
+
+    let y = margin + 6;
+    
+    // Encabezado
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('ORDEN MESERO', ticketWidth / 2, y, { align: 'center' });
+    y += lineHeight;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Orden #${order.daily_order_number || order.id}`, ticketWidth / 2, y, { align: 'center' });
+    y += lineHeight;
+    
+    // Línea separadora
+    doc.setLineWidth(0.7);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 7;
+    
+    // Información de la orden
+    doc.setFontSize(8);
+    const fecha = new Date(order.created_at).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Fecha: ${fecha}`, margin, y);
+    y += lineHeight - 2;
+    
+    doc.text(`Mesa: ${order.mesa || 'N/A'}`, margin, y);
+    y += lineHeight - 2;
+    
+    doc.text(`Mesero: ${order.waiter_name || 'N/A'}`, margin, y);
+    y += lineHeight - 2;
+    
+    doc.text(`Estado: ${order.status || 'pendiente'}`, margin, y);
+    y += lineHeight;
+    
+    // Línea separadora
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 6;
+    
+    // Platillos
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('PLATILLOS:', margin, y);
+    y += lineHeight;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    
+    let total = 0;
+    order.dishes.forEach((dish, index) => {
+      // Nombre del platillo con precio
+      const price = parseFloat(dish.price || 0);
+      total += price;
+      doc.text(`${index + 1}. ${dish.name}`, margin, y);
+      doc.text(`Q${price.toFixed(2)}`, ticketWidth - margin, y, { align: 'right' });
+      y += lineHeight - 3;
+      
+      // Tipo de platillo (más pequeño)
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`   ${dish.type || ''}`, margin, y);
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(8);
+      y += lineHeight - 2;
+    });
+    
+    // Total
+    y += 4;
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 6;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('TOTAL:', margin, y);
+    doc.text(`Q${total.toFixed(2)}`, ticketWidth - margin, y, { align: 'right' });
+    y += lineHeight;
+    
+    // Notas si existen
+    if (order.notes) {
+      doc.setLineWidth(0.3);
+      doc.line(margin, y, ticketWidth - margin, y);
+      y += 6;
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.text('NOTAS:', margin, y);
+      y += lineHeight - 2;
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      const notesLines = doc.splitTextToSize(order.notes, ticketWidth - (margin * 2));
+      notesLines.forEach(line => {
+        doc.text(line, margin, y);
+        y += lineHeight - 4;
+      });
+    }
+    
+    y += 6;
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Para cotejar con el cliente', ticketWidth / 2, y, { align: 'center' });
+    
+    // Descargar el PDF
+    doc.save(`orden-mesa-${order.mesa}-${order.daily_order_number || order.id}.pdf`);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Orden Impresa',
+      text: 'El ticket ha sido generado',
+      timer: 1500,
+      showConfirmButton: false
+    });
   };
 
   const handleRequestNotifications = async () => {
@@ -613,21 +743,38 @@ const WaiterScreen = () => {
                             </p>
                           )}
                         </div>
-                        <button 
-                          onClick={() => handleEditOrder(order)}
-                          style={{
-                            background: '#28a745',
-                            color: 'white',
-                            border: 'none',
-                            padding: '0.5rem 1rem',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem',
-                            fontWeight: '600'
-                          }}
-                        >
-                          ✏️ Editar
-                        </button>
+                        <div style={{display: 'flex', gap: '0.5rem'}}>
+                          <button 
+                            onClick={() => handlePrintOrder(order)}
+                            style={{
+                              background: '#6c757d',
+                              color: 'white',
+                              border: 'none',
+                              padding: '0.5rem 1rem',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '0.9rem',
+                              fontWeight: '600'
+                            }}
+                          >
+                            🖨️ Imprimir
+                          </button>
+                          <button 
+                            onClick={() => handleEditOrder(order)}
+                            style={{
+                              background: '#28a745',
+                              color: 'white',
+                              border: 'none',
+                              padding: '0.5rem 1rem',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              fontSize: '0.9rem',
+                              fontWeight: '600'
+                            }}
+                          >
+                            ✏️ Editar
+                          </button>
+                        </div>
                       </div>
                       <div style={{borderTop: '1px solid #dee2e6', paddingTop: '0.75rem'}}>
                         <strong style={{fontSize: '0.9rem', color: '#666'}}>Platillos:</strong>

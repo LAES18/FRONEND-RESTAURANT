@@ -674,6 +674,46 @@
 }
 
 /* ========================================
+   CARD REFERENCE SECTION
+   ======================================== */
+
+.card-reference-section {
+  background: var(--light-bg);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  margin-top: 1rem;
+  border: 2px solid rgba(184, 92, 0, 0.2);
+}
+
+.reference-label {
+  display: block;
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.reference-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-md);
+  font-size: 1rem;
+  transition: all var(--transition-normal);
+  background: white;
+}
+
+.reference-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(184, 92, 0, 0.1);
+}
+
+.reference-input::placeholder {
+  color: #999;
+}
+
+/* ========================================
    ACTION BUTTONS
    ======================================== */
 

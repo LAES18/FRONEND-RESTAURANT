@@ -1489,8 +1489,8 @@ const AdminScreen = () => {
                       <FaPlus />
                       Agregar
                     </button>
-                </div>
-              </form>
+                  </div>
+                </form>
               )}
 
               {/* Lista de Usuarios */}

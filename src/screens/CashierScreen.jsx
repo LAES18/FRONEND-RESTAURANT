@@ -19,6 +19,7 @@ const CashierScreen = () => {
   const [orders, setOrders] = useState([]);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState('efectivo');
+  const [cardReference, setCardReference] = useState('');
   const [error, setError] = useState('');
   const [lastInvoice, setLastInvoice] = useState(null);
   const navigate = useNavigate();
@@ -57,12 +58,20 @@ const CashierScreen = () => {
       Swal.fire({icon: 'warning', title: 'Sin selección', text: 'Selecciona al menos una orden para procesar el pago.'});
       return;
     }
+
+    // Validar referencia de tarjeta si el método es tarjeta
+    if (paymentMethod === 'tarjeta' && !cardReference.trim()) {
+      Swal.fire({icon: 'warning', title: 'Referencia Requerida', text: 'Por favor ingresa el número de referencia de la tarjeta.'});
+      return;
+    }
+
     setError('');
 
     const paymentData = selectedOrders.map(order => ({
       order_id: order.id,
       total: order.dishes.reduce((sum, dish) => sum + parseFloat(dish.price || 0), 0),
       method: paymentMethod,
+      card_reference: paymentMethod === 'tarjeta' ? cardReference.trim() : null
     }));
 
     axios.post(`${API_URL}/api/payments`, paymentData)
@@ -74,9 +83,14 @@ const CashierScreen = () => {
           timer: 1500
         });
         setOrders(orders.filter(order => !selectedOrders.includes(order)));
-        setLastInvoice(selectedOrders);
-        handleDownloadInvoice(selectedOrders); // Descargar factura automáticamente
+        setLastInvoice({ 
+          orders: selectedOrders, 
+          method: paymentMethod, 
+          reference: paymentMethod === 'tarjeta' ? cardReference : '' 
+        });
+        handleDownloadInvoice(selectedOrders, paymentMethod, cardReference); // Descargar factura automáticamente
         setSelectedOrders([]);
+        setCardReference(''); // Limpiar referencia
       })
       .catch(error => {
         console.error('Error al procesar el pago:', error);
@@ -106,7 +120,7 @@ const CashierScreen = () => {
       });
   };
 
-  const handleDownloadInvoice = (ordersToPrint) => {
+  const handleDownloadInvoice = (ordersToPrint, method = 'efectivo', reference = '') => {
     const ticketWidth = 156; // 55mm en puntos (1mm ≈ 2.83pt)
     const margin = 8;
     const lineHeight = 13;
@@ -171,9 +185,20 @@ const CashierScreen = () => {
     y += lineHeight;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text(capitalize(paymentMethod), margin, y);
+    doc.text(capitalize(method), margin, y);
     doc.text(total.toFixed(2), ticketWidth - margin, y, { align: 'right' });
     y += lineHeight - 3;
+    
+    // Mostrar referencia si es pago con tarjeta
+    if (method === 'tarjeta' && reference) {
+      doc.setFontSize(7.5);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Ref: ${reference}`, margin, y);
+      y += lineHeight - 3;
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(8);
+    }
+    
     // IGIC/IVA ejemplo (7%)
     const baseImp = (total / 1.07);
     const cuota = total - baseImp;
@@ -407,6 +432,21 @@ const CashierScreen = () => {
             </div>
           </div>
 
+          {/* Campo de referencia de tarjeta */}
+          {paymentMethod === 'tarjeta' && (
+            <div className="card-reference-section">
+              <label className="reference-label">Número de Referencia/Autorización *</label>
+              <input
+                type="text"
+                className="reference-input"
+                placeholder="Ej: 123456789"
+                value={cardReference}
+                onChange={(e) => setCardReference(e.target.value)}
+                maxLength={100}
+              />
+            </div>
+          )}
+
           {/* Botones de acción */}
           <div className="payment-actions">
             <button
@@ -420,7 +460,7 @@ const CashierScreen = () => {
             {lastInvoice && (
               <button
                 className="btn-print-invoice"
-                onClick={() => handleDownloadInvoice(lastInvoice)}
+                onClick={() => handleDownloadInvoice(lastInvoice.orders, lastInvoice.method, lastInvoice.reference)}
               >
                 <FaReceipt /> Descargar Última Factura
               </button>

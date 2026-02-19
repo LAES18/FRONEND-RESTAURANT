@@ -4,7 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './KitchenScreen.css';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { FaUtensils, FaCheck, FaClock, FaFire, FaSignOutAlt, FaPlay, FaChartLine, FaExclamationTriangle, FaListAlt, FaCheckCircle } from 'react-icons/fa';
+import jsPDF from 'jspdf';
+import { FaUtensils, FaCheck, FaClock, FaFire, FaSignOutAlt, FaPlay, FaChartLine, FaExclamationTriangle, FaListAlt, FaCheckCircle, FaPrint } from 'react-icons/fa';
 
 // Usar ruta relativa si VITE_API_URL está vacío
 const API_URL = import.meta.env.VITE_API_URL || '';
@@ -65,6 +66,117 @@ const KitchenScreen = () => {
         Swal.fire({icon: 'error', title: 'Error', text: 'Error al actualizar la orden'});
         console.error('Error al actualizar la orden:', error);
       });
+  };
+
+  const handlePrintOrder = (order) => {
+    const ticketWidth = 156; // 55mm en puntos
+    const margin = 8;
+    const lineHeight = 12;
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'pt',
+      format: [ticketWidth, 400]
+    });
+
+    let y = margin + 6;
+    
+    // Encabezado
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text('COCINA - ORDEN', ticketWidth / 2, y, { align: 'center' });
+    y += lineHeight;
+    
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Orden #${order.daily_order_number || order.id}`, ticketWidth / 2, y, { align: 'center' });
+    y += lineHeight;
+    
+    // Línea separadora
+    doc.setLineWidth(0.7);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 7;
+    
+    // Información de la orden
+    doc.setFontSize(8);
+    const fecha = new Date(order.created_at).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Fecha: ${fecha}`, margin, y);
+    y += lineHeight - 2;
+    
+    doc.text(`Mesa: ${order.mesa || 'N/A'}`, margin, y);
+    y += lineHeight - 2;
+    
+    doc.text(`Mesero: ${order.waiter_name || 'N/A'}`, margin, y);
+    y += lineHeight;
+    
+    // Línea separadora
+    doc.setLineWidth(0.3);
+    doc.line(margin, y, ticketWidth - margin, y);
+    y += 6;
+    
+    // Platillos
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('PLATILLOS:', margin, y);
+    y += lineHeight;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    
+    order.dishes.forEach((dish, index) => {
+      // Nombre del platillo
+      doc.text(`${index + 1}. ${dish.name}`, margin, y);
+      y += lineHeight - 3;
+      
+      // Tipo de platillo (más pequeño)
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`   ${dish.type || ''}`, margin, y);
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(8);
+      y += lineHeight - 2;
+    });
+    
+    // Notas si existen
+    if (order.notes) {
+      y += 4;
+      doc.setLineWidth(0.3);
+      doc.line(margin, y, ticketWidth - margin, y);
+      y += 6;
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('NOTAS:', margin, y);
+      y += lineHeight - 2;
+      
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      const notesLines = doc.splitTextToSize(order.notes, ticketWidth - (margin * 2));
+      notesLines.forEach(line => {
+        doc.text(line, margin, y);
+        y += lineHeight - 4;
+      });
+    }
+    
+    y += 6;
+    doc.setFontSize(7);
+    doc.setTextColor(100, 100, 100);
+    doc.text('Para cotejar con la orden', ticketWidth / 2, y, { align: 'center' });
+    
+    // Descargar el PDF
+    doc.save(`orden-${order.daily_order_number || order.id}.pdf`);
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Orden Impresa',
+      text: 'El ticket ha sido generado',
+      timer: 1500,
+      showConfirmButton: false
+    });
   };
 
   const getOrderPriority = (order) => {
@@ -274,6 +386,31 @@ const KitchenScreen = () => {
                 </div>
               </div>
             )}
+            
+            {/* Botón de impresión */}
+            <div className="d-grid mb-2">
+              <button
+                className="btn btn-outline-secondary border-2 py-2"
+                onClick={() => handlePrintOrder(order)}
+                style={{
+                  borderRadius: '12px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#6c757d';
+                  e.target.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.color = '#6c757d';
+                }}
+              >
+                <FaPrint className="me-2" />
+                Imprimir Orden
+              </button>
+            </div>
             
             {/* Botón de acción elegante */}
             <div className="d-grid">
