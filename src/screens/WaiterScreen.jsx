@@ -23,6 +23,8 @@ const WaiterScreen = () => {
   const [editingOrder, setEditingOrder] = useState(null);
   const [notificationPermission, setNotificationPermission] = useState('default');
   const [previousOrders, setPreviousOrders] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const [hasNewOrders, setHasNewOrders] = useState(false);
   
   // Guardar datos del usuario al cargar el componente (no se sobrescribe con otras pestañas)
   const [userData] = useState(() => {
@@ -30,6 +32,18 @@ const WaiterScreen = () => {
   });
   
   const navigate = useNavigate();
+
+  // Detectar si es dispositivo móvil
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      setIsMobile(isMobileDevice);
+    };
+    checkMobile();
+  }, []);
+
+  // Crear elemento de audio para notificaciones
+  const notificationSound = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGe56+idTRAMUKXi8LZjHAU7k9r0y3kqBSl+zPLaizsKGWi56+abTxELTqPg8rlrJAU2jdXzxXAoBSt8y/LajTkJFmW16+icUBELTqHe8rltIwU5j9b0yXcpBSh6y/HajDoJF2W16+icUREKTJ/d8rpvJAU6kNf0yHYpBSh6yvLaizwKF2O16+meTBIKSpzb8rtzJQc9k9j0x3QpBSd4yPDbjDwLGGG06+2fThELSJrZ8r14KAU8kdj0xnIqBSZ2x+/dlUAMG193y++fUhILR5rZ8rx3KwU8kdj0w3IqBSV1xu7ekEING192yu6dURILRZjX8rx3MQY8k9n0w3IrBSR0xO3elUENI1RxyeudUhIKQ5TX8rx4NAY8k9n0w3IrBSNyw+7gkUMNJlNuy+ueUhEJQ5PW8Lt5NQc8k9n0wnMrBSJxwe3gkUQOJ1BsuuyeUxAJQ5LV8Lt6Ngc8k9j0wXMrBSJxwO3fk0QPKVBruOueVA==');
 
   // Solicitar permisos de notificación al cargar el componente
   useEffect(() => {
@@ -51,28 +65,70 @@ const WaiterScreen = () => {
     }
   }, []);
 
-  // Función para enviar notificación del navegador
+  // Función para enviar notificación del navegador con soporte móvil
   const sendBrowserNotification = (order) => {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      const notification = new Notification('🔔 ¡Orden Lista!', {
-        body: `Mesa ${order.mesa} - Orden #${order.daily_order_number || order.id}\nLista para servir`,
-        icon: '/restaurant-icon.png',
-        badge: '/restaurant-icon.png',
-        tag: `order-${order.id}`,
-        requireInteraction: true,
-        vibrate: [200, 100, 200]
-      });
-
-      notification.onclick = () => {
-        window.focus();
-        setShowPendingOrders(true);
-        fetchPendingOrders();
-        notification.close();
-      };
-
-      // Auto cerrar después de 10 segundos
-      setTimeout(() => notification.close(), 10000);
+    // Vibración (funciona en la mayoría de móviles)
+    if ('vibrate' in navigator) {
+      navigator.vibrate([200, 100, 200, 100, 200]);
     }
+
+    // Reproducir sonido
+    try {
+      notificationSound.play().catch(err => console.log('No se pudo reproducir sonido:', err));
+    } catch (err) {
+      console.log('Audio no disponible:', err);
+    }
+
+    // Indicador visual para móviles
+    setHasNewOrders(true);
+
+    // Notificación del navegador (funciona en desktop y algunos móviles)
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        const notification = new Notification('🔔 ¡Orden Lista!', {
+          body: `Mesa ${order.mesa} - Orden #${order.daily_order_number || order.id}\nLista para servir`,
+          icon: '/restaurant-icon.png',
+          badge: '/restaurant-icon.png',
+          tag: `order-${order.id}`,
+          requireInteraction: false,
+          vibrate: [200, 100, 200]
+        });
+
+        notification.onclick = () => {
+          window.focus();
+          setShowPendingOrders(true);
+          setHasNewOrders(false);
+          fetchPendingOrders();
+          notification.close();
+        };
+
+        // Auto cerrar después de 10 segundos
+        setTimeout(() => notification.close(), 10000);
+      } catch (err) {
+        console.log('Notificación no disponible:', err);
+      }
+    }
+
+    // Alerta visual con SweetAlert (funciona siempre)
+    Swal.fire({
+      icon: 'success',
+      title: '🔔 ¡Orden Lista!',
+      html: `<strong>Mesa ${order.mesa}</strong><br>Orden #${order.daily_order_number || order.id}<br><br>✅ Lista para servir`,
+      toast: !isMobile,
+      position: isMobile ? 'center' : 'top-end',
+      showConfirmButton: isMobile,
+      confirmButtonText: 'Ver Órdenes',
+      timer: isMobile ? undefined : 5000,
+      timerProgressBar: !isMobile,
+      backdrop: isMobile,
+      allowOutsideClick: !isMobile
+    }).then((result) => {
+      if (result.isConfirmed || result.isDismissed) {
+        setShowPendingOrders(true);
+        setHasNewOrders(false);
+        fetchPendingOrders();
+      }
+    });
   };
 
   // Polling cada 10 segundos para detectar órdenes listas
@@ -91,19 +147,6 @@ const WaiterScreen = () => {
           // Enviar notificación por cada orden nueva que esté lista
           newReadyOrders.forEach(order => {
             sendBrowserNotification(order);
-            // También mostrar notificación SweetAlert si el usuario está activo
-            if (document.visibilityState === 'visible') {
-              Swal.fire({
-                icon: 'success',
-                title: '🔔 ¡Orden Lista!',
-                html: `<strong>Mesa ${order.mesa}</strong><br>Orden #${order.daily_order_number || order.id}<br>Lista para servir`,
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 5000,
-                timerProgressBar: true
-              });
-            }
           });
         }
         
@@ -493,10 +536,35 @@ const WaiterScreen = () => {
               onClick={() => {
                 fetchPendingOrders();
                 setShowPendingOrders(true);
+                setHasNewOrders(false);
               }}
-              style={{background: 'rgba(40, 167, 69, 0.2)', borderColor: 'rgba(40, 167, 69, 0.3)'}}
+              style={{
+                background: hasNewOrders ? 'rgba(255, 59, 48, 0.9)' : 'rgba(40, 167, 69, 0.2)', 
+                borderColor: hasNewOrders ? 'rgba(255, 59, 48, 1)' : 'rgba(40, 167, 69, 0.3)',
+                position: 'relative',
+                animation: hasNewOrders ? 'pulse 1.5s infinite' : 'none'
+              }}
             >
               <span>📋</span> Órdenes Pendientes
+              {hasNewOrders && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: '#ff3b30',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 'bold',
+                  border: '2px solid white',
+                  animation: 'bounce 1s infinite'
+                }}>¡!</span>
+              )}
             </button>
             <button className="waiter-logout-btn" onClick={handleLogout}>
               <span>🚪</span> Cerrar Sesión
@@ -716,11 +784,17 @@ const WaiterScreen = () => {
 
       {/* Modal de Órdenes Pendientes */}
       {showPendingOrders && (
-        <div className="waiter-modal-overlay" onClick={() => setShowPendingOrders(false)}>
+        <div className="waiter-modal-overlay" onClick={() => {
+          setShowPendingOrders(false);
+          setHasNewOrders(false);
+        }}>
           <div className="waiter-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="waiter-modal-header">
               <h3>📋 Órdenes Pendientes de Cobrar</h3>
-              <button onClick={() => setShowPendingOrders(false)} className="waiter-modal-close">✕</button>
+              <button onClick={() => {
+                setShowPendingOrders(false);
+                setHasNewOrders(false);
+              }} className="waiter-modal-close">✕</button>
             </div>
             <div className="waiter-modal-body">
               {pendingOrders.length === 0 ? (

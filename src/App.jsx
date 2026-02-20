@@ -114,14 +114,6 @@ function App() {
             textAlign: 'center',
             marginBottom: '15px'
           }}>
-            <p style={{
-              color: '#495057',
-              fontSize: '14px',
-              margin: 0,
-              fontWeight: '500'
-            }}>
-              Selecciona una opción:
-            </p>
           </div>
           
           <div style={{
@@ -131,7 +123,8 @@ function App() {
             borderRadius: '30px',
             padding: '5px',
             border: '2px solid #e9ecef',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            display: 'none'
           }}>
             <button 
               onClick={() => setIsLogin(true)}
@@ -173,37 +166,14 @@ function App() {
             </button>
           </div>
 
-          {/* Indicador del formulario activo */}
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '20px',
-            padding: '10px',
-            background: isLogin ? '#e3f2fd' : '#e8f5e8',
-            borderRadius: '10px',
-            border: `1px solid ${isLogin ? '#bbdefb' : '#c8e6c9'}`
-          }}>
-            <p style={{
-              color: isLogin ? '#1976d2' : '#388e3c',
-              fontSize: '14px',
-              margin: 0,
-              fontWeight: '600'
-            }}>
-              {isLogin ? 'Formulario de Inicio de Sesión' : 'Formulario de Registro'}
-            </p>
-          </div>
-
-          {/* Formularios */}
-          {isLogin ? (
-            <LoginForm setRole={setRole} windowWidth={windowWidth} />
-          ) : (
-            <RegisterForm toggleForm={toggleForm} />
-          )}
+          {/* Formulario de Login */}
+          <LoginForm setRole={setRole} windowWidth={windowWidth} />
 
           {/* Footer */}
           <div style={{
             textAlign: 'center',
-            marginTop: '30px',
-            paddingTop: '20px',
+            marginTop: '80px',
+            paddingTop: '30px',
             borderTop: '1px solid #f0f0f0'
           }}>
             <p style={{
@@ -214,8 +184,8 @@ function App() {
               © 2025 RestoSmart. Todos los derechos reservados.
             </p>
             
-            {/* Botón de test para verificar conectividad */}
-            <button 
+            {/* Botón de test para verificar conectividad - COMENTADO */}
+            {/* <button 
               onClick={async () => {
                 try {
                   console.log('Testing /api/users...');
@@ -246,7 +216,7 @@ function App() {
               }}
             >
               🔍 Test Backend Connection
-            </button>
+            </button> */}
           </div>
         </div>
       </div>

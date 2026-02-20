@@ -1441,6 +1441,36 @@
 }
 
 /* ========================================
+   🔔 ANIMACIONES DE NOTIFICACIÓN
+   ======================================== */
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  25% {
+    transform: translateY(-5px) scale(1.1);
+  }
+  50% {
+    transform: translateY(0) scale(1);
+  }
+  75% {
+    transform: translateY(-3px) scale(1.05);
+  }
+}
+
+/* ========================================
    ♿ ACCESSIBILITY
    ======================================== */
 

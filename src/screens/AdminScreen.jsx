@@ -144,7 +144,10 @@ const AdminScreen = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await axios.get(`${API_URL}/api/users`);
+      // Enviar el rol del usuario actual para filtrar correctamente
+      const res = await axios.get(`${API_URL}/api/users`, {
+        params: { requestingUserRole: userData.role }
+      });
       setUsers(res.data);
     } catch (err) {
       setError('Error al cargar usuarios');
@@ -435,13 +438,16 @@ const AdminScreen = () => {
         password: editUser.password || 'unchanged'
       };
       
-      await axios.put(`${API_URL}/api/users/${userId}`, dataToSend);
+      // Enviar el rol del usuario actual en la petición
+      await axios.put(`${API_URL}/api/users/${userId}`, dataToSend, {
+        params: { requestingUserRole: userData.role }
+      });
       setEditUserId(null);
       setEditUser({ name: '', email: '', password: '', role: 'administrador' });
       fetchUsers();
       Swal.fire({ icon: 'success', title: 'Usuario actualizado', text: 'Usuario actualizado correctamente' });
     } catch (err) {
-      const errorMessage = err.response?.data?.error || 'Error al actualizar usuario';
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || 'Error al actualizar usuario';
       Swal.fire({ icon: 'error', title: 'Error', text: errorMessage });
     }
   };
@@ -1536,18 +1542,24 @@ const AdminScreen = () => {
                                   />
                                 </td>
                                 <td>
-                                  <select
-                                    className="admin-select"
-                                    value={editUser.role}
-                                    onChange={(e) => setEditUser({...editUser, role: e.target.value})}
-                                    style={{margin: 0}}
-                                  >
-                                    <option value="super_admin">Super Administrador</option>
-                                    <option value="administrador">Administrador</option>
-                                    <option value="cajero">Cajero</option>
-                                    <option value="mesero">Mesero</option>
-                                    <option value="cocinero">Cocinero</option>
-                                  </select>
+                                  {isSuperAdmin ? (
+                                    <select
+                                      className="admin-select"
+                                      value={editUser.role}
+                                      onChange={(e) => setEditUser({...editUser, role: e.target.value})}
+                                      style={{margin: 0}}
+                                    >
+                                      <option value="super_admin">Super Administrador</option>
+                                      <option value="administrador">Administrador</option>
+                                      <option value="cajero">Cajero</option>
+                                      <option value="mesero">Mesero</option>
+                                      <option value="cocinero">Cocinero</option>
+                                    </select>
+                                  ) : (
+                                    <span className="admin-badge admin-badge-primary">
+                                      {editUser.role}
+                                    </span>
+                                  )}
                                 </td>
                                 <td style={{textAlign: 'center'}}>
                                   <div style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center'}}>
