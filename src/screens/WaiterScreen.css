@@ -1192,6 +1192,13 @@
   .waiter-modal-header {
     padding: 1rem;
   }
+
+  .waiter-modal-close {
+    padding: 0.5rem 0.75rem;
+    font-size: 1.25rem;
+    min-width: 36px;
+    min-height: 36px;
+  }
   
   .waiter-modal-body {
     padding: 1rem;
@@ -1199,6 +1206,14 @@
   
   .pending-order-card {
     padding: 1rem;
+  }
+
+  /* Botones dentro del modal en móviles */
+  .pending-order-card button {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    min-height: 40px;
+    white-space: nowrap;
   }
 }
 
