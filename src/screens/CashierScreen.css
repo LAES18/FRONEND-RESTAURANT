@@ -884,8 +884,8 @@
     min-height: 40px;
   }
 
+  /* Mantener 4 columnas en tablets landscape, cambiar solo en portrait */
   .stats-container {
-    grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
     padding: 0 0.875rem;
     margin: 0.875rem auto;
@@ -1416,7 +1416,15 @@
   }
 }
 
-@media (max-width: 576px) and (orientation: portrait) {
+/* Tablets en portrait: 2 columnas */
+@media (max-width: 768px) and (orientation: portrait) {
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Móviles pequeños: 1 columna */
+@media (max-width: 576px) {
   .stats-container {
     grid-template-columns: 1fr;
     gap: 0.625rem;
