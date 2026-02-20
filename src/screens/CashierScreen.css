@@ -117,14 +117,8 @@
   margin: 2rem auto;
   padding: 0 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
-}
-
-@media (min-width: 1400px) {
-  .stats-container {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 @media (max-width: 1200px) {
