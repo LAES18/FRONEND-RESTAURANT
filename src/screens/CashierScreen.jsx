@@ -294,7 +294,7 @@ const CashierScreen = () => {
             <FaDollarSign />
           </div>
           <div className="stat-content">
-            <h3 className="stat-value">Q{totalAmount.toFixed(2)}</h3>
+            <h3 className="stat-value">Q{calculateTotal()}</h3>
             <p className="stat-label">Total</p>
             <p className="stat-sublabel">A cobrar</p>
           </div>
